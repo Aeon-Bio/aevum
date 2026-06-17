@@ -18,6 +18,7 @@ from aevum_ot2.core.context import build_session_context
 from aevum_ot2.core.dispatch_preparation import (
     FIRST_LOW_Z_DRY_SPEED_MM_PER_S,
     FIRST_LOW_Z_DRY_TOP_OFFSET_MM,
+    _command_body_for_operation,
     _move_low_z_command_body,
     build_motion_dispatch_preparation_for_approval,
     build_motion_dispatch_preparation_for_reservation,
@@ -1414,6 +1415,23 @@ def test_move_low_z_emission_machinery_when_descent_grounded(
     assert params["minimumZHeight"] != profile.dry_z_floor_mm
     assert params["wellLocation"]["offset"]["z"] == FIRST_LOW_Z_DRY_TOP_OFFSET_MM
     assert params["speed"] == FIRST_LOW_Z_DRY_SPEED_MM_PER_S
+
+
+def test_command_body_for_operation_formally_closes_set_offset() -> None:
+    # OT-2: the translator refuses set_offset with an explicit closure reason (defense in
+    # depth behind validation) -- there is no command to emit for a run-setup labware offset.
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    cmd, blockers = _command_body_for_operation(
+        operation="set_offset",
+        reservation_id="r1",
+        session=session,
+        step=PlanStep(step_id="offset", operation="set_offset"),
+        safety_profile=profile,
+    )
+    assert cmd is None
+    assert any("set_offset is a closed operation" in b for b in blockers)
+    assert not any("not implemented for" in b for b in blockers)
 
 
 def test_dispatch_preparation_blocks_non_center_low_z_dry_target() -> None:

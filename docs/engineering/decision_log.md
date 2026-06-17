@@ -1438,3 +1438,21 @@ dry-descent floor distinct from the collision-envelope top (from the labware A1 
 a measured safe dry depth), verify the resolved endpoint against it, then flip the gate. 4 tests
 (headline blocked, monkeypatched-grounding machinery proof that minimumZHeight is the high-Z park
 not the floor, non-center-target block, fail-closed inputs). 609 across the surface, ruff clean.
+
+## OT-2 — set_offset formally closed (not a motion command) (2026-06-17)
+
+Decision: `set_offset` is FORMALLY CLOSED, not wired. A labware offset in Opentrons is an
+evidence-backed registry record applied at run SETUP via the `/labwareOffsets` API and consumed
+by the `OFFSET_AUTHORITY` gate (move_low_z / liquid_handling) — it is NOT a maintenance MOTION
+command, so there is no coherent command for a `set_offset` translator to emit. OT-1 produces the
+promoted offset (producer side); dispatch reads it back from run state; nothing in between needs a
+"set offset" motion step.
+
+`set_offset` stays in the PlanOperation enum for completeness but is now declared in
+`plans.FORMALLY_CLOSED_OPERATIONS` and rejected fail-closed at every layer with an explicit closure
+reason (not a generic "unimplemented"): the context OperationBlock (planning), `_validate_motion_step`
+(validation), and `_command_body_for_operation` (dispatch, defense in depth). It is also absent from
+the agent/MCP surface by policy (agent_ot2_bridge.md; test_adapter_boundaries.py). Tests assert the
+explicit closure reason at validation and dispatch. No motion authority is created or removed; this
+only converts an accidental-looking fall-through into a documented, declarative stance. 610 across
+the surface, ruff clean.

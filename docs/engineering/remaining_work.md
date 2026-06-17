@@ -42,6 +42,10 @@ conditions.
     (~11 mm above the A1 well-top). Descent emission gated fail-closed
     (`low_z_dry_descent_endpoint_not_grounded`) until a per-well descent floor exists; semantics
     corrected. 4 tests.
+  - **OT-2** (`set_offset`): formal closure. A labware offset is a run-setup `/labwareOffsets`
+    record consumed by the `OFFSET_AUTHORITY` gate, not a motion command — declared in
+    `plans.FORMALLY_CLOSED_OPERATIONS`, rejected fail-closed with an explicit reason at
+    context/validation/dispatch. 2 tests.
   - **Backlog reconciliation (closes the OC-A13 the tables never got):** verified Track 3 (OC-A*)
     is substantially DONE — the progress log said so since 2026-06-14, but the Track 3/Track 4
     tables and "Recommended next 3 cycles" still listed those items open and even recommended
@@ -396,7 +400,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | Item | Produces | Tag |
 |---|---|---|
 | OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) — producer pipeline + safety core **done 2026-06-17** (PROMOTED gated-blocked behind an empty calibrated-source allowlist per builder decision); `offset-evidence-commit` CLI is the remaining thin adapter | A |
-| OT-2 | `set_offset` validation gate + translator, or formal closure (dead op today) | A |
+| OT-2 | `set_offset` — **done 2026-06-17 (formal closure)**: a labware offset is a run-setup `/labwareOffsets` record consumed by the `OFFSET_AUTHORITY` gate, not a motion command, so `set_offset` is declared in `plans.FORMALLY_CLOSED_OPERATIONS` and rejected fail-closed with an explicit reason at context/validation/dispatch (+ absent from the agent surface) — see decision_log | A |
 | OT-3 | Physical-event / foreign-command invalidation primitive (`detect_foreign_commands`, whole-history scan for any command not authored by us) — **done 2026-06-17** | A |
 | OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up:** add a per-well descent floor (labware A1 geometry + measured safe depth) and flip the gate | A |
 | OT-5 | `liquid_handling` (wet) translator — design + closed scaffold | A |

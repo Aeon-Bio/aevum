@@ -16,6 +16,7 @@ from aevum_ot2.core.evidence_primitives import _stable_json_sha256
 from aevum_ot2.core.models import BridgeSession, EndpointResult
 from aevum_ot2.core.motion_approval import MotionApproval, plan_fragment_digest
 from aevum_ot2.core.plans import (
+    FORMALLY_CLOSED_OPERATIONS,
     PlanFragment,
     PlanOperation,
     PlanStep,
@@ -631,6 +632,14 @@ def _command_body_for_operation(
             step=step,
             safety_profile=safety_profile,
         )
+    if operation in FORMALLY_CLOSED_OPERATIONS:
+        # Defense in depth: validation already rejects closed ops, but the translator also
+        # refuses to emit a command for one -- there is none (OT-2). A labware offset is
+        # applied at run setup via the offset registry, not a dispatched motion command.
+        return None, [
+            f"{operation} is a closed operation: labware offsets are applied at run setup "
+            "via the offset registry, not a dispatched command"
+        ]
     return None, [f"motion dispatch preparation is not implemented for {operation}"]
 
 

@@ -65,6 +65,15 @@ MOTION_OPERATIONS = {
 
 TARGET_CLASS_OPERATIONS = {"move_high_z", "move_low_z", "liquid_handling"}
 
+# Operations deliberately CLOSED (not merely unimplemented): they stay in the enum for
+# completeness but have no validated path and are rejected fail-closed at every layer
+# (context block, validation, dispatch, and the agent surface). `set_offset` is closed
+# because a labware offset is an evidence-backed registry record applied at run SETUP via the
+# Opentrons /labwareOffsets API -- and consumed by the OFFSET_AUTHORITY gate -- NOT a
+# maintenance MOTION command, so there is no coherent command for a translator to emit.
+# See decision_log.md (OT-2).
+FORMALLY_CLOSED_OPERATIONS = frozenset({"set_offset"})
+
 
 class _PlanParameters(BaseModel):
     model_config = ConfigDict(extra="forbid")

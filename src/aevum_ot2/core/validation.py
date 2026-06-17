@@ -12,6 +12,7 @@ from aevum_ot2.core.models import (
 )
 from aevum_ot2.core.motion_approval import MotionApproval, motion_approval_blockers
 from aevum_ot2.core.plans import (
+    FORMALLY_CLOSED_OPERATIONS,
     PlanFragment,
     PlanOperation,
     PlanStep,
@@ -339,6 +340,15 @@ def _validate_motion_step(
                 reasons=reasons,
                 gate_results=gate_results,
             )
+        return
+
+    if step.operation in FORMALLY_CLOSED_OPERATIONS:
+        # Closed by design, not unimplemented: a labware offset is applied at run setup via
+        # the offset registry / Opentrons /labwareOffsets API, not as a motion step (OT-2).
+        reasons.append(
+            f"{step.operation} is a closed operation: labware offsets are applied at run "
+            "setup via the offset registry, not as a motion step"
+        )
         return
 
     reasons.append(f"unsupported motion operation: {step.operation}")

@@ -831,7 +831,9 @@ def test_failed_target_record_blocks_gate_result_without_claim_ids() -> None:
     assert "failed" in " ".join(low_z_gate.blockers)
 
 
-def test_unsupported_motion_operation_fails_closed_even_with_daemon_enabled() -> None:
+def test_set_offset_is_formally_closed_fails_closed_even_with_daemon_enabled() -> None:
+    # OT-2: set_offset is a CLOSED op (offsets are run-setup labware offsets, not motion
+    # steps) -- rejected with an explicit closure reason, not a generic "unimplemented".
     result = validate_plan_fragment(
         _plan(PlanStep(step_id="offset", operation="set_offset")),
         _session(),
@@ -841,7 +843,7 @@ def test_unsupported_motion_operation_fails_closed_even_with_daemon_enabled() ->
 
     assert result.allowed is False
     assert result.motion_allowed is False
-    assert "unsupported motion operation" in " ".join(result.reasons)
+    assert "set_offset is a closed operation" in " ".join(result.reasons)
 
 
 def test_validation_fails_on_session_mismatch() -> None:
