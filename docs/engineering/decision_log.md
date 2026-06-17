@@ -1334,3 +1334,44 @@ human-readable label; id uniqueness rides on the scope digest, so raising would 
 "fix"), and the `_require_session_evidence_index` inline resolve-compares (routing through
 `_same_path` would replace fail-loud OSError propagation with a string-equality fallback in a
 tamper gate).
+## 2026-06-17: Offset Authority Is Producer-Built But PROMOTED Stays Gated Behind A Calibrated-Source Allowlist
+
+Decision: OT-1 is encoded in `src/aevum_ot2/core/offset_evidence.py` (+ records/models/registry
+support). It is the producer that was missing: `offset_match_gate` trusts an `OffsetRecord` in
+`authority_state=PROMOTED` as a motion INPUT, but nothing ever set PROMOTED, so the gate could never
+pass. OT-1 builds the full evidence→claim→promote pipeline. `promoted_offset_record` is the terminal
+trust boundary and flips PROPOSED→PROMOTED only after a fail-closed JOIN: a scope-valid committed
+offset_measured claim (whose bound artifact's offset_mm matches the record), the OT-6
+`high_z_motion_completed` claim re-fetched from the COMMITTED store (never caller-supplied), a LIVE
+command-journal re-reconcile of that move (state completed / status succeeded / is-latest /
+not-recovery — catching a stalled motor that merely reported success at OT-6 build time), and an
+`offset_source` in `CALIBRATED_OFFSET_SOURCES`.
+
+Builder decision ("pipeline only, PROMOTED blocked"): `CALIBRATED_OFFSET_SOURCES` is EMPTY. The
+offset_mm vector has no trustworthy machine source yet (high-Z vision is uncalibrated; OT-6's
+"post-motion" is only a timestamp), so an operator-attested offset may be RECORDED as durable
+evidence but MUST NOT promote. The entire machinery is built, exercised, and ready (a
+monkeypatched-allowlist test proves it promotes correctly when opened), yet promotion is unreachable
+by construction until a calibrated source is deliberately added to the allowlist — the same
+safe-allowlist discipline as SMIS source-enable. This errs toward never authorizing motion from an
+unattested number.
+
+Reason / authority boundary: OT-1 is a PRODUCER. It never sets `motion_allowed`, never
+mints/arms/consumes a `MotionApproval` (motion permission is solely the arm/consume flow over the
+gate), and emits no authorizing `GateResult`. It re-validates the OT-6 lineage against the committed
+store + the live journal at promote time — strictly stronger than the existing gates, which consult
+neither. The `offset_record_id` is a scope hash that excludes `authority_state`, so a promoted record
+keeps its PROPOSED id (the registry upsert relies on this); the new `OffsetRecord` provenance fields
+are additive and excluded from that hash, so no existing offset id/digest changed.
+
+Adversarial review hardening (2026-06-17): a multi-lens review confirmed the core is fail-closed and
+isolated (empty-allowlist block unconditional; strict `is True` gates; no motion authority) but found
+two latent holes in the JOIN — both behind the empty allowlist so not reachable today, but they would
+silently activate the instant a calibrated source is added. Both fixed before that can happen: (1) the
+offset value-binding now re-verifies the external artifact against its committed handle checksum before
+trusting its offset_mm (a post-commit tamper of the mutable file no longer promotes an unattested
+vector); (2) `promoted_offset_record` now derives authority SOLELY from the committed evidence store —
+the offset claim is re-fetched via `_committed_offset_blockers` (symmetric with the high-Z prerequisite),
+so a fabricated/uncommitted caller claim is never trusted (the `offset_claims` parameter was removed).
+Regression tests pin both (`test_post_commit_offset_artifact_tamper_blocks`,
+`test_uncommitted_offset_claim_does_not_promote`).

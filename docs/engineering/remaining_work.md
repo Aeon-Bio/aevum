@@ -216,6 +216,32 @@ conditions.
   are independent functions over independent inputs (a genuine head can be version-
   incompatible; a genuine head can fail registration; `evaluate_source_enable` consumes only
   detection + interlock, never compatibility/registration). 3 new tests, ruff clean.
+- **OT-1 (producer + safety core DONE 2026-06-17; PROMOTED gated-blocked):** the missing offset
+  authority producer (`OffsetAuthorityState.PROMOTED` was checked but never set, so the offset gate
+  could never pass). New `src/aevum_ot2/core/offset_evidence.py` mirrors the proven
+  artifact→packet(`OFFSET_MEASUREMENT`)→claim(`offset_measured:<class>`)→commit→promote pipeline.
+  `promoted_offset_record` is the terminal trust boundary: it flips PROPOSED→PROMOTED only after a
+  fail-closed JOIN of four independent facts — (1) the offset claim re-fetched from the COMMITTED
+  store (never a caller arg; symmetric with high-Z), its bound artifact checksum-verified against the
+  committed handle (post-commit tamper-evident) and its `offset_mm` matching the record, (2) the OT-6
+  `high_z_motion_completed` claim re-fetched
+  from the COMMITTED store (never caller-supplied), (3) that move re-reconciled against the LIVE
+  command journal NOW (catches a stalled motor that merely reported success at OT-6 build time), and
+  (4) `offset_source ∈ CALIBRATED_OFFSET_SOURCES`. Per the **builder decision ("pipeline only,
+  PROMOTED blocked")**, that allowlist is EMPTY — operator-attested offsets are RECORDED as evidence
+  but cannot promote, so the gate stays unreachable until a calibrated source is deliberately added
+  (mirrors the SMIS source-enable safe-allowlist). Authority isolation held: no `motion_allowed`, no
+  `MotionApproval`, no `motion_commissioning` import, no authorizing `GateResult`. Registry upsert
+  (`promote_offset_record_in_registry`) replaces the same-id PROPOSED record (id is a scope hash, so
+  promotion keeps the id). `OffsetRecord` gained `offset_source`/`measurement_method`/`high_z_*`
+  command-binding fields (additive; not in the id hash, so existing ids/digests unchanged). An
+  adversarial review (verdict ship-it) found two latent JOIN holes behind the empty allowlist —
+  caller-trusted offset claim + unchecked external-artifact tamper — both **fixed** (committed-store
+  re-fetch + checksum verification) with regression tests. 15 tests (the JOIN proven member-by-member;
+  the headline blocked-by-uncalibrated; a monkeypatched-allowlist "machinery-works" proof; tamper +
+  uncommitted-claim regressions; 587 across the surface), ruff clean. **Open tail:** the offset_mm vector
+  auto-measurement is B/C-gated (uncalibrated vision); the `offset-evidence-commit` CLI is a remaining
+  thin adapter; flipping the allowlist on requires a calibrated source (B).
 - **OT-6 (DONE 2026-06-17):** post-motion high-Z evidence shape + recording path in
   `src/aevum_ot2/core/high_z_motion_evidence.py` (+ `HighZMotionRecord`, claim helpers,
   `HIGH_Z_LANDING` source kind). It answers the POST-motion question ("did the commanded
@@ -347,7 +373,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 
 | Item | Produces | Tag |
 |---|---|---|
-| OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) + `offset-evidence-commit` CLI — the only motion gate with no evidence path | A |
+| OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) — producer pipeline + safety core **done 2026-06-17** (PROMOTED gated-blocked behind an empty calibrated-source allowlist per builder decision); `offset-evidence-commit` CLI is the remaining thin adapter | A |
 | OT-2 | `set_offset` validation gate + translator, or formal closure (dead op today) | A |
 | OT-3 | Physical-event / foreign-command invalidation primitive (compare id/index/status/type/params) | A |
 | OT-4 | `move_low_z` dry-target translator (gates exist; translator missing) | A |

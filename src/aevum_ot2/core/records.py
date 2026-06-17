@@ -157,6 +157,12 @@ TARGET_CLASS_VERIFIED_CLAIM_PREFIX = "target_class_verified"
 TARGET_CLASS_EVIDENCE_METHOD = "target_class_evidence_packet_v1"
 HIGH_Z_MOTION_COMPLETED_CLAIM_PREFIX = "high_z_motion_completed"
 HIGH_Z_MOTION_EVIDENCE_METHOD = "high_z_motion_evidence_packet_v1"
+# OT-1: the committed claim attests that a scope-valid offset was MEASURED (with valid OT-6
+# lineage) — it is NOT "promotion granted". Promotion (the PROMOTED OffsetRecord) is a separate,
+# calibration-gated step in offset_evidence.promoted_offset_record; the offset_match_gate trusts
+# the PROMOTED record, not this claim, so the honest name is "measured", not "authority".
+OFFSET_MEASURED_CLAIM_PREFIX = "offset_measured"
+OFFSET_EVIDENCE_METHOD = "offset_evidence_packet_v1"
 
 
 class FixtureQcMeasurement(BaseModel):
@@ -549,6 +555,14 @@ def high_z_motion_completed_claim_type(target_class: str) -> str:
 
 def high_z_motion_completed_claim_id(target_class: str, evidence_id: str) -> str:
     return f"{high_z_motion_completed_claim_type(target_class)}:evidence-{evidence_id}"
+
+
+def offset_measured_claim_type(target_class: str) -> str:
+    return f"{OFFSET_MEASURED_CLAIM_PREFIX}:{target_class}"
+
+
+def offset_measured_claim_id(target_class: str, evidence_id: str) -> str:
+    return f"{offset_measured_claim_type(target_class)}:evidence-{evidence_id}"
 
 
 def target_class_authority(

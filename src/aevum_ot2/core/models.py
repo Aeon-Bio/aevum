@@ -303,6 +303,18 @@ class OffsetRecord(BaseModel):
     safety_profile_sha256: str = ""
     target_policy_digest_sha256: str = ""
     run_id: str | None = None
+    # OT-1 offset-authority provenance (additive; NOT part of offset_record_id's scope hash, so
+    # a PROPOSED record and its promoted version share one id). offset_source names how the
+    # vector was obtained ("operator_attested_jog" today; a calibrated source later); the
+    # high_z_* fields carry the OT-6 command binding so promotion can re-read the live journal
+    # (run_id alone is insufficient — the journal is keyed by journal_id).
+    offset_source: str = ""
+    measurement_method: str = ""
+    high_z_journal_id: str = ""
+    high_z_command_id: str = ""
+    high_z_command_key: str = ""
+    high_z_run_id: str = ""
+    high_z_evidence_id: str = ""
 
 
 class OffsetRegistry(BaseModel):

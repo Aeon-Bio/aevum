@@ -55,6 +55,39 @@ def append_offset_record(
     return registry
 
 
+def promote_offset_record_in_registry(
+    promoted_record: OffsetRecord,
+    path: str | Path = DEFAULT_OFFSET_REGISTRY,
+) -> OffsetRegistry:
+    """Upsert a PROMOTED record in place of its same-id PROPOSED predecessor (OT-1).
+
+    ``offset_record_id`` is a scope hash that excludes ``authority_state``, so a promoted record
+    shares its PROPOSED predecessor's id; a plain append would trip the gate's duplicate-id
+    blocker (registry.py duplicate reference). This replaces the matching record atomically and
+    refuses anything not actually PROMOTED.
+    """
+    if promoted_record.authority_state != OffsetAuthorityState.PROMOTED:
+        raise ValueError("promote_offset_record_in_registry requires a PROMOTED record")
+    registry_path = Path(path)
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry = load_offset_registry(registry_path)
+    record = _record_with_id(promoted_record)
+    rid = offset_record_id(record)
+    new_records: list[OffsetRecord] = []
+    replaced = False
+    for existing in registry.records:
+        if offset_record_id(existing) == rid:
+            new_records.append(record)
+            replaced = True
+        else:
+            new_records.append(existing)
+    if not replaced:
+        new_records.append(record)
+    registry.records = new_records
+    _atomic_write_json(registry_path, registry.model_dump(mode="json"))
+    return registry
+
+
 def offset_record_id(record: OffsetRecord) -> str:
     if record.offset_record_id:
         return record.offset_record_id
