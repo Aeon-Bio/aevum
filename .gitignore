@@ -1,0 +1,29 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+
+# Generated artifacts
+outputs/**/*.stl
+outputs/**/*.step
+outputs/**/*.3mf
+outputs/**/*.json
+outputs/**/*.py
+
+# Local OT-2 runtime state
+data/measurements/ot2_bridge_state.sqlite3*
+data/measurements/ot2_evidence_index.json*
+data/measurements/sessions/
+data/measurements/legacy_image_evidence/
+
+# Local slicer/CAD scratch
+*.blend1
+*.FCStd1
+tools/
+
+# Slicer build artifacts (gcode not covered by the outputs/* rules above)
+outputs/sliced/
+outputs/**/*.gcode
+result.json
