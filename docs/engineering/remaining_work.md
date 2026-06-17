@@ -26,6 +26,22 @@ conditions.
 
 ## Progress log
 
+- **2026-06-17 — OT-1, OT-3, + backlog reconciliation** (most recent; do→review→commit).
+  - **OT-1** (transaction-backed offset authority): producer pipeline + safety core, PROMOTED
+    gated behind an empty `CALIBRATED_OFFSET_SOURCES` allowlist. Adversarial review found two
+    latent JOIN holes (caller-trusted offset claim; unchecked external-artifact tamper) — both
+    fixed (committed-store re-fetch + checksum verify). 15 tests. Committed `45cf7b7`.
+  - **OT-3** (foreign-command invalidation primitive `detect_foreign_commands`): fail-closed
+    whole-history scan; closes the gap `matched_command_is_latest` can't see (foreign command
+    BEFORE ours). Review found a fail-OPEN blocker (`any(_matches_entry)` let one entry vouch for
+    unlimited duplicate executions) — fixed with a 1:1 consuming pass mirroring reconcile's
+    duplicate-key guard; re-verified. 18 tests. Committed `6dd4ce4`.
+  - **Backlog reconciliation (closes the OC-A13 the tables never got):** verified Track 3 (OC-A*)
+    is substantially DONE — the progress log said so since 2026-06-14, but the Track 3/Track 4
+    tables and "Recommended next 3 cycles" still listed those items open and even recommended
+    already-done work. Reconciled the tables to verified ground truth (observer-geometry test
+    selection: 22 passed). True-open A-queue is now OT-2/OT-4/OT-5 translators, OT-7/OT-8 MCP
+    adapter + route-parity, OP-P3/P4/P5/P8 docs, OC-A8 red-case.
 - **2026-06-14 — Cycle 1 (OC-A1 + OC-A2 + OC-A4):** done + broad-verified (172 passed,
   0 failed across the observer/gate/first_print/manifest slice). The FE swept-body check
   now gates its own dry-bay containment (`front_end_body_fits_dry_bay`), the
@@ -406,27 +422,38 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 
 ### Track 3 — Observer CAD hardening (all pure-A do→review)
 
+**Status note (reconciled 2026-06-17):** Track 3 is substantially DONE — verified against the
+code and the observer-geometry test selection (`tests/test_row_coupon_cad.py -k "observer or
+dry_bay or swept or carriage or raceway or fiducial or scan"`: **22 passed**). The backlog had
+drifted: A1–A7, A9–A12, A14, A15 were all implemented as falsifiable asserts but still listed
+open. The OC-A2 "reproduction" below described the *pre-fix* behavior the code already corrects.
+Only A8 (a specific red-case scenario — falsifiability already proven generally) and A13 (this
+reconciliation) remain.
+
 | Item | Produces | Tag |
 |---|---|---|
-| OC-A1 | `front_end_body_fits_dry_bay` containment assert + overflow fields in the FE swept-body check (gap: enforced only by a layout test today) | A |
-| OC-A2 | Reconcile `front_end_length_x/width_y` ↔ `front_end_scan_axis_footprint` (decoupling bug: oversized body overflows while traverse reports "fits") | A |
-| OC-A3 | Falsifiable asserts in the service-raceway check (zero today): outside-bay-X, Z-within-depth, clears boundary rail, R10 loop-height watch | A |
-| OC-A4 | Carriage static-box containment + carriage-clears-raceway assert (latent Y-overlap) | A |
-| OC-A5 | Focus-stroke-vs-Z-budget assert at traverse level (traverse sweeps the wrong 62 mm height; should be the 40 mm FE swept Z) | A |
-| OC-A6 | Make the fiducial-focus check falsifiable (count-only today): multiplicity, within-bay, keepout non-overlap | A |
-| OC-A7 | Promote `front_end_service_margin_z` from silent `0.0` to an explicit param | A |
-| OC-A8 | Negative "measured 40×40 head @ 25 mm WD" red-case test (proves A1/A2/A5 are genuinely falsifiable — the bench-doc promise) | A |
-| OC-A9 | Split circumscribed-diameter into barrel-Ø vs head-bbox (+ `front_end_barrel_diameter`) | A |
-| OC-A10 | Encode the SMIS envelope as a CAD assert cross-checking observer params | A |
-| OC-A11 | Cross-reference optical-stability checkpoints to the geometry booleans they cite (overflow doesn't propagate today) | A |
-| OC-A12 | Gate the razor-thin margins (0.2 mm scan / 0.4 mm traverse) so a param nudge goes red | A |
-| OC-A13 | Doc reconciliation (stale line numbers; fold A1–A12 into RH6/RH15/RP5) | A |
+| OC-A1 | `front_end_body_fits_dry_bay` containment assert + overflow fields in the FE swept-body check — **done** (`_dry_bay_containment`; `test_observer_oversized_body_overflows_both_checks_no_decoupling`) | A |
+| OC-A2 | Reconcile `front_end_length_x/width_y` ↔ `front_end_scan_axis_footprint` — **done** (scan-span tied to body via `max(scan_footprint, body_extent)`; same regression test asserts both checks overflow at `front_end_length_x=60`) | A |
+| OC-A3 | Falsifiable asserts in the service-raceway check — **done** (`test_observer_raceway_geometry_falsifiable_oc_a3`) | A |
+| OC-A4 | Carriage static-box containment + carriage-clears-raceway assert — **done** (`carriage_box_fits_dry_bay` via `_dry_bay_containment`, propagated to optical-stability) | A |
+| OC-A5 | Focus-stroke-vs-Z-budget assert at traverse level — **done** (traverse sweeps the 40 mm FE swept Z; dimension-sensitive falsifiability test) | A |
+| OC-A6 | Make the fiducial-focus check falsifiable — **done** (`test_observer_fiducial_geometry_falsifiable_oc_a6`) | A |
+| OC-A7 | Promote `front_end_service_margin_z` from silent `0.0` to an explicit param — **done** (explicit param) | A |
+| OC-A8 | Negative "measured 40×40 head @ 25 mm WD" red-case test (proves A1/A2/A5 falsifiable) — **OPEN** (the *general* falsifiability is proven by the oversized-body + dimension-sensitive tests; the bench-doc-specific 40×40@25 mm numeric scenario is not yet pinned as its own test) | A |
+| OC-A9 | Split circumscribed-diameter into barrel-Ø vs head-bbox (+ `front_end_barrel_diameter`) — **done** (`test_observer_barrel_and_optical_geometry_propagation_falsifiable_oc_a9_a11`) | A |
+| OC-A10 | Encode the SMIS envelope as a CAD assert cross-checking observer params — **done** (`src/aevum_smis/manifest.py` re-runs the observer envelope arithmetic) | A |
+| OC-A11 | Cross-reference optical-stability checkpoints to the geometry booleans they cite — **done** (overflow propagates to the optical-stability check) | A |
+| OC-A12 | Gate the razor-thin margins so a param nudge goes red — **done** (`test_observer_razor_thin_margin_flag_is_falsifiable_oc_a12`) | A |
+| OC-A13 | Doc reconciliation (fold A1–A12 into RH6/RH15/RP5) — **in progress** (this backlog reconciliation; the RH/RP cross-doc line-number fold remains) | A |
+| OC-A14 | Raceway-X clamp by coupon length (live footprint) — **done** (not in the original A1–A13 list) | A |
+| OC-A15 | Barrel-vs-scan-corridor diagnostics surfaced (not gated) — **done** (`test_observer_scan_corridor_strike_is_falsifiable_oc_a15`) | A |
 
 ### Track 4 — Observer prototyping (protocols A; measurements B; forks C)
 
 | Item | Produces | Tag |
 |---|---|---|
-| OP-P1..P5, P8 | Missing `docs/protocols/` docs: Stage-0 bench, WS2812 contrast fork, condensation purge, ADXL345 settle, kinematic-dock repeatability, + Gate-6 observer evidence-row schema | A |
+| OP-P1, P2 | Stage-0 bench + WS2812 contrast-fork protocol docs — **done** (`docs/protocols/observer_optical_bench_stage0.md`, `observer_contrast_fork_ws2812.md`; reconciled 2026-06-17) | A |
+| OP-P3, P4, P5, P8 | **OPEN** missing `docs/protocols/` docs: condensation purge, ADXL345 settle, kinematic-dock repeatability, + Gate-6 observer evidence-row schema (a leg-corridor metrology doc also already exists) | A |
 | OP-S1des..S3des, S4evid | Stage 1–3 build-drawing CAD + the evidence-packet writer (design-ahead) | A |
 | OP-B0..Bcad | Stage-0 bench build + the three gating measurements (focus/WD, contrast, field-flatness) + condensation + feed numbers to CAD | B (Bcad→A) |
 | OP-S1b..S4opt | Stage 1–4 builds (VCM focus, one-plate settle, full-row traverse, dock/soak/interlock) + optical characterization | B |
@@ -513,18 +540,22 @@ conservative until one B measurement resolves them.
 
 ## Recommended next 3 cycles
 
-1. **OC-A1 + OC-A2** — FE-body-vs-dry-bay containment + footprint/scan-axis
-   reconciliation. Highest leverage per effort: confirmed reproducible hole —
-   `front_end_length_x = 60` overflows the bay X by ~19.5 mm while the traverse
-   still reports `fits = True`, because the body footprint and the scan span come
-   from two decoupled params with no consistency gate. Precondition for the OC-A8
-   red-case test.
-2. **OP-P1 + OP-P2** — author the Stage-0 bench + WS2812 contrast-fork protocol
-   docs. The eight missing `docs/protocols/` observer docs are the biggest pure-A
-   block, and the contrast test is the most upstream experiment in the program.
-3. **SM-3.1** — `module.json` manifest schema + falsifiable envelope re-check,
-   reusing the `8 + FE_z + stroke ≤ 62` / barrel-Ø ≤ 32 arithmetic so a manifest
-   claiming an envelope it does not fit is rejected at dock.
+*(Reconciled 2026-06-17. The prior recommendation — OC-A1+A2, OP-P1+P2, SM-3.1 — was stale:
+OC-A1/A2 and OP-P1/P2 are already done, and the SMIS envelope cross-check (OC-A10) is also done.
+The genuinely-open software/CAD-addressable A-queue, with this session's OT-1/OT-3/OT-6 closed,
+is now the OT-2 control-stack translators/adapters and the remaining protocol docs.)*
 
-These three touch disjoint files (CAD / docs / Python schema) and each unblocks
-its track with zero hardware and zero pending decisions.
+1. **OT-4 — `move_low_z` dry-target translator.** The gates and revalidation paths already
+   reference `move_low_z`; the translator that turns an approved low-Z step into the Opentrons
+   command is missing. Most cohesive with this session's high-Z / offset-authority work, and the
+   natural sibling of the OT-6 high-Z evidence path.
+2. **OT-2 — `set_offset` validation gate + translator (or formal closure).** Directly consumes
+   the OT-1 offset authority just built; either wire the validated apply-offset path or formally
+   close it as a dead op with a fail-closed guard.
+3. **OT-7 + OT-8 — MCP agent adapter (`adapters/mcp.py`, absent today) + the MCP/HTTP pose
+   route-parity / no-canonical-default ship-gate tests.** The ship-gate for any motion-capable
+   MCP surface.
+
+Each is genuinely open (verified absent in code) and software-addressable with zero hardware.
+Alternative track if protocol docs are preferred: **OP-P3/P4/P5/P8** (condensation purge, ADXL345
+settle, kinematic-dock repeatability, Gate-6 evidence-row schema) — pure-A authoring, P1/P2 done.
