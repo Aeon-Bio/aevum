@@ -1375,3 +1375,32 @@ the offset claim is re-fetched via `_committed_offset_blockers` (symmetric with 
 so a fabricated/uncommitted caller claim is never trusted (the `offset_claims` parameter was removed).
 Regression tests pin both (`test_post_commit_offset_artifact_tamper_blocks`,
 `test_uncommitted_offset_claim_does_not_promote`).
+
+## OT-3 — physical-event / foreign-command invalidation (2026-06-17)
+
+`detect_foreign_commands` (in `command_journal.py`) adds a distinct **invalidation authority**:
+a pure, fail-closed whole-history scan that asks "is the entire run command-history accounted
+for by commands THIS bridge authored?" It is a withhold-trust signal, never a motion grant —
+`invalidated=True` means standing authority resting on "the robot did only what we told it" must
+be re-verified; it does not (and structurally cannot) permit a move. It complements, rather than
+merges into, `reconcile_command_history`: that primitive is our-command-centric and its
+`matched_command_is_latest` only notices a foreign command appended AFTER ours; OT-3 catches a
+foreign command that executed BEFORE ours (a touchscreen jog, a second HTTP client) too.
+
+Two design points were settled by adversarial review:
+- **1:1 cardinality, not membership.** The first cut used `any(_matches_entry(...))`, letting one
+  authored entry vouch for unlimited matching history rows — so a duplicate/replayed physical
+  execution (`[k1,k1,k1,k1]` vs one authored `k1`) read as clean. This was a fail-OPEN regression
+  against `reconcile_command_history`'s `non_idempotent_duplicate_key` guard, and the duplicate-key
+  double-execution hazard is project-verified (live no-motion testing 2026-05-02). Fixed with a
+  consuming pass: each authored entry accounts for at most one history command; surplus matches are
+  reported `non_idempotent_duplicate_key` and invalidate.
+- **No status comparison inside `_matches_entry`.** A failed-then-replayed-succeeded move is caught
+  by the cardinality pass, NOT by comparing per-command status — `_matches_entry` is shared with
+  reconciliation, where a live command's status legitimately differs from the prepared entry, so a
+  status check there would spuriously invalidate. The matching definition stays single-sourced.
+
+`MOTION_RELEVANT_COMMAND_TYPES` is informational only (surfaces `motion_relevant_foreign`); it never
+gates `invalidated`, which fails closed on ANY unaccounted command. The primitive has no production
+caller yet — its own contract is the safety boundary; wiring it into the offset-promotion / park /
+lease-admission consumers is the open follow-up. 18 tests; 605 across the surface, ruff clean.

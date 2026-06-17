@@ -375,7 +375,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 |---|---|---|
 | OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) — producer pipeline + safety core **done 2026-06-17** (PROMOTED gated-blocked behind an empty calibrated-source allowlist per builder decision); `offset-evidence-commit` CLI is the remaining thin adapter | A |
 | OT-2 | `set_offset` validation gate + translator, or formal closure (dead op today) | A |
-| OT-3 | Physical-event / foreign-command invalidation primitive (compare id/index/status/type/params) | A |
+| OT-3 | Physical-event / foreign-command invalidation primitive (`detect_foreign_commands`, whole-history scan for any command not authored by us) — **done 2026-06-17** | A |
 | OT-4 | `move_low_z` dry-target translator (gates exist; translator missing) | A |
 | OT-5 | `liquid_handling` (wet) translator — design + closed scaffold | A |
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
@@ -490,8 +490,8 @@ OC-A8 → OC-A7 → OC-A12 → OC-A3+A4 → OC-A6 → OC-A9 → OC-A11 → OC-A1
 OP-P2 → OP-P4 → OP-P3 → OP-P5 → OP-P8.
 
 **Phase III — SMIS greenfield + offset authority:** SM-3.1 → SM-1.1+1.2 → OC-A10 →
-SM-4.1+4.2 → IN-C4 → OT-6 → OT-1 → OT-3 → (SM-3.2a/4.3/4.4) →
-(SM-1.3/1.5a/2.1).
+SM-4.1+4.2 → IN-C4 → ~~OT-6~~ → ~~OT-1~~ → ~~OT-3~~ → (SM-3.2a/4.3/4.4) →
+(SM-1.3/1.5a/2.1). *(OT-6/OT-1/OT-3 done 2026-06-17.)*
 
 **Phase IV — integration spec/code + remaining control stack:** follow
 `realization_hypergraph.md` HX1→HX5: IN-C4 → IN-C5/C6 → IN-C7(sw) → IN-C8/C9,

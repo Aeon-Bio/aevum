@@ -201,7 +201,8 @@ done
        route reconciliation is in IN-C1/C2. The binding cable-bundle fit is B-gated (below).
 
 the IN-C1..C9 cross-branch integration spine is closed to its software/CAD-addressable
-boundary; the remaining now-queue is in other tracks (OT-1 offset authority, OT-3, OP-P*).
+boundary; OT-1 (offset authority) and OT-3 (foreign-command invalidation) are now done
+(2026-06-17), leaving the remaining now-queue in the OP-P* protocol-doc track.
 
 now (decision/measurement-gated tails of closed edges)
   -> HX5 / IN-C9 (binding, B): does the real R10 chain + GX16/M12 bundle fit the 8 mm raceway

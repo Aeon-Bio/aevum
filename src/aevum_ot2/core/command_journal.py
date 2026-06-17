@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import sqlite3
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal, Protocol
@@ -774,3 +775,174 @@ def _ambiguous_result(
 
 def _string_or_none(value: object) -> str | None:
     return value if isinstance(value, str) else None
+
+
+# --- OT-3: physical-event / foreign-command invalidation ---------------------------------
+
+# Command types that physically move the toolhead, handle liquid, or change deck state. A
+# foreign command of one of these is the consequential, motion-relevant case. This is an
+# INFORMATIONAL classification only: `invalidated` fails closed on ANY foreign command,
+# motion-relevant or not — a stray read still proves the run history is not fully ours.
+MOTION_RELEVANT_COMMAND_TYPES: frozenset[str] = frozenset(
+    {
+        "moveToWell",
+        "moveToCoordinates",
+        "moveRelative",
+        "moveToAddressableArea",
+        "moveToAddressableAreaForDropTip",
+        "moveLabware",
+        "home",
+        "retractAxis",
+        "aspirate",
+        "aspirateInPlace",
+        "dispense",
+        "dispenseInPlace",
+        "blowout",
+        "blowOutInPlace",
+        "dropTip",
+        "dropTipInPlace",
+        "pickUpTip",
+        "touchTip",
+    }
+)
+
+
+class ForeignCommand(BaseModel):
+    """A single run-history command not accounted for by any authored journal entry."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    index: int
+    command_id: str | None = None
+    command_key: str | None = None
+    command_type: str | None = None
+    status: str | None = None
+    reason: str
+    motion_relevant: bool = False
+
+
+class CommandHistoryInvalidation(BaseModel):
+    """Verdict of the OT-3 foreign-command scan.
+
+    ``invalidated`` is a WITHHOLD-TRUST signal, never a motion grant: True means the run
+    history contains a command this bridge cannot account for, or a history this bridge
+    could not fully read. It does not say a move is allowed — only that any standing
+    authority resting on "the robot did only what we told it" must be re-verified.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    invalidated: bool
+    run_id: str
+    history_total_length: int | None = None
+    foreign_commands: list[ForeignCommand] = Field(default_factory=list)
+    blockers: list[str] = Field(default_factory=list)
+
+    @property
+    def motion_relevant_foreign(self) -> list[ForeignCommand]:
+        return [command for command in self.foreign_commands if command.motion_relevant]
+
+
+def detect_foreign_commands(
+    *,
+    authored_entries: Sequence[CommandJournalEntry],
+    command_history: EndpointResult | None,
+    run_id: str,
+) -> CommandHistoryInvalidation:
+    """Fail-closed whole-history scan for commands THIS bridge did not author (OT-3).
+
+    ``reconcile_command_history`` answers "did MY command land?"; its
+    ``matched_command_is_latest`` flag only notices a foreign command appended AFTER ours.
+    A foreign command that executed BEFORE ours — a touchscreen jog, a second HTTP client,
+    a replayed idempotency key — leaves ``matched_command_is_latest`` True yet still moved
+    the robot. This scans the ENTIRE run history and reports every command not matched by
+    an authored journal entry, reusing the SAME id/key/type/params comparison as
+    reconciliation (``_matches_entry``) so there is one definition of "ours".
+
+    Matching is 1:1 — each authored entry may vouch for at most ONE history command. A
+    surplus command that still matches an already-consumed entry is a non-idempotent
+    duplicate of our own command: a replay that physically re-ran the move (project-verified
+    on the OT-2 — duplicate maintenance command keys can both succeed). It is reported
+    ``non_idempotent_duplicate_key`` and invalidates, exactly as reconcile_command_history's
+    duplicate-key guard does, so OT-3 is never more permissive than reconciliation. (Status
+    is deliberately NOT compared per-command: the shared ``_matches_entry`` is also used by
+    reconciliation, where a live command's status legitimately differs from the prepared
+    entry — the 1:1 cardinality pass, not a status check, is what catches a failed-then-
+    replayed-succeeded move.)
+
+    Fails closed: any unaccounted command, or any history we cannot fully and unambiguously
+    read (unavailable / malformed / incomplete / wrong run), sets ``invalidated=True``. A
+    history command whose key collides with one of ours but whose id/type/params diverge is
+    reported as ``authored_key_reuse_mismatch`` (a forged or param-diverging key), distinct
+    from a wholly ``unauthored_command_key``.
+    """
+    if command_history is None or not command_history.ok:
+        return CommandHistoryInvalidation(
+            invalidated=True, run_id=run_id, blockers=["command_history_unavailable"]
+        )
+    commands = _commands_from_history(command_history)
+    if commands is None:
+        return CommandHistoryInvalidation(
+            invalidated=True, run_id=run_id, blockers=["command_history_malformed"]
+        )
+    if not _history_is_complete(command_history, commands):
+        return CommandHistoryInvalidation(
+            invalidated=True,
+            run_id=run_id,
+            history_total_length=len(commands),
+            blockers=["command_history_incomplete"],
+        )
+    if _history_path_run_id(command_history.path) != run_id:
+        return CommandHistoryInvalidation(
+            invalidated=True,
+            run_id=run_id,
+            history_total_length=len(commands),
+            blockers=["command_history_run_mismatch"],
+        )
+
+    authored_for_run = [entry for entry in authored_entries if entry.run_id == run_id]
+    authored_keys = {entry.command_key for entry in authored_for_run}
+    # 1:1 cardinality — each authored entry may account for at most one history command. A
+    # surplus row that matches an already-consumed entry is a non-idempotent duplicate of
+    # our own command, not proof the robot did only what we told it.
+    consumed: set[int] = set()
+    foreign: list[ForeignCommand] = []
+    for index, command in enumerate(commands):
+        matched = next(
+            (
+                entry_index
+                for entry_index, entry in enumerate(authored_for_run)
+                if entry_index not in consumed and _matches_entry(entry, command)
+            ),
+            None,
+        )
+        if matched is not None:
+            consumed.add(matched)
+            continue
+        command_key = _string_or_none(command.get("key"))
+        command_type = _string_or_none(command.get("commandType"))
+        if any(_matches_entry(entry, command) for entry in authored_for_run):
+            # matches one of our commands, but that entry is already spoken for by an
+            # earlier history row -> a duplicate physical execution of our own command.
+            reason = "non_idempotent_duplicate_key"
+        elif command_key is not None and command_key in authored_keys:
+            reason = "authored_key_reuse_mismatch"
+        else:
+            reason = "unauthored_command_key"
+        foreign.append(
+            ForeignCommand(
+                index=index,
+                command_id=_string_or_none(command.get("id")),
+                command_key=command_key,
+                command_type=command_type,
+                status=_string_or_none(command.get("status")),
+                reason=reason,
+                motion_relevant=command_type in MOTION_RELEVANT_COMMAND_TYPES,
+            )
+        )
+    return CommandHistoryInvalidation(
+        invalidated=bool(foreign),
+        run_id=run_id,
+        history_total_length=len(commands),
+        foreign_commands=foreign,
+    )
