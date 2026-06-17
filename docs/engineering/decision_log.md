@@ -1456,3 +1456,27 @@ the agent/MCP surface by policy (agent_ot2_bridge.md; test_adapter_boundaries.py
 explicit closure reason at validation and dispatch. No motion authority is created or removed; this
 only converts an accidental-looking fall-through into a documented, declarative stance. 610 across
 the surface, ruff clean.
+
+## OT-5 — liquid_handling (wet) closed scaffold (2026-06-17)
+
+Added `_liquid_handling_command_body` + routing as a documented CLOSED SCAFFOLD (the backlog's
+own scope for OT-5). A wet op is the deepest, most dangerous motion — the tip descends BELOW the
+dry target INTO liquid, then aspirates/dispenses — and every prerequisite is ungrounded, so it
+emits no command and has no emission tail (a wet step is a SEQUENCE, not one command body).
+
+Documented design, none of it wired: (1) approach the grounded dry target — depends on the OT-4
+per-well descent floor, not yet grounded; (2) controlled descent INTO liquid to a measured wet
+depth — ungrounded; (3) aspirate/dispense at grounded volume + flow-rate parameters — the plan
+step carries `EmptyPlanParameters`, i.e. there is no wet-workflow spec to translate; (4) retract.
+It also requires the WET_CLAIMS evidence (DRY_TARGET_PASSED + WET_WORKFLOW_READY), which require a
+passed dry target — itself gated.
+
+The scaffold restricts to `center_wet`, validates session/profile fail-closed, and always refuses
+with `liquid_handling_wet_workflow_not_grounded` (single greppable flag `WET_WORKFLOW_GROUNDED`;
+unlike OT-4's gate, flipping it is NOT sufficient — the wet sequence must be built and grounded).
+Creates no motion authority; emits nothing. 3 tests. 612 across the surface, ruff clean.
+
+This completes the OT control-stack translator track for this pass: OT-6 (high-Z evidence) and the
+move_high_z translator land real commands; OT-4 (low-Z) is gated on a per-well descent floor; OT-2
+(set_offset) is formally closed; OT-5 (wet) is a closed scaffold. Every descent/wet path that
+lacks physical grounding is fail-closed rather than inventing motion authority.

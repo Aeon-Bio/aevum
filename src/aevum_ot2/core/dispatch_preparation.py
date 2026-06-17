@@ -47,6 +47,12 @@ FIRST_LOW_Z_DRY_SPEED_MM_PER_S = 10.0
 # safe-Z margin) -- it never clamps the final descent. While this is False the translator
 # builds + validates everything else but refuses to command a descent, fail-closed.
 LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED = False
+FIRST_WET_TARGET_CLASS = "center_wet"
+# Closed-scaffold gate for the wet workflow (OT-5). Unlike the low-Z gate, flipping this is NOT
+# sufficient to enable wet: a wet op is a multi-command SEQUENCE that must first be built and
+# grounded (see _liquid_handling_command_body). The flag marks the stance declaratively and is
+# the single greppable control point; it is False and the scaffold emits nothing.
+WET_WORKFLOW_GROUNDED = False
 
 
 class MotionDispatchReadbackSummary(BaseModel):
@@ -632,6 +638,13 @@ def _command_body_for_operation(
             step=step,
             safety_profile=safety_profile,
         )
+    if operation == "liquid_handling":
+        return _liquid_handling_command_body(
+            reservation_id=reservation_id,
+            session=session,
+            step=step,
+            safety_profile=safety_profile,
+        )
     if operation in FORMALLY_CLOSED_OPERATIONS:
         # Defense in depth: validation already rejects closed ops, but the translator also
         # refuses to emit a command for one -- there is none (OT-2). A labware offset is
@@ -778,6 +791,56 @@ def _move_low_z_command_body(
         },
         [],
     )
+
+
+def _liquid_handling_command_body(
+    *,
+    reservation_id: str,
+    session: BridgeSession,
+    step: PlanStep | None,
+    safety_profile: FixtureSafetyProfile | None,
+) -> tuple[dict[str, Any] | None, list[str]]:
+    """Closed scaffold for the wet liquid-handling workflow (OT-5).
+
+    A wet op is the deepest, most dangerous motion: the tip descends BELOW the dry target INTO
+    liquid, then aspirates/dispenses. It is the most heavily gated path and cannot be emitted
+    today, so this validates what it can and refuses fail-closed -- it emits no command and has
+    no emission tail (a wet step is a SEQUENCE, not one command body).
+
+    Design (documented, not wired):
+      1. approach to the grounded dry target -- depends on the OT-4 per-well descent floor,
+         which is not yet grounded (see LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED);
+      2. controlled descent INTO liquid to a measured wet depth -- ungrounded (a measured /
+         decided value, gated like OT-1's empty calibrated-offset allowlist);
+      3. aspirate / dispense at grounded volume + flow-rate parameters -- the plan step carries
+         EmptyPlanParameters today, i.e. there is no wet-workflow spec to translate;
+      4. retract above the dry floor.
+
+    It also requires the WET_CLAIMS evidence (DRY_TARGET_PASSED + WET_WORKFLOW_READY), which in
+    turn require a passed dry target -- itself gated. Creates no motion authority.
+    """
+    blockers: list[str] = []
+    target_class = getattr(step, "target_class", None)
+    if target_class != FIRST_WET_TARGET_CLASS:
+        blockers.append(
+            "motion dispatch preparation is only implemented for "
+            f"{FIRST_WET_TARGET_CLASS}"
+        )
+    if safety_profile is None:
+        blockers.append("liquid_handling requires a safety profile")
+    elif (
+        not math.isfinite(safety_profile.conservative_high_z_mm)
+        or safety_profile.conservative_high_z_mm <= 0
+    ):
+        blockers.append("liquid_handling safety-profile high-Z is not finite positive")
+    if not session.loaded_labware_id:
+        blockers.append("liquid_handling requires loaded labware ID")
+    if not session.pipette_id:
+        blockers.append("liquid_handling requires session pipette ID")
+    if not WET_WORKFLOW_GROUNDED:
+        blockers.append("liquid_handling_wet_workflow_not_grounded")
+    # Closed scaffold: never emits a command (the gate above always fires today).
+    return None, blockers
 
 
 def _command_path(run_id: str) -> str:

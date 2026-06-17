@@ -46,6 +46,10 @@ conditions.
     record consumed by the `OFFSET_AUTHORITY` gate, not a motion command — declared in
     `plans.FORMALLY_CLOSED_OPERATIONS`, rejected fail-closed with an explicit reason at
     context/validation/dispatch. 2 tests.
+  - **OT-5** (`liquid_handling` wet): closed scaffold. Restricted to `center_wet`, validates
+    inputs fail-closed, emits nothing (`liquid_handling_wet_workflow_not_grounded`); the wet
+    sequence (descend into liquid → aspirate/dispense → retract) is documented but unwired and
+    ungrounded. 3 tests. (Completes the OT translator track: OT-4 gated, OT-2 closed, OT-5 scaffold.)
   - **Backlog reconciliation (closes the OC-A13 the tables never got):** verified Track 3 (OC-A*)
     is substantially DONE — the progress log said so since 2026-06-14, but the Track 3/Track 4
     tables and "Recommended next 3 cycles" still listed those items open and even recommended
@@ -403,7 +407,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | OT-2 | `set_offset` — **done 2026-06-17 (formal closure)**: a labware offset is a run-setup `/labwareOffsets` record consumed by the `OFFSET_AUTHORITY` gate, not a motion command, so `set_offset` is declared in `plans.FORMALLY_CLOSED_OPERATIONS` and rejected fail-closed with an explicit reason at context/validation/dispatch (+ absent from the agent surface) — see decision_log | A |
 | OT-3 | Physical-event / foreign-command invalidation primitive (`detect_foreign_commands`, whole-history scan for any command not authored by us) — **done 2026-06-17** | A |
 | OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up:** add a per-well descent floor (labware A1 geometry + measured safe depth) and flip the gate | A |
-| OT-5 | `liquid_handling` (wet) translator — design + closed scaffold | A |
+| OT-5 | `liquid_handling` (wet) translator — **done 2026-06-17 (closed scaffold)**: `_liquid_handling_command_body` + routing, restricted to `center_wet`, validates inputs fail-closed, emits nothing (`liquid_handling_wet_workflow_not_grounded`); the wet SEQUENCE design (descend into liquid → aspirate/dispense → retract) is documented but unwired and ungrounded — see decision_log | A |
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
 | OT-7 | MCP agent adapter `adapters/mcp.py` (no file exists) | A |
 | OT-8 | MCP/HTTP pose route-parity tests (no-canonical-default proof) — ship-gate for motion-capable MCP | A |

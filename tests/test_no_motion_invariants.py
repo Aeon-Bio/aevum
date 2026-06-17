@@ -19,6 +19,7 @@ from aevum_ot2.core.dispatch_preparation import (
     FIRST_LOW_Z_DRY_SPEED_MM_PER_S,
     FIRST_LOW_Z_DRY_TOP_OFFSET_MM,
     _command_body_for_operation,
+    _liquid_handling_command_body,
     _move_low_z_command_body,
     build_motion_dispatch_preparation_for_approval,
     build_motion_dispatch_preparation_for_reservation,
@@ -1415,6 +1416,64 @@ def test_move_low_z_emission_machinery_when_descent_grounded(
     assert params["minimumZHeight"] != profile.dry_z_floor_mm
     assert params["wellLocation"]["offset"]["z"] == FIRST_LOW_Z_DRY_TOP_OFFSET_MM
     assert params["speed"] == FIRST_LOW_Z_DRY_SPEED_MM_PER_S
+
+
+def test_liquid_handling_is_a_closed_scaffold(monkeypatch: pytest.MonkeyPatch) -> None:
+    # OT-5: the wet workflow is a closed scaffold -- a fully scope-valid center_wet step is
+    # refused (and emits no command) because the wet sequence (descend into liquid, aspirate/
+    # dispense) is ungrounded. Even forcing the gate open does not emit (no sequence exists).
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    step = PlanStep(step_id="wet", operation="liquid_handling", target_class="center_wet")
+
+    cmd, blockers = _command_body_for_operation(
+        operation="liquid_handling",
+        reservation_id="r1",
+        session=session,
+        step=step,
+        safety_profile=profile,
+    )
+    assert cmd is None
+    assert "liquid_handling_wet_workflow_not_grounded" in blockers
+    assert not any("not implemented for" in b for b in blockers)
+
+    # Forcing the (single greppable) flag open still emits nothing -- the sequence is unbuilt.
+    monkeypatch.setattr(
+        "aevum_ot2.core.dispatch_preparation.WET_WORKFLOW_GROUNDED", True
+    )
+    cmd, _ = _liquid_handling_command_body(
+        reservation_id="r1", session=session, step=step, safety_profile=profile
+    )
+    assert cmd is None
+
+
+def test_liquid_handling_scaffold_fails_closed_on_inputs() -> None:
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    step = PlanStep(step_id="wet", operation="liquid_handling", target_class="center_wet")
+
+    def body(*, sess=session, prof=profile, stp=step):
+        return _liquid_handling_command_body(
+            reservation_id="r1", session=sess, step=stp, safety_profile=prof
+        )
+
+    # the wet-grounding gate is closed by default -> always refuses
+    cmd, blockers = body()
+    assert cmd is None and "liquid_handling_wet_workflow_not_grounded" in blockers
+
+    # wrong target class
+    cmd, blockers = body(
+        stp=PlanStep(step_id="wet", operation="liquid_handling", target_class="center_low_z_dry")
+    )
+    assert cmd is None and "only implemented for center_wet" in " ".join(blockers)
+
+    # missing safety profile / pipette / labware
+    cmd, blockers = body(prof=None)
+    assert cmd is None and "liquid_handling requires a safety profile" in blockers
+    cmd, blockers = body(sess=session.model_copy(update={"pipette_id": None}))
+    assert cmd is None and "liquid_handling requires session pipette ID" in blockers
+    cmd, blockers = body(sess=session.model_copy(update={"loaded_labware_id": None}))
+    assert cmd is None and "liquid_handling requires loaded labware ID" in blockers
 
 
 def test_command_body_for_operation_formally_closes_set_offset() -> None:
