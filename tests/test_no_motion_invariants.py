@@ -16,6 +16,9 @@ from aevum_ot2.core.command_journal import (
 )
 from aevum_ot2.core.context import build_session_context
 from aevum_ot2.core.dispatch_preparation import (
+    FIRST_LOW_Z_DRY_SPEED_MM_PER_S,
+    FIRST_LOW_Z_DRY_TOP_OFFSET_MM,
+    _move_low_z_command_body,
     build_motion_dispatch_preparation_for_approval,
     build_motion_dispatch_preparation_for_reservation,
 )
@@ -454,14 +457,17 @@ def _promoted_offset(
     )
 
 
-def _low_z_plan(session: BridgeSession) -> PlanFragment:
+def _low_z_plan(
+    session: BridgeSession,
+    target_class: str = "offset_x_1p5_low_z_dry",
+) -> PlanFragment:
     return PlanFragment(
         session_id=session.session_id,
         steps=[
             PlanStep(
                 step_id="low-z",
                 operation="move_low_z",
-                target_class="offset_x_1p5_low_z_dry",
+                target_class=target_class,
             )
         ],
     )
@@ -1345,6 +1351,139 @@ def test_dispatch_preparation_blocks_non_center_high_z_target() -> None:
 
     assert result.prepared is False
     assert "only implemented for center_high_z" in " ".join(result.blockers)
+
+
+# --- OT-4: move_low_z dry-target translator -----------------------------------------------
+
+
+def test_dispatch_preparation_blocks_low_z_descent_until_endpoint_grounded() -> None:
+    # Headline: even a fully scope-valid center_low_z_dry step is REFUSED, because no per-well
+    # dry-descent endpoint is grounded yet (minimumZHeight cannot bound a descent, and
+    # dry_z_floor_mm is the collision-envelope top, not a descent floor). Mirrors OT-1's
+    # promotion-blocked-behind-empty-allowlist headline.
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    plan = _low_z_plan(session, target_class="center_low_z_dry")
+    reservation = MotionDispatchReservation(
+        reservation_id="reservation-low-z",
+        approval_id="approval-low-z",
+        session_id=session.session_id,
+        owner_id=session.owner_id,
+        robot_url=session.robot_url,
+        run_id=session.maintenance_run_id or "",
+        step_id="low-z",
+        operation="move_low_z",
+        plan_digest_sha256=plan_fragment_digest(plan),
+        safety_profile_sha256=profile.safety_profile_sha256,
+    )
+
+    result = build_motion_dispatch_preparation_for_reservation(
+        reservation=reservation,
+        session=session,
+        plan=plan,
+        safety_profile=profile,
+        run_result=_run_readback(session),
+        command_history_result=_command_history_readback(session),
+    )
+
+    assert result.prepared is False
+    assert "low_z_dry_descent_endpoint_not_grounded" in " ".join(result.blockers)
+
+
+def test_move_low_z_emission_machinery_when_descent_grounded(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Machinery proof (mirrors OT-1's monkeypatched-allowlist test): with the grounding gate
+    # forced open, the translator emits a structurally-correct moveToWell whose minimumZHeight
+    # is the high-Z PARK (transit-arc clearance), NOT dry_z_floor_mm -- proving the corrected
+    # semantics. The z-offset is the documented PROVISIONAL placeholder, not a verified depth.
+    monkeypatch.setattr(
+        "aevum_ot2.core.dispatch_preparation.LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED", True
+    )
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    step = PlanStep(step_id="low-z", operation="move_low_z", target_class="center_low_z_dry")
+    cmd, blockers = _move_low_z_command_body(
+        reservation_id="r1", session=session, step=step, safety_profile=profile
+    )
+    assert blockers == []
+    assert cmd is not None
+    params = cmd["data"]["params"]
+    assert cmd["data"]["commandType"] == "moveToWell"
+    assert params["minimumZHeight"] == profile.conservative_high_z_mm  # transit arc, not floor
+    assert params["minimumZHeight"] != profile.dry_z_floor_mm
+    assert params["wellLocation"]["offset"]["z"] == FIRST_LOW_Z_DRY_TOP_OFFSET_MM
+    assert params["speed"] == FIRST_LOW_Z_DRY_SPEED_MM_PER_S
+
+
+def test_dispatch_preparation_blocks_non_center_low_z_dry_target() -> None:
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    plan = _low_z_plan(session, target_class="offset_x_1p5_low_z_dry")
+    reservation = MotionDispatchReservation(
+        reservation_id="reservation-offset-low-z",
+        approval_id="approval-offset-low-z",
+        session_id=session.session_id,
+        owner_id=session.owner_id,
+        robot_url=session.robot_url,
+        run_id=session.maintenance_run_id or "",
+        step_id="low-z",
+        operation="move_low_z",
+        plan_digest_sha256=plan_fragment_digest(plan),
+        safety_profile_sha256=profile.safety_profile_sha256,
+    )
+
+    result = build_motion_dispatch_preparation_for_reservation(
+        reservation=reservation,
+        session=session,
+        plan=plan,
+        safety_profile=profile,
+        run_result=_run_readback(session),
+        command_history_result=_command_history_readback(session),
+    )
+
+    assert result.prepared is False
+    assert "only implemented for center_low_z_dry" in " ".join(result.blockers)
+
+
+def test_move_low_z_translator_fails_closed_on_unsafe_or_missing_inputs() -> None:
+    # Direct fail-closed checks on the translator's named blockers (the descent direction is
+    # safety-critical, so each guard is pinned independently). The grounding gate fires on
+    # every call here (it is closed by default), so each case asserts its own blocker is
+    # present alongside it.
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session)
+    step = PlanStep(step_id="low-z", operation="move_low_z", target_class="center_low_z_dry")
+
+    def body(*, sess=session, prof=profile, stp=step):
+        return _move_low_z_command_body(
+            reservation_id="r1", session=sess, step=stp, safety_profile=prof
+        )
+
+    # the descent-grounding gate is closed by default -> always refuses
+    cmd, blockers = body()
+    assert cmd is None and "low_z_dry_descent_endpoint_not_grounded" in blockers
+
+    # missing safety profile
+    cmd, blockers = body(prof=None)
+    assert cmd is None and "move_low_z requires a safety profile" in blockers
+
+    # high-Z park (the transit-arc clearance) not finite-positive
+    cmd, blockers = body(prof=profile.model_copy(update={"conservative_high_z_mm": 0.0}))
+    assert cmd is None
+    assert "move_low_z safety-profile high-Z is not finite positive" in blockers
+
+    # missing session pipette / labware
+    cmd, blockers = body(sess=session.model_copy(update={"pipette_id": None}))
+    assert cmd is None and "move_low_z requires session pipette ID" in blockers
+    cmd, blockers = body(sess=session.model_copy(update={"loaded_labware_id": None}))
+    assert cmd is None and "move_low_z requires loaded labware ID" in blockers
+
+    # wrong target class
+    cmd, blockers = body(
+        stp=PlanStep(step_id="low-z", operation="move_low_z", target_class="center_high_z")
+    )
+    assert cmd is None and "only implemented for center_low_z_dry" in " ".join(blockers)
 
 
 def test_dispatch_preparation_blocks_non_idle_run_readback() -> None:

@@ -36,6 +36,12 @@ conditions.
     BEFORE ours). Review found a fail-OPEN blocker (`any(_matches_entry)` let one entry vouch for
     unlimited duplicate executions) — fixed with a 1:1 consuming pass mirroring reconcile's
     duplicate-key guard; re-verified. 18 tests. Committed `6dd4ce4`.
+  - **OT-4** (`move_low_z` dry-target translator): `_move_low_z_command_body` + routing. Review
+    (vs the Opentrons schema + canonical fixture) caught an unsafe descent — `minimumZHeight` only
+    bounds the transit arc, not the descent, and `dry_z_floor_mm` is the collision-envelope top
+    (~11 mm above the A1 well-top). Descent emission gated fail-closed
+    (`low_z_dry_descent_endpoint_not_grounded`) until a per-well descent floor exists; semantics
+    corrected. 4 tests.
   - **Backlog reconciliation (closes the OC-A13 the tables never got):** verified Track 3 (OC-A*)
     is substantially DONE — the progress log said so since 2026-06-14, but the Track 3/Track 4
     tables and "Recommended next 3 cycles" still listed those items open and even recommended
@@ -392,7 +398,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) — producer pipeline + safety core **done 2026-06-17** (PROMOTED gated-blocked behind an empty calibrated-source allowlist per builder decision); `offset-evidence-commit` CLI is the remaining thin adapter | A |
 | OT-2 | `set_offset` validation gate + translator, or formal closure (dead op today) | A |
 | OT-3 | Physical-event / foreign-command invalidation primitive (`detect_foreign_commands`, whole-history scan for any command not authored by us) — **done 2026-06-17** | A |
-| OT-4 | `move_low_z` dry-target translator (gates exist; translator missing) | A |
+| OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up:** add a per-well descent floor (labware A1 geometry + measured safe depth) and flip the gate | A |
 | OT-5 | `liquid_handling` (wet) translator — design + closed scaffold | A |
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
 | OT-7 | MCP agent adapter `adapters/mcp.py` (no file exists) | A |

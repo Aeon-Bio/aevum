@@ -28,6 +28,24 @@ FIRST_HIGH_Z_TARGET_CLASS = "center_high_z"
 FIRST_HIGH_Z_WELL_NAME = "A1"
 FIRST_HIGH_Z_TOP_OFFSET_MM = 15.0
 FIRST_HIGH_Z_SPEED_MM_PER_S = 20.0
+FIRST_LOW_Z_DRY_TARGET_CLASS = "center_low_z_dry"
+FIRST_LOW_Z_DRY_WELL_NAME = "A1"
+# PROVISIONAL placeholder endpoint, NOT a verified-safe descent target. A safe per-well dry
+# descent endpoint requires validated well-access geometry and a per-well descent FLOOR that
+# the safety model does not yet carry (`dry_z_floor_mm` is the collision-envelope top, a
+# lateral-transit clearance, not a descent floor -- e.g. the canonical fixture's A1 well-top
+# is ~11 mm BELOW it). Until that endpoint is grounded, low-Z descent emission is refused
+# (see LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED); this constant feeds only the unreachable tail.
+FIRST_LOW_Z_DRY_TOP_OFFSET_MM = 0.0
+# Half the high-Z transit speed: the low move runs closer to the fixture.
+FIRST_LOW_Z_DRY_SPEED_MM_PER_S = 10.0
+# Safe-allowlist gate (mirrors OT-1's empty CALIBRATED_OFFSET_SOURCES). A low-Z DESCENT can
+# only be emitted once a per-well dry-descent endpoint is grounded against a real descent
+# floor. `minimumZHeight` cannot stand in for that floor: per the Opentrons MoveToWellParams
+# schema it only raises the lateral-transit ARC apex (and is a no-op below the API's default
+# safe-Z margin) -- it never clamps the final descent. While this is False the translator
+# builds + validates everything else but refuses to command a descent, fail-closed.
+LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED = False
 
 
 class MotionDispatchReadbackSummary(BaseModel):
@@ -606,6 +624,13 @@ def _command_body_for_operation(
             step=step,
             safety_profile=safety_profile,
         )
+    if operation == "move_low_z":
+        return _move_low_z_command_body(
+            reservation_id=reservation_id,
+            session=session,
+            step=step,
+            safety_profile=safety_profile,
+        )
     return None, [f"motion dispatch preparation is not implemented for {operation}"]
 
 
@@ -658,6 +683,87 @@ def _move_high_z_command_body(
                     "minimumZHeight": safety_profile.conservative_high_z_mm,
                     "forceDirect": False,
                     "speed": FIRST_HIGH_Z_SPEED_MM_PER_S,
+                },
+            }
+        },
+        [],
+    )
+
+
+def _move_low_z_command_body(
+    *,
+    reservation_id: str,
+    session: BridgeSession,
+    step: PlanStep | None,
+    safety_profile: FixtureSafetyProfile | None,
+) -> tuple[dict[str, Any] | None, list[str]]:
+    """Translate an approved first low-Z dry step into a moveToWell command (OT-4).
+
+    The low-Z move is the DESCENT direction, where risk is asymmetric: a wrong high-Z
+    constant is harmless (up/away) but a too-deep descent crashes the tip into the fixture.
+    Two facts make a safe descent un-emittable today, so this fails CLOSED:
+
+    * ``minimumZHeight`` does NOT bound the descent. Per the Opentrons MoveToWellParams
+      schema it only raises the lateral-transit arc apex (no effect below the API default
+      safe-Z margin); the final depth is set entirely by the resolved well target.
+    * The safety model has no per-well descent FLOOR. ``dry_z_floor_mm`` is the conservative
+      collision-envelope top (a transit clearance) -- the canonical fixture's A1 well-top is
+      ~11 mm below it -- so there is nothing to verify a descent endpoint against.
+
+    Therefore descent emission is gated behind ``LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED`` until a
+    validated per-well dry-descent endpoint exists (mirrors OT-1's empty calibrated-source
+    gate). The translator still validates everything it can (target class, session identity,
+    a finite-positive high-Z park for the eventual transit clearance) and creates no motion
+    authority -- it only assembles a command from already-approved inputs. The unreachable
+    emission tail uses ``conservative_high_z_mm`` as the transit-arc clearance (mirroring the
+    high-Z translator), NOT a descent bound.
+    """
+    blockers: list[str] = []
+    target_class = getattr(step, "target_class", None)
+    if target_class != FIRST_LOW_Z_DRY_TARGET_CLASS:
+        blockers.append(
+            "motion dispatch preparation is only implemented for "
+            f"{FIRST_LOW_Z_DRY_TARGET_CLASS}"
+        )
+    if safety_profile is None:
+        blockers.append("move_low_z requires a safety profile")
+    elif (
+        not math.isfinite(safety_profile.conservative_high_z_mm)
+        or safety_profile.conservative_high_z_mm <= 0
+    ):
+        blockers.append("move_low_z safety-profile high-Z is not finite positive")
+    if not session.loaded_labware_id:
+        blockers.append("move_low_z requires loaded labware ID")
+    if not session.pipette_id:
+        blockers.append("move_low_z requires session pipette ID")
+    if not LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED:
+        blockers.append("low_z_dry_descent_endpoint_not_grounded")
+    if blockers:
+        return None, blockers
+
+    assert safety_profile is not None
+    return (
+        {
+            "data": {
+                "commandType": "moveToWell",
+                "key": _command_key(reservation_id),
+                "params": {
+                    "pipetteId": session.pipette_id,
+                    "labwareId": session.loaded_labware_id,
+                    "wellName": FIRST_LOW_Z_DRY_WELL_NAME,
+                    "wellLocation": {
+                        "origin": "top",
+                        "offset": {
+                            "x": 0.0,
+                            "y": 0.0,
+                            "z": FIRST_LOW_Z_DRY_TOP_OFFSET_MM,
+                        },
+                    },
+                    # Transit-arc clearance ONLY (raises the lateral arc apex); it does NOT
+                    # clamp the descent -- that is bounded by the (grounded) well target.
+                    "minimumZHeight": safety_profile.conservative_high_z_mm,
+                    "forceDirect": False,
+                    "speed": FIRST_LOW_Z_DRY_SPEED_MM_PER_S,
                 },
             }
         },

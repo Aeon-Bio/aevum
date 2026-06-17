@@ -1404,3 +1404,37 @@ Two design points were settled by adversarial review:
 gates `invalidated`, which fails closed on ANY unaccounted command. The primitive has no production
 caller yet — its own contract is the safety boundary; wiring it into the offset-promotion / park /
 lease-admission consumers is the open follow-up. 18 tests; 605 across the surface, ruff clean.
+
+## OT-4 — move_low_z dry-target translator (descent emission gated) (2026-06-17)
+
+Added `_move_low_z_command_body` + routing in `dispatch_preparation.py`: the translator that
+turns an approved first low-Z dry step (`center_low_z_dry`) into a moveToWell command, mirroring
+the high-Z translator. A translator consumes existing approval and creates no motion authority.
+
+Adversarial review (verified against the Opentrons MoveToWellParams schema AND the canonical
+fixture geometry) found the first cut commanded an UNSAFE descent, so emission is now gated
+fail-closed behind `LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED = False` (mirrors OT-1's empty
+calibrated-source allowlist). Two safety facts forced this:
+
+- **`minimumZHeight` does not bound a descent.** Per the schema it only raises the lateral-transit
+  ARC apex (and is a no-op below the API default safe-Z margin); it never clamps the final descent
+  to the well target. The first cut passed `dry_z_floor_mm` to it and documented it as a "hard
+  transit floor" — inverted. The (now-gated) emission tail uses `conservative_high_z_mm` for
+  transit clearance, mirroring the high-Z translator; the descent is bounded only by the resolved
+  well target.
+- **The safety model has no per-well descent FLOOR.** `dry_z_floor_mm = conservative_bounds.z_mm`
+  is the conservative collision-envelope TOP (a lateral-transit clearance), a different geometric
+  feature from a well-access descent limit. On the canonical fixture the A1 well-top (~80 mm) is
+  ~11 mm BELOW that envelope top (~91 mm), so a naive "land at well top" endpoint sits below the
+  floor it claims to honor, with every guard green. Relating a descent endpoint to a real per-well
+  floor requires validated well-access geometry (and a measured safe dry depth) the codebase does
+  not yet carry.
+
+So a safe low-Z dry descent cannot be emitted today without inventing physical authority — which
+the realization goal forbids. The translator therefore validates everything it can (target class,
+session identity, finite-positive high-Z park) and refuses the descent with
+`low_z_dry_descent_endpoint_not_grounded`. **Open follow-up (B + a small A):** add a per-well
+dry-descent floor distinct from the collision-envelope top (from the labware A1 well geometry +
+a measured safe dry depth), verify the resolved endpoint against it, then flip the gate. 4 tests
+(headline blocked, monkeypatched-grounding machinery proof that minimumZHeight is the high-Z park
+not the floor, non-center-target block, fail-closed inputs). 609 across the surface, ruff clean.
