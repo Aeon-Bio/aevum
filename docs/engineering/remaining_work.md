@@ -426,7 +426,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
 | OT-7 | MCP agent adapter `adapters/mcp.py` — **done 2026-06-18**: thin policy adapter, only the 10 allow-listed validated-session tools, routes via `DaemonClient`, no `Ot2Client`/`post_json`; never mints motion approval; SDK lazy-imported/optional; `mcp-serve` CLI + boundary tests | A |
 | OT-8 | MCP/HTTP pose route-parity tests — **done 2026-06-18**: `tests/test_route_parity.py` derives pose-bearing routes from `app.py` + request models and pins the "no SILENT canonical default" at its exact HTTP/MCP sites | A |
-| OT-9 | HTTP programmatic adapter (optional) | A |
+| OT-9 | HTTP programmatic adapter (optional) — **substantially covered / optional**: `server/client.py` `DaemonClient` is already the typed urllib HTTP client over the daemon (used by the CLI and the OT-7 MCP adapter); a separate external programmatic adapter adds little and is explicitly optional. Leave open-optional | A |
 | OT-10 | Recovery runbook + `ot2_abort_or_recover` wiring — **done 2026-06-18**: `core/abort_recover.py` facade projecting `recover_no_motion_session` into an agent contract (`motion_allowed` never True out of this path), `BridgeService.abort_or_recover`, `session-abort-or-recover` CLI, runbook doc; HTTP-route/client-method exposure noted as follow-up | A |
 | OT-11 | Trajectory/task-graph doc reconciliation — **done 2026-06-18**: marked the high-Z translator / OT-3 invalidation / OT-6 evidence DONE in both task graphs with module pointers; preserved the still-open live-motion-backend POST tail (RG14, B-gated) to avoid over-claiming live motion | A |
 | OT-12 | Daemon arm/execute operability — **done 2026-06-18**: `core/commissioning.py` fail-closed operability layer over the EXISTING motion daemon (dry-run default; never arms without explicit confirm; mints no approval itself) + `scripts/ot2_motion_commissioning.py` + runbook | A |
@@ -483,7 +483,7 @@ reconciliation) remain.
 |---|---|---|
 | OP-P1, P2 | Stage-0 bench + WS2812 contrast-fork protocol docs — **done** (`docs/protocols/observer_optical_bench_stage0.md`, `observer_contrast_fork_ws2812.md`; reconciled 2026-06-17) | A |
 | OP-P3, P4, P5, P8 | **done 2026-06-18**: authored `observer_condensation_purge_stage0.md`, `observer_settle_vibration_stage2_adxl345.md`, `observer_kinematic_dock_repeatability.md`, `gate6_observer_evidence_row_schema.md` (+ paired blank measurement templates) — falsifiable gated procedures, house-style; each names the real fail-closed gate/model it documents and creates no motion/emission authority | A |
-| OP-S1des..S3des, S4evid | Stage 1–3 build-drawing CAD + the evidence-packet writer (design-ahead) | A |
+| OP-S1des..S3des, S4evid | **S4evid done** (the observer evidence-packet writer is `observer.py` `mint_observer_scan_evidence`/`observer_scan_evidence_to_packet`/`persist_*`, IN-C4/C5). **S1des..S3des: gated-in-practice by B** — the Stage 1–3 build-drawing CAD depends on the Stage-0/1/2 measured numbers (the next row, OP-B*, is literally "feed numbers to CAD", Bcad→A); authoring build drawings against un-measured focus/WD/settle/dock numbers would bake unproven assumptions into CAD, against the evidence discipline. Defer until the gating measurements land | A |
 | OP-B0..Bcad | Stage-0 bench build + the three gating measurements (focus/WD, contrast, field-flatness) + condensation + feed numbers to CAD | B (Bcad→A) |
 | OP-S1b..S4opt | Stage 1–4 builds (VCM focus, one-plate settle, full-row traverse, dock/soak/interlock) + optical characterization | B |
 | C-OB1..8 | 10× vs 4×, oblique-vs-lid-window, single-vs-split gantry, camera coaxial-vs-offboard, shutter, setpoints, deepen-bay | C |
@@ -492,11 +492,11 @@ reconciliation) remain.
 
 | Item | Produces | Tag |
 |---|---|---|
-| SM-1.1/1.2 | Dock-plane + 3-2-1 seat CAD + falsifiable dock-envelope asserts | A |
+| SM-1.1/1.2 | Dock-plane + 3-2-1 seat CAD + falsifiable dock-envelope asserts — **done** (`src/aevum_smis/dock.py`: quasi-kinematic 3-2-1 seat + falsifiable dock-envelope re-check; SM-1.2 do→review cycle 4, 2026-06-14; reconciled 2026-06-18) | A |
 | SM-1.3/1.5a | Swap-kinematics into traverse check; Tier-A/B/C registration ritual skeleton — **done 2026-06-15** | A |
 | SM-2.1 | Infinity-port CAD + datum check — **done 2026-06-15** | A |
 | SM-2.2 | HEAD-BUS pinout as frozen machine-checkable schema — **done 2026-06-15** | A |
-| SM-3.1/3.2a | `module.json` manifest schema + falsifiable envelope re-check; `platform.detect()` auto-ID + cal-vault | A |
+| SM-3.1/3.2a | `module.json` manifest schema + falsifiable envelope re-check; `platform.detect()` auto-ID + cal-vault — **done** (`src/aevum_smis/manifest.py`; SM-3.1 cycle 3 + SM-3.2a cycle 6, 2026-06-14; reconciled 2026-06-18) | A |
 | SM-4.1..4.4 | `ModuleDriver` Protocol + plugin loader; `acquire(well,lease)→Evidence` on the bridge lease + Evidence model; fail-closed source-enable; semver policy — **done 2026-06-15** | A |
 | SM-B1.4 | **Print the dock, measure ≤5 µm dock-redock repeatability — proves or kills the platform thesis** | B |
 | SM-B2.x, H0..H5 | Blind-mate connector + interlock hardware; head builds brightfield→QPI→fluorescence→2nd(FREEZE)→Raman→NV | B |
@@ -509,9 +509,9 @@ reconciliation) remain.
 | IN-C1/C2 | GX16 observer-umbilical pinout (new authority boundary) + HEAD-BUS reconciled as a superset of GX16 — **done 2026-06-15** | A |
 | IN-C3 | Sensor-PCB telemetry → condensation control law (SHT41 dew point; sensors already exist) — **done 2026-06-16** | A |
 | IN-C4 | Bridge `observer_scan` lease (mutually-exclusive lease kind) + observer Evidence schema — **done 2026-06-16** | A |
-| IN-C5/C6 | `acquire()→Evidence` ABI integration; 16-fiducial registration spine (A1 offset 14.38, 11.24; pose-digest cross-check) | A |
-| IN-C7 | OT-2↔observer two-layer safety interlock (software lease + enable-line protocol; hardware half is B) | A |
-| IN-C8/C9 | Cal-vault/counterfeit authentication extended to observer+SMIS parts; R10 cable-carrier CAD | A |
+| IN-C5/C6 | `acquire()→Evidence` ABI integration; 16-fiducial registration spine (pose-digest cross-check) — **done 2026-06-16** (`observer.py` evidence path + `aevum_smis/registration.py` `cross_check_observer_pose`; spine closed per realization_hypergraph; reconciled 2026-06-18) | A |
+| IN-C7 | OT-2↔observer two-layer safety interlock — **software half done 2026-06-16** (`core/observer_interlock.py`: lease-held enable-intent + pipetting-lease admission, fail-closed); the hardware enable-line/limit-switch half is B | A |
+| IN-C8/C9 | Cal-vault/counterfeit authentication extended to observer+SMIS parts — **done 2026-06-16** (`aevum_smis.safety`); the A-geometry (raceway envelope / R10 loop-height) is in OC-A3/A14; the binding R10+GX16/M12 cable-bundle fit at the bend radius is B (caliper measurement) | A |
 
 ## Critical path
 
