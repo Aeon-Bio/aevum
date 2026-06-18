@@ -1493,6 +1493,22 @@ def test_command_body_for_operation_formally_closes_set_offset() -> None:
     assert not any("not implemented for" in b for b in blockers)
 
 
+def test_move_low_z_fails_closed_when_well_geometry_checksum_mismatches() -> None:
+    # OT-4 follow-up: the descent gate verifies the would-be endpoint against the REAL per-well
+    # bounds, checksum-anchored to the profile's labware definition. A tampered/mismatched
+    # checksum fails closed independently of the grounding gate.
+    session = _pose_scoped_session()
+    profile = _pose_scoped_profile(session).model_copy(
+        update={"labware_definition_sha256": "0" * 64}
+    )
+    step = PlanStep(step_id="low-z", operation="move_low_z", target_class="center_low_z_dry")
+    cmd, blockers = _move_low_z_command_body(
+        reservation_id="r1", session=session, step=step, safety_profile=profile
+    )
+    assert cmd is None
+    assert any("per-well descent geometry unavailable" in b for b in blockers)
+
+
 def test_dispatch_preparation_blocks_non_center_low_z_dry_target() -> None:
     session = _pose_scoped_session()
     profile = _pose_scoped_profile(session)

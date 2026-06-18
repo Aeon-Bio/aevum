@@ -36,8 +36,11 @@ conditions.
   repeatability, Gate-6 evidence-row schema), **OC-A8** 40×40@25 mm red-case test (empirically pinned),
   **OC-A13** RH6/RH15/RP5 OC-A fold. Reviews ship-it (OP-P3 had a must-fix on the condensation warning
   band → fixed; OT-10's boundary-test snippet was vacuous → orchestrator replaced it with an AST check).
-  661 across the non-CAD surface + OC-A8 green, ruff clean. **OT-4 follow-up** (per-well descent floor)
-  handled separately next.
+  661 across the non-CAD surface + OC-A8 green, ruff clean. Then **OT-4 follow-up** (`core/well_geometry.py`):
+  the real checksum-anchored per-well access bounds, wired into the descent gate as a reachable fail-closed
+  bounds check (replacing the envelope-top misuse); emission still gated on a measured dry depth (B). Review
+  verdict ship-it, no findings; 669 across the non-CAD surface, ruff clean. This closes the entire
+  software/CAD-addressable A-queue; the remainder is B (hardware/measurement) or C (product decision).
 - **2026-06-17 — OT-1, OT-3, + backlog reconciliation** (do→review→commit).
   - **OT-1** (transaction-backed offset authority): producer pipeline + safety core, PROMOTED
     gated behind an empty `CALIBRATED_OFFSET_SOURCES` allowlist. Adversarial review found two
@@ -418,7 +421,7 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | OT-1 | Transaction-backed offset authority (evidence→claim→promoted offset) — producer pipeline + safety core **done 2026-06-17** (PROMOTED gated-blocked behind an empty calibrated-source allowlist per builder decision); `offset-evidence-commit` CLI is the remaining thin adapter | A |
 | OT-2 | `set_offset` — **done 2026-06-17 (formal closure)**: a labware offset is a run-setup `/labwareOffsets` record consumed by the `OFFSET_AUTHORITY` gate, not a motion command, so `set_offset` is declared in `plans.FORMALLY_CLOSED_OPERATIONS` and rejected fail-closed with an explicit reason at context/validation/dispatch (+ absent from the agent surface) — see decision_log | A |
 | OT-3 | Physical-event / foreign-command invalidation primitive (`detect_foreign_commands`, whole-history scan for any command not authored by us) — **done 2026-06-17** | A |
-| OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up:** add a per-well descent floor (labware A1 geometry + measured safe depth) and flip the gate | A |
+| OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up done 2026-06-18 (A):** `core/well_geometry.py` supplies the real per-well access bounds (checksum-anchored to the labware digest), wired into the descent gate as a reachable fail-closed bounds check (replacing the envelope-top misuse); emission still gated. **Remaining tail (B):** measure the safe dry depth (liquid line) within those bounds, then flip the gate | A |
 | OT-5 | `liquid_handling` (wet) translator — **done 2026-06-17 (closed scaffold)**: `_liquid_handling_command_body` + routing, restricted to `center_wet`, validates inputs fail-closed, emits nothing (`liquid_handling_wet_workflow_not_grounded`); the wet SEQUENCE design (descend into liquid → aspirate/dispense → retract) is documented but unwired and ungrounded — see decision_log | A |
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
 | OT-7 | MCP agent adapter `adapters/mcp.py` — **done 2026-06-18**: thin policy adapter, only the 10 allow-listed validated-session tools, routes via `DaemonClient`, no `Ot2Client`/`post_json`; never mints motion approval; SDK lazy-imported/optional; `mcp-serve` CLI + boundary tests | A |

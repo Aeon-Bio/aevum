@@ -1516,3 +1516,24 @@ gates/models and create no motion/emission authority (condensation purge → `ev
 three blockers; Gate-6 observer row → an EvidencePacket record format, packets-only, that never authorizes
 the next motion; settle → the inherited hold-still spec). All protocol numbers remain not-yet-evidence until
 measured.
+
+## 2026-06-18 — OT-4 follow-up: per-well descent bounds (the real floor object)
+
+The OT-4 review found `dry_z_floor_mm` (the conservative collision-envelope TOP, ~91 mm) is the
+WRONG quantity for a per-well descent — the A1 well-top (~80 mm) sits ~11 mm below it — and the
+descent gate had only a boolean, no floor object. `src/aevum_ot2/core/well_geometry.py` supplies the
+right object: `WellAccessGeometry` (well_top = z+depth, well_bottom = z, depth) derived ONLY from a
+labware definition whose checksum matches the safety profile's existing `labware_definition_sha256`
+(mirrors OT-1's re-fetch + checksum-verify — never trust a number whose source file does not match
+its digest). `_move_low_z_command_body` now loads this on-demand and verifies the would-be endpoint
+lies within `[well_bottom, well_top]`, failing closed on a missing/tampered definition or an
+out-of-bounds endpoint.
+
+These are GEOMETRIC bounds, NOT a dry-descent floor: the safe dry depth (the liquid line within the
+bounds) is a measurement, so `LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED` stays False and emission is still
+refused. No `FixtureSafetyProfile`/digest change (computed on-demand, anchored to the existing
+labware digest) — zero blast radius. The check is additive and fail-closed: it can only append a
+blocker, never clear one or open emission (review verdict: ship-it, no findings). 8 well-geometry
+tests (bounds, checksum-mismatch, empty-checksum, unknown-well, malformed-well, missing-file,
+within-bounds predicate) + a descent-translator tamper test. **Open tail (B):** ground a real
+sub-rim dry endpoint by measuring the safe dry depth within these bounds, then flip the gate.

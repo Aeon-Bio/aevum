@@ -23,6 +23,10 @@ from aevum_ot2.core.plans import (
     canonicalize_plan_fragment,
 )
 from aevum_ot2.core.safety import FixtureSafetyProfile, safety_profile_integrity_blockers
+from aevum_ot2.core.well_geometry import (
+    descent_endpoint_within_bounds,
+    load_well_access_geometry,
+)
 
 MotionDispatchPreparationState = Literal["prepared_no_post"]
 FIRST_HIGH_Z_TARGET_CLASS = "center_high_z"
@@ -758,6 +762,26 @@ def _move_low_z_command_body(
         blockers.append("move_low_z requires loaded labware ID")
     if not session.pipette_id:
         blockers.append("move_low_z requires session pipette ID")
+    # OT-4 follow-up: verify the would-be descent endpoint against the REAL per-well access
+    # bounds, checksum-anchored to the profile's labware definition -- replacing the
+    # conceptually-wrong reliance on dry_z_floor_mm (the collision-envelope top, ~11 mm above
+    # the A1 well-top). Fail closed if the geometry cannot be trusted (missing/tampered
+    # definition) or the endpoint falls outside [well_bottom, well_top]. This is a NECESSARY
+    # geometric bound, not the safe dry floor -- the liquid line within the bounds is a
+    # measurement, so emission stays refused by the grounding gate below.
+    if safety_profile is not None:
+        try:
+            geometry = load_well_access_geometry(
+                labware_path=safety_profile.labware_path,
+                expected_sha256=safety_profile.labware_definition_sha256,
+                well_name=FIRST_LOW_Z_DRY_WELL_NAME,
+            )
+        except (OSError, ValueError) as exc:
+            blockers.append(f"move_low_z per-well descent geometry unavailable: {exc}")
+        else:
+            endpoint_deck_z = geometry.well_top_deck_z_mm + FIRST_LOW_Z_DRY_TOP_OFFSET_MM
+            if not descent_endpoint_within_bounds(geometry, endpoint_deck_z):
+                blockers.append("move_low_z descent endpoint is outside the well access bounds")
     if not LOW_Z_DRY_DESCENT_ENDPOINT_GROUNDED:
         blockers.append("low_z_dry_descent_endpoint_not_grounded")
     if blockers:
