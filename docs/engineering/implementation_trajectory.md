@@ -260,6 +260,15 @@ Only after the core and daemon own validation should MCP or HTTP be added.
 Motion-capable MCP must not ship until pose route-parity tests cover its tool
 schema and prove it cannot default orientation to canonical.
 
+**Landed 2026-06-18 (OT-7 / OT-8):** `src/aevum_ot2/adapters/mcp.py` is the thin policy
+adapter below; it routes through `DaemonClient`, never mints motion approval, and the
+route-parity / no-silent-canonical-default ship-gate is `tests/test_route_parity.py`. The
+adapter is no-motion today — it exposes none of the live-motion arming surface. **OT-12** added
+`core/commissioning.py`, a fail-closed operability layer over the existing daemon (dry-run
+default; never auto-arms). **OT-11** reconciled the task graphs: the high-Z command-body
+translator, OT-3 physical-event invalidation, and OT-6 post-motion evidence are DONE; the
+live-motion backend that POSTs the translated target command (RG14) remains the open, B-gated tail.
+
 The MCP surface should stay small:
 
 ```text

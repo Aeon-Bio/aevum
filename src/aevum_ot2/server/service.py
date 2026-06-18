@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from aevum_ot2.core.abort_recover import AbortOrRecoverReport, ot2_abort_or_recover
 from aevum_ot2.core.camera import capture_picture
 from aevum_ot2.core.client import Ot2Client
 from aevum_ot2.core.context import SessionContext, build_session_context
@@ -514,6 +515,25 @@ class BridgeService:
         timeout_seconds: float = 10.0,
     ) -> NoMotionRecoveryReport:
         return recover_no_motion_session(
+            session_id,
+            timeout_seconds=timeout_seconds,
+            state_db_path=self.state_db_path,
+        )
+
+    def abort_or_recover(
+        self,
+        session_id: str,
+        *,
+        timeout_seconds: float = 10.0,
+    ) -> AbortOrRecoverReport:
+        """Project the proven recovery state machine into the agent abort/recover contract.
+
+        Thin pass-through to the :mod:`aevum_ot2.core.abort_recover` facade. The facade
+        owns the projection and read-only lookups; this method adds no motion authority
+        and does not call the robot directly.
+        """
+
+        return ot2_abort_or_recover(
             session_id,
             timeout_seconds=timeout_seconds,
             state_db_path=self.state_db_path,

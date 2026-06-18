@@ -26,7 +26,19 @@ conditions.
 
 ## Progress log
 
-- **2026-06-17 — OT-1, OT-3, + backlog reconciliation** (most recent; do→review→commit).
+- **2026-06-18 — remaining A-queue batch** (11 items, parallel workflow + do→review→fix per item,
+  then orchestrator-integrated shared files): **OT-7** MCP agent adapter (policy-allowlisted, routes
+  via DaemonClient, no motion authority), **OT-8** MCP/HTTP route-parity / no-silent-canonical-default
+  ship-gate, **OT-10** `ot2_abort_or_recover` facade + recovery runbook, **OT-11** task-graph
+  reconciliation (translator/evidence/invalidation DONE; live-POST backend tail preserved), **OT-12**
+  commissioning operability layer over the existing daemon (dry-run default, never auto-arms),
+  **OP-P3/P4/P5/P8** observer protocol docs (condensation purge, ADXL345 settle, kinematic-dock
+  repeatability, Gate-6 evidence-row schema), **OC-A8** 40×40@25 mm red-case test (empirically pinned),
+  **OC-A13** RH6/RH15/RP5 OC-A fold. Reviews ship-it (OP-P3 had a must-fix on the condensation warning
+  band → fixed; OT-10's boundary-test snippet was vacuous → orchestrator replaced it with an AST check).
+  661 across the non-CAD surface + OC-A8 green, ruff clean. **OT-4 follow-up** (per-well descent floor)
+  handled separately next.
+- **2026-06-17 — OT-1, OT-3, + backlog reconciliation** (do→review→commit).
   - **OT-1** (transaction-backed offset authority): producer pipeline + safety core, PROMOTED
     gated behind an empty `CALIBRATED_OFFSET_SOURCES` allowlist. Adversarial review found two
     latent JOIN holes (caller-trusted offset claim; unchecked external-artifact tamper) — both
@@ -409,12 +421,12 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 | OT-4 | `move_low_z` dry-target translator — **done 2026-06-17 (descent emission gated)**: `_move_low_z_command_body` + routing; descent refused (`low_z_dry_descent_endpoint_not_grounded`) until a per-well dry-descent floor exists, because `minimumZHeight` only bounds the transit arc (not the descent) and `dry_z_floor_mm` is the collision-envelope top, ~11 mm above the A1 well-top — see decision_log. **Follow-up:** add a per-well descent floor (labware A1 geometry + measured safe depth) and flip the gate | A |
 | OT-5 | `liquid_handling` (wet) translator — **done 2026-06-17 (closed scaffold)**: `_liquid_handling_command_body` + routing, restricted to `center_wet`, validates inputs fail-closed, emits nothing (`liquid_handling_wet_workflow_not_grounded`); the wet SEQUENCE design (descend into liquid → aspirate/dispense → retract) is documented but unwired and ungrounded — see decision_log | A |
 | OT-6 | Post-motion high-Z evidence shape + recording path (input to OT-1) — **done 2026-06-17** | A |
-| OT-7 | MCP agent adapter `adapters/mcp.py` (no file exists) | A |
-| OT-8 | MCP/HTTP pose route-parity tests (no-canonical-default proof) — ship-gate for motion-capable MCP | A |
+| OT-7 | MCP agent adapter `adapters/mcp.py` — **done 2026-06-18**: thin policy adapter, only the 10 allow-listed validated-session tools, routes via `DaemonClient`, no `Ot2Client`/`post_json`; never mints motion approval; SDK lazy-imported/optional; `mcp-serve` CLI + boundary tests | A |
+| OT-8 | MCP/HTTP pose route-parity tests — **done 2026-06-18**: `tests/test_route_parity.py` derives pose-bearing routes from `app.py` + request models and pins the "no SILENT canonical default" at its exact HTTP/MCP sites | A |
 | OT-9 | HTTP programmatic adapter (optional) | A |
-| OT-10 | Recovery runbook + `ot2_abort_or_recover` wiring | A |
-| OT-11 | Trajectory/task-graph doc reconciliation (high-Z already landed — stale prose) | A |
-| OT-12 | Daemon arm/execute operability (commissioning script) | A |
+| OT-10 | Recovery runbook + `ot2_abort_or_recover` wiring — **done 2026-06-18**: `core/abort_recover.py` facade projecting `recover_no_motion_session` into an agent contract (`motion_allowed` never True out of this path), `BridgeService.abort_or_recover`, `session-abort-or-recover` CLI, runbook doc; HTTP-route/client-method exposure noted as follow-up | A |
+| OT-11 | Trajectory/task-graph doc reconciliation — **done 2026-06-18**: marked the high-Z translator / OT-3 invalidation / OT-6 evidence DONE in both task graphs with module pointers; preserved the still-open live-motion-backend POST tail (RG14, B-gated) to avoid over-claiming live motion | A |
+| OT-12 | Daemon arm/execute operability — **done 2026-06-18**: `core/commissioning.py` fail-closed operability layer over the EXISTING motion daemon (dry-run default; never arms without explicit confirm; mints no approval itself) + `scripts/ot2_motion_commissioning.py` + runbook | A |
 | OT-B1..B7 | First live commissioning (fresh session, drift checks, home→high-Z, low-Z offset, wet) | B |
 | C-OT1..5 | single-writer enforcement, set_offset semantics, autonomy threshold, named-vs-raw first move, evidence sufficiency | C |
 
@@ -453,12 +465,12 @@ reconciliation) remain.
 | OC-A5 | Focus-stroke-vs-Z-budget assert at traverse level — **done** (traverse sweeps the 40 mm FE swept Z; dimension-sensitive falsifiability test) | A |
 | OC-A6 | Make the fiducial-focus check falsifiable — **done** (`test_observer_fiducial_geometry_falsifiable_oc_a6`) | A |
 | OC-A7 | Promote `front_end_service_margin_z` from silent `0.0` to an explicit param — **done** (explicit param) | A |
-| OC-A8 | Negative "measured 40×40 head @ 25 mm WD" red-case test (proves A1/A2/A5 falsifiable) — **OPEN** (the *general* falsifiability is proven by the oversized-body + dimension-sensitive tests; the bench-doc-specific 40×40@25 mm numeric scenario is not yet pinned as its own test) | A |
+| OC-A8 | Negative "measured 40×40 head @ 25 mm WD" red-case test — **done 2026-06-18**: dedicated test in `test_row_coupon_cad.py` with empirically-verified pinned values (body overflow x=18.8/y=17.0, scan_axis_extent=40.0, vertical budget 65.0>62.0) proving OC-A1/A2/A5 falsifiable + a green-baseline guard | A |
 | OC-A9 | Split circumscribed-diameter into barrel-Ø vs head-bbox (+ `front_end_barrel_diameter`) — **done** (`test_observer_barrel_and_optical_geometry_propagation_falsifiable_oc_a9_a11`) | A |
 | OC-A10 | Encode the SMIS envelope as a CAD assert cross-checking observer params — **done** (`src/aevum_smis/manifest.py` re-runs the observer envelope arithmetic) | A |
 | OC-A11 | Cross-reference optical-stability checkpoints to the geometry booleans they cite — **done** (overflow propagates to the optical-stability check) | A |
 | OC-A12 | Gate the razor-thin margins so a param nudge goes red — **done** (`test_observer_razor_thin_margin_flag_is_falsifiable_oc_a12`) | A |
-| OC-A13 | Doc reconciliation (fold A1–A12 into RH6/RH15/RP5) — **in progress** (this backlog reconciliation; the RH/RP cross-doc line-number fold remains) | A |
+| OC-A13 | Doc reconciliation (fold A1–A12 into RH6/RH15/RP5) — **done 2026-06-18**: the OC-A facts (with the check field names) folded into the RH6/RH15/RP5 hyperedges in `row_coupon_revision_hypergraph.md` (the anchors live there, not realization_hypergraph.md; the staleness was semantic, not line numbers) | A |
 | OC-A14 | Raceway-X clamp by coupon length (live footprint) — **done** (not in the original A1–A13 list) | A |
 | OC-A15 | Barrel-vs-scan-corridor diagnostics surfaced (not gated) — **done** (`test_observer_scan_corridor_strike_is_falsifiable_oc_a15`) | A |
 
@@ -467,7 +479,7 @@ reconciliation) remain.
 | Item | Produces | Tag |
 |---|---|---|
 | OP-P1, P2 | Stage-0 bench + WS2812 contrast-fork protocol docs — **done** (`docs/protocols/observer_optical_bench_stage0.md`, `observer_contrast_fork_ws2812.md`; reconciled 2026-06-17) | A |
-| OP-P3, P4, P5, P8 | **OPEN** missing `docs/protocols/` docs: condensation purge, ADXL345 settle, kinematic-dock repeatability, + Gate-6 observer evidence-row schema (a leg-corridor metrology doc also already exists) | A |
+| OP-P3, P4, P5, P8 | **done 2026-06-18**: authored `observer_condensation_purge_stage0.md`, `observer_settle_vibration_stage2_adxl345.md`, `observer_kinematic_dock_repeatability.md`, `gate6_observer_evidence_row_schema.md` (+ paired blank measurement templates) — falsifiable gated procedures, house-style; each names the real fail-closed gate/model it documents and creates no motion/emission authority | A |
 | OP-S1des..S3des, S4evid | Stage 1–3 build-drawing CAD + the evidence-packet writer (design-ahead) | A |
 | OP-B0..Bcad | Stage-0 bench build + the three gating measurements (focus/WD, contrast, field-flatness) + condensation + feed numbers to CAD | B (Bcad→A) |
 | OP-S1b..S4opt | Stage 1–4 builds (VCM focus, one-plate settle, full-row traverse, dock/soak/interlock) + optical characterization | B |

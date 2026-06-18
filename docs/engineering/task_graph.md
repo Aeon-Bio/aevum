@@ -331,10 +331,21 @@ into context. Atomic daemon arm/mint/persist/consume is implemented for
 `MotionDispatchReservation` plus prepared home `CommandJournalEntry` when live
 maintenance-run, labware, offset, and command-history readback pass. The
 separate `motion_backend_enabled` path can POST the prepared `home` command only
-after a second matching readback and journal reconciliation; all target-motion
-translators are still closed. `M*` still cannot execute live target motion until
-`Q*` passes, a fresh session is armed, high-Z target translation exists, and
-physical-event invalidation exists. The CLI remains an
+after a second matching readback and journal reconciliation. The target-motion
+command-body translators have since landed:
+`src/aevum_ot2/core/dispatch_preparation.py` `_move_high_z_command_body`
+(OT-1, `center_high_z`), `_move_low_z_command_body` (OT-4), and
+`_liquid_handling_command_body` (OT-5), all routed through
+`_command_body_for_operation`. Physical-event invalidation has also landed as
+the fail-closed `detect_foreign_commands` whole-history scan in
+`src/aevum_ot2/core/command_journal.py` (OT-3, 2026-06-17), and post-motion
+high-Z evidence has landed in `src/aevum_ot2/core/high_z_motion_evidence.py`
+(OT-6). `M*` still cannot execute live target motion: the live-motion BACKEND
+that actually POSTs a translated target command against the physical fixture
+(RG14 proper, the `motion_backend_enabled` path) is not done, and it remains
+blocked until `Q*` passes, a fresh session is armed, `detect_foreign_commands`
+is wired into the dispatch cycle, and execute-time pose freshness is checked.
+No robot target motion has been dispatched. The CLI remains an
 operator/debug adapter, not the normal motion transport.
 
 `D*` and `W*` are future commissioning phases. They require target-specific
@@ -351,13 +362,22 @@ Current continuation:
    daemon-minted only: arming requires a schema-valid local gate result blocked
    only by missing approval, then atomically persists
    `motion_commissioning_armed` session/lock state and one approval record.
-3. The next implementation gate is high-Z target translation: keep the existing
-   live readback and prepared-journal boundary, add a typed `move_high_z`
-   command-body translator for `center_high_z`, and still do not POST until the
-   final backend gate exists. Execute-time rechecks must include pose digest,
-   fixture QC, safety-profile checksum, robot identity, session identity,
-   approval expiry, labware-offset bounds, and recovery disposition.
+3. High-Z target translation has landed (OT-1): the typed `move_high_z`
+   command-body translator for `center_high_z` is implemented in
+   `src/aevum_ot2/core/dispatch_preparation.py` (`_move_high_z_command_body`,
+   routed through `_command_body_for_operation`) and still does not POST. The
+   next implementation gate is the live-motion BACKEND (RG14 proper, the
+   `motion_backend_enabled` path) that actually POSTs that translated command
+   against the physical fixture: keep the existing live readback and
+   prepared-journal boundary, wire the landed `detect_foreign_commands` (OT-3)
+   physical-event invalidation into the dispatch cycle, and still do not POST
+   until the final backend gate exists. Execute-time rechecks must include pose
+   digest, fixture QC, safety-profile checksum, robot identity, session
+   identity, approval expiry, labware-offset bounds, and recovery disposition.
 4. Record post-motion high-Z evidence before any low-Z dry target is considered.
+   The evidence path has landed (OT-6,
+   `src/aevum_ot2/core/high_z_motion_evidence.py`); it remains to be exercised
+   against a real post-motion dispatch.
 5. Keep every non-center, low-Z, wet, and boundary target blocked until its own
    target-specific evidence path is committed.
 

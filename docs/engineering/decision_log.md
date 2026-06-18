@@ -1480,3 +1480,39 @@ This completes the OT control-stack translator track for this pass: OT-6 (high-Z
 move_high_z translator land real commands; OT-4 (low-Z) is gated on a per-well descent floor; OT-2
 (set_offset) is formally closed; OT-5 (wet) is a closed scaffold. Every descent/wet path that
 lacks physical grounding is fail-closed rather than inventing motion authority.
+
+## 2026-06-18 — remaining A-queue batch (agent surface, recovery, commissioning, protocols)
+
+**OT-7 MCP agent adapter** (`src/aevum_ot2/adapters/mcp.py`): the fourth COTS/agent-boundary authority
+exception — an adapter is a translator, NOT an authority. It exposes exactly 10 allow-listed validated
+session-transition tools and routes every stateful call through `server.client.DaemonClient`; the only
+direct-core call is read-only `ot2_status` (resolve_robot + fetch_robot_status), matching cli.py.
+(a) Motion authority is never agent-mintable — `arm_motion_approval` is intentionally NOT a tool, and
+validate_plan/execute_next never inject a motion_approval. (b) Orientation is never defaulted to
+'canonical' by agent plan tools; it is owned by the session. (c) Fail-closed twice: `register_tool`
+refuses denied/non-allowlisted names and `dispatch` re-checks before routing. (d) Tool inputs are
+pydantic extra='forbid' so motion_approval/raw-command fields cannot be smuggled. (e) The MCP SDK is
+optional, lazy-imported, NOT an install requirement.
+
+**OT-8 route-parity ship-gate** (`tests/test_route_parity.py`): the "no SILENT canonical default" property
+is pinned at its exact HTTP + MCP sites, with pose-bearing routes DERIVED from app.py + request models (not
+hand-listed) so drift breaks the test. A motion-capable agent surface may never silently default a pose.
+
+**OT-10 abort/recover facade** (`core/abort_recover.py`): `ot2_abort_or_recover` is a non-authoritative
+projection over the proven `recover_no_motion_session`; `motion_allowed` is never True out of this path
+(derived False unconditionally and fails closed if a session unexpectedly reports True). `required_action`
+maps fail-closed per disposition. Calls no raw transport.
+
+**OT-12 commissioning operability** (`core/commissioning.py`): a thin fail-closed ORCHESTRATOR over the
+already-existing motion-capable BridgeService — NOT a new motion path. The daemon, validation,
+approval-minting, and dispatch authority already live in the bridge core; commissioning only sequences and
+reports. Dry-run is the default; it never auto-arms (requires explicit confirm_arm + motion_enabled), mints
+no MotionApproval itself, and never sets motion_allowed.
+
+**OP-P5 dock repeatability** is a Stage-B protocol that FEEDS registration, not a dock gate: a head that
+cannot trust the ≤5 µm coupling sets `requires_post_dock_autofocus`, escalating the registration ritual —
+the measured outcome does not become a new gate. **OP-P3/P4/P8** likewise document existing fail-closed
+gates/models and create no motion/emission authority (condensation purge → `evaluate_condensation_control`'s
+three blockers; Gate-6 observer row → an EvidencePacket record format, packets-only, that never authorizes
+the next motion; settle → the inherited hold-still spec). All protocol numbers remain not-yet-evidence until
+measured.

@@ -1403,12 +1403,20 @@ Resolution:
   `FixturePoseEvidenceArtifact`, the gate revalidates the artifact plus nested
   image/vision checksums and matching session-indexed camera capture metadata
   behind each pose handle, including the session robot URL, and HTTP plan
-  routes reject raw pose-claim JSON. Remaining `RG14-pre` work: run that path
-  against fresh
-  real slot-5 evidence, future MCP route parity, high-Z/low-Z-specific
-  labware-offset handling beyond the current home preparation readback,
-  physical-event invalidation sources, and execute-time pose freshness
-  revalidation.
+  routes reject raw pose-claim JSON. Several previously-remaining `RG14-pre`
+  software items have since landed: the `move_high_z` command-body translator
+  is implemented (OT-1, `src/aevum_ot2/core/dispatch_preparation.py`
+  `_move_high_z_command_body`, routed through `_command_body_for_operation`),
+  and physical-event invalidation has a landed fail-closed primitive (OT-3,
+  `src/aevum_ot2/core/command_journal.py` `detect_foreign_commands` ->
+  `CommandHistoryInvalidation`, 2026-06-17, covered by
+  `tests/test_command_invalidation.py`). Remaining `RG14-pre` work is now:
+  run that path against fresh real slot-5 evidence, future MCP route parity,
+  high-Z/low-Z-specific labware-offset handling beyond the current home
+  preparation readback, wiring `detect_foreign_commands` into the live backend
+  dispatch path, and execute-time pose freshness revalidation. The live-motion
+  BACKEND that actually POSTs a translated target command against the physical
+  fixture (RG14 proper, behind `motion_backend_enabled`) remains not done.
 
   The stale-claim invalidation slice now gives session-scoped pose authority an
   explicit time window. `pose_match_gate` rejects claims, handles, and pose
@@ -1816,18 +1824,38 @@ the next software node.
   request, moves no-post backend failures to recovery without corrupting
   last-command fields, and requires a local HTTP auth token when enabled through
   the daemon. The default service still returns `not_implemented` without a
-  POST when the backend flag is disabled. The unresolved part is high-Z target
-  command translation plus physical-event invalidation after any live command.
+  POST when the backend flag is disabled. High-Z target command-body
+  translation is now landed (OT-1): `_move_high_z_command_body` in
+  `src/aevum_ot2/core/dispatch_preparation.py` emits the `center_high_z`
+  `moveToWell` command body, routed through `_command_body_for_operation`
+  alongside the landed `move_low_z` (OT-4) and `liquid_handling` (OT-5)
+  translators. Physical-event invalidation is also landed (OT-3) as the
+  fail-closed `detect_foreign_commands` whole-history scan in
+  `src/aevum_ot2/core/command_journal.py`, and post-motion high-Z evidence is
+  landed (OT-6) in `src/aevum_ot2/core/high_z_motion_evidence.py`. The
+  genuinely-still-open part is the live-motion BACKEND that actually POSTs a
+  translated target command against the physical fixture (RG14 proper, the
+  `motion_backend_enabled` path in `server.service.execute_next`): it must run
+  fresh real slot-5 readback, wire `detect_foreign_commands` into the dispatch
+  cycle, and dispatch the prepared high-Z command — no robot target motion has
+  been dispatched.
 
 ## Immediate Next Work
 
-Continue through the `RG*` graph above. The next unresolved software nodes are:
+Continue through the `RG*` graph above. The following software nodes have
+landed against verified code ground truth:
 
 ```text
-RG14-prepare high-Z target command-body translation
+DONE high-Z target command-body translation (OT-1, dispatch_preparation._move_high_z_command_body + _command_body_for_operation routing)
+DONE physical-event invalidation primitive (OT-3, command_journal.detect_foreign_commands, 2026-06-17)
+DONE post-motion high-Z evidence (OT-6, high_z_motion_evidence.py)
+```
+
+The next unresolved software nodes are:
+
+```text
 RG14-pre execute-time pose freshness checks
-RG14-pre physical-event invalidation sources
-RG14-backend high-Z and target-motion backend translators
+RG14-backend live high-Z target-motion BACKEND that POSTs the translated command (RG14 proper / motion_backend_enabled), including wiring detect_foreign_commands into the dispatch cycle
 ```
 
 The next physical branch nodes are:
@@ -1838,10 +1866,13 @@ PF6 post-home and post-high-Z evidence after the first physical motions
 ```
 
 There are no active expected-failure attack anchors. The next software risk is
-the post-home target-motion path: fresh real slot-5 evidence needs to be
-refreshed before physical readiness can pass, and future motion still needs
-high-Z target translation, physical-event invalidation sources, execute-time
-pose freshness, target verification, and offset promotion before any target
-command can safely be prepared and posted.
+the post-home target-motion path: although high-Z target translation (OT-1) and
+physical-event invalidation (OT-3) have landed, fresh real slot-5 evidence
+still needs to be refreshed before physical readiness can pass, and the
+live-motion backend that POSTs a translated target command (RG14 proper) still
+needs execute-time pose freshness, `detect_foreign_commands` wired into the
+dispatch cycle, target verification, and offset promotion before any target
+command can safely be prepared and posted. No robot target motion has been
+dispatched.
 
 No live robot action is required for this work.

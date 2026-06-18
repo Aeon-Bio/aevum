@@ -7,6 +7,7 @@ from typing import Annotated, cast
 
 import typer
 
+from aevum_ot2.core.abort_recover import ot2_abort_or_recover
 from aevum_ot2.core.artifacts import current_fixture_identity
 from aevum_ot2.core.camera import capture_picture
 from aevum_ot2.core.client import fetch_robot_status
@@ -751,6 +752,20 @@ def session_recover_nomotion(
     typer.echo(json.dumps(report.model_dump(mode="json"), indent=2))
 
 
+@app.command("session-abort-or-recover")
+def session_abort_or_recover(
+    session_id: str = typer.Argument(..., help="Local bridge session ID."),
+    timeout: float = typer.Option(10.0, help="HTTP timeout in seconds."),
+) -> None:
+    """Project recover_no_motion_session into the agent abort/recover contract (OT-10).
+
+    A facade over the proven recovery state machine: it never creates motion authority
+    (motion_allowed is always derived, never True out of this path).
+    """
+    report = ot2_abort_or_recover(session_id, timeout_seconds=timeout)
+    typer.echo(json.dumps(report.model_dump(mode="json"), indent=2))
+
+
 @app.command("camera-analyze")
 def camera_analyze(
     image_path: Annotated[Path, typer.Argument(exists=True, dir_okay=False, readable=True)],
@@ -1296,3 +1311,25 @@ def daemon_serve(
         motion_backend_token=motion_backend_token,
         allow_remote=allow_remote,
     )
+
+
+@app.command("mcp-serve")
+def mcp_serve(
+    daemon_url: str = typer.Option(
+        "http://127.0.0.1:8765",
+        help="Local Aevum OT-2 daemon base URL the MCP tools route through.",
+    ),
+) -> None:
+    """Serve the policy-enforcing MCP agent adapter (allow-listed tools only, OT-7).
+
+    The MCP SDK is optional and is NOT an install requirement; build_mcp_server
+    lazy-imports it and raises a clear ImportError if absent.
+    """
+    # Lazy import so importing the CLI never requires the optional MCP SDK.
+    from aevum_ot2.adapters.mcp import build_mcp_server
+
+    try:
+        server = build_mcp_server(daemon_url=daemon_url)
+    except ImportError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+    server.run()
