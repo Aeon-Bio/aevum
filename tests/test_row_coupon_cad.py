@@ -5624,6 +5624,66 @@ def test_observer_oversized_body_overflows_both_checks_no_decoupling() -> None:
     assert live_c["carriage_traverse"]["scan_axis_extent_mm"] == 21.0
 
 
+def test_observer_measured_40x40_head_at_25mm_wd_red_case_oc_a8() -> None:
+    # OC-A8: the bench-doc "40x40 head @ 25mm WD" measured front-end footprint must
+    # NOT slip through any observer geometry gate. The doc figure maps onto the
+    # observer_robotics keys as: 40 mm in X (front_end_length_x), 40 mm in Y
+    # (front_end_width_y), a 40 mm scan-axis sweep (front_end_scan_axis_footprint),
+    # a Ø40 barrel (front_end_barrel_diameter), and a 25 mm working distance / top
+    # clearance (front_end_top_clearance_z). Values below are EMPIRICALLY VERIFIED by
+    # running row_coupon_layout, not copied from any plan.
+    red = deepcopy(load_params(PARAMS))
+    red["observer_robotics"]["front_end_length_x"] = 40.0  # doc "40 ... head" -> X
+    red["observer_robotics"]["front_end_width_y"] = 40.0  # doc "40x40 head" -> Y
+    red["observer_robotics"]["front_end_scan_axis_footprint"] = 40.0  # scan sweep
+    red["observer_robotics"]["front_end_barrel_diameter"] = 40.0  # Ø40 objective barrel
+    red["observer_robotics"]["front_end_top_clearance_z"] = 25.0  # 25 mm WD -> top clr
+    layout = row_coupon_layout(red)
+
+    fe = layout["observer_front_end_swept_body_check"]
+    traverse = layout["observer_carriage_envelope_check"]["carriage_traverse"]
+    optical = layout["observer_optical_stability_check"]
+
+    # OC-A1: the swept body overflows the dry bay (X by 18.8 mm, Y by 17.0 mm).
+    assert fe["front_end_body_fits_dry_bay"] is False
+    assert fe["front_end_body_overflow_mm"] == {"x": 18.8, "y": 17.0, "z": 0.0}
+
+    # OC-A2: the traverse scan span is driven by the 40 mm body, not the placeholder,
+    # and the carriage no longer fits the bay.
+    assert traverse["scan_axis_extent_mm"] == 40.0
+    assert traverse["fits_dry_bay"] is False
+
+    # OC-A5: the 25 mm working-distance budget no longer closes vertically.
+    assert fe["front_end_vertical_budget_closes"] is False
+
+    # Labeled-secondary cascade: the Ø40 barrel violates the objective keepout, the
+    # 40 mm scan footprint drives the corridor margin negative, the traverse no longer
+    # clears, and the geometry overflow propagates a hard blocker into the optical-
+    # stability check (it can no longer read as "only physical evidence pending").
+    assert fe["front_end_fits_objective_keepout"] is False
+    assert traverse["scan_corridor_margin_mm"] < 0.0
+    assert traverse["clears_traverse"] is False
+    assert optical["observer_geometry_clears"] is False
+    assert "geometry_overflow_blocks_optical_stability" in optical["blockers"]
+
+    # Green-baseline guard: the unmodified live params clear every gate above, proving
+    # the red asserts catch the oversized head rather than constant-failing.
+    green = row_coupon_layout(load_params(PARAMS))
+    green_fe = green["observer_front_end_swept_body_check"]
+    green_tr = green["observer_carriage_envelope_check"]["carriage_traverse"]
+    green_opt = green["observer_optical_stability_check"]
+    assert green_fe["front_end_body_fits_dry_bay"] is True
+    assert green_fe["front_end_body_overflow_mm"] == {"x": 0.0, "y": 0.0, "z": 0.0}
+    assert green_fe["front_end_vertical_budget_closes"] is True
+    assert green_fe["front_end_fits_objective_keepout"] is True
+    assert green_tr["scan_axis_extent_mm"] == 21.0
+    assert green_tr["fits_dry_bay"] is True
+    assert green_tr["scan_corridor_margin_mm"] >= 0.0
+    assert green_tr["clears_traverse"] is True
+    assert green_opt["observer_geometry_clears"] is True
+    assert "geometry_overflow_blocks_optical_stability" not in green_opt["blockers"]
+
+
 def test_observer_fiducial_focus_target_check_exports_local_pattern() -> None:
     params = load_params(PARAMS)
     layout = row_coupon_layout(params)

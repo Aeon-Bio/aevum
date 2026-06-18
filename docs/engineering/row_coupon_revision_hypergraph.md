@@ -190,7 +190,29 @@ RH6 observer module swept body [CAD-proxy closed; physical evidence pending]
   review: the required Gate 6 envelope and split checks block observer
   readiness until the compact front end, larger carriage, focus recovery, and
   service loop are physically reviewed as separate mechanisms. CAD still does
-  not prove observer installation, focus, vibration, or signal quality.
+  not prove observer installation, focus, vibration, or signal quality. The
+  OC-A1..A9/A14 hardening makes each observer body fail-closed on its own
+  geometry rather than on a single layout-level test: every swept and reserved
+  box now runs the shared `_dry_bay_containment` overflow helper, so the
+  front-end body reports `front_end_body_fits_dry_bay`/`front_end_body_overflow_mm`
+  (OC-A1) and the static carriage box reports
+  `carriage_box_fits_dry_bay`/`carriage_box_overflow_mm` (OC-A4) -- an oversized
+  measured dimension surfaces an overflow here instead of silently passing. The
+  scan-axis traverse span is tied to the head body via
+  `max(front_end_scan_axis_footprint, front_end_length_x/width_y)` (reported as
+  `scan_axis_extent_mm`, OC-A2), closing the decoupling where an oversized body
+  could overflow the bay while the traverse, reading only the smaller
+  scan-footprint param, still read "fits". The service raceway, which had no
+  asserts, now carries falsifiable ones -- `raceway_clears_dry_bay_sweep`,
+  `raceway_z_within_bay_depth`, `r10_loop_fits_raceway_z`, gated by
+  `raceway_geometry_clears` (OC-A3) -- and the thin-truck traverse adds its own
+  `fits_dry_bay`/`clears_traverse`, `deck_foot_collision_count`, and
+  `adjacent_slot_collision_count` asserts (OC-A14). The front-end vertical budget
+  now sums an explicit `front_end_service_margin_z` param into
+  `vertical_budget_required_mm`/`front_end_vertical_budget_closes` (OC-A7). The
+  conflated objective gate is split into the authoritative round-barrel keepout
+  `front_end_barrel_fits_keepout` (barrel Ø vs `objective_keepout_diameter`) and
+  the separate head-bbox-vs-dry-bay `front_end_body_fits_dry_bay` (OC-A9).
   context: update K1, K3, K5, K6, and K7.
 
 RH7 service and exploded states [CAD bounds evidence closed; physical service pending]
@@ -310,7 +332,26 @@ RH15 optical quality and observer stability [CAD-proxy closed; physical evidence
   biophotonics signal quality. The CAD now exports local observer
   fiducial/focus target geometry and the required
   `observer_optical_stability_check` first-print validation blocker, but
-  optical performance evidence remains a physical Gate 6 requirement.
+  optical performance evidence remains a physical Gate 6 requirement. The OC-A11
+  hardening makes geometry overflow propagate into this check: it now folds an
+  `observer_geometry_clears` verdict over the front-end body, carriage box,
+  carriage `clears_traverse`, raceway `raceway_geometry_clears`, and fiducial
+  clearance, and appends a hard `geometry_overflow_blocks_optical_stability`
+  blocker when any of them fails -- so a geometry overflow can no longer read as
+  "only physical evidence pending." OC-A12 surfaces razor-thin margins as
+  fail-soft warnings (`traverse_margin_is_razor_thin`,
+  `scan_margin_is_razor_thin`, threshold `razor_thin_margin_warn_threshold_mm`)
+  so a sub-millimeter param drift cannot erode a positive-but-tiny margin
+  silently. OC-A15 adds scan-corridor diagnostics that report both real
+  scan-axis walls -- the standoff-leg corridor (`scan_corridor_width_mm`,
+  `scan_corridor_margin_mm`) and the milled per-wall dry-bay clearance
+  (`scan_bay_per_wall_margin_mm`) -- and binds the razor-thin flag to the
+  tightest of the two via `scan_binding_margin_mm`, and surfaces the diagnostic
+  barrel-vs-corridor checks (`front_end_barrel_within_head_footprint`,
+  `barrel_threads_scan_corridor`, mirroring the SMIS
+  `scan_corridor_footprint_max` dock gate) that flag, without autonomously
+  overturning the "fits" verdict, that a realistic objective barrel does not
+  thread the placeholder-driven scan corridor.
   context: update K1, K3, K5, K6, and K7.
 
 RH16 row tiling and service interfaces [CAD-proxy closed; physical evidence pending]
@@ -385,6 +426,26 @@ screen, and the port-driven latch-station asymmetry. This is still not physical
 closure. M4-M10 remain open: slicer support evidence, a production-matched latch
 coupon, release usability, asymmetry mitigation, bench force/compression
 protocol, integrated compression-stack testing, and full coupon print release.
+
+RP5 (observer kinematic split) is the productive loop that the OC-A1..A12 and
+A14/A15 observer-CAD hardening advances. It is no longer a single swept-body
+claim: the four observer checks each model a separate mechanism with its own
+falsifiable asserts -- the compact front-end body
+(`observer_front_end_swept_body_check`, now gating `front_end_body_fits_dry_bay`,
+the barrel/keepout split `front_end_barrel_fits_keepout`, and the
+`front_end_service_margin_z`-aware `front_end_vertical_budget_closes`), the
+static reserved carriage box (`observer_carriage_envelope_check`,
+`carriage_box_fits_dry_bay`), the thin-gantry-truck traverse
+(`carriage_traverse` with `clears_traverse`, `fits_dry_bay`, and the
+body-tied `scan_axis_extent_mm`), and the service-loop raceway
+(`observer_service_raceway_envelope_check`, `raceway_geometry_clears`). The
+44.6 mm Y overflow the earlier model flagged is resolved at the layout level by
+the thin-truck topology, with the residual burden surfaced -- not hidden -- on the
+scan axis as a razor-thin ~0.2 mm margin (OC-A12/A15 diagnostics) that excludes
+the post-fold camera arm. This is geometric/topological closure against
+PLACEHOLDER head footprints only; the achievable beam width, real barrel and
+head footprints, camera-routing strategy, and whether a thin truck can traverse
+the full row inside the bench hold-still spec stay Gate-6 / Stage-0 physical work.
 
 The material-authority conflict is resolved for the one-row coupon first-print
 path by decision log entry `2026-06-04: First-Print Row Coupon Has No Hidden
