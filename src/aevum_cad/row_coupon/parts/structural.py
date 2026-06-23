@@ -289,26 +289,39 @@ def _add_plate_support_lands(
     return model
 
 
+def _pod_frame_key_solids(
+    *,
+    tile_origins: list[dict[str, Any]],
+    params: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Single source of truth for the pod<->frame key (D3 de-circularization): ONE
+    _pod_frame_key_rectangles call feeds BOTH the boss (_add_pod_frame_keys) and the
+    pocket (_cut_pod_frame_key_pockets), so a param edit cannot silently drift the fit.
+    Returns per key {"boss": Workplane, "rect": rect}."""
+    production = params.get("production_assembly", {})
+    key_h = production.get("pod_frame_key_height_z", 1.6)
+    if key_h <= 0:
+        return []
+    out: list[dict[str, Any]] = []
+    for key in _pod_frame_key_rectangles(tile_origins=tile_origins, params=params):
+        boss = _rounded_box(
+            float(key["length_x"]),
+            float(key["width_y"]),
+            key_h,
+            min(float(key["length_x"]), float(key["width_y"])) / 6,
+        ).translate((float(key["x"]), float(key["y"]), 0.0))
+        out.append({"boss": boss, "rect": key})
+    return out
+
+
 def _add_pod_frame_keys(
     model: cq.Workplane,
     *,
     tile: dict[str, Any],
     params: dict[str, Any],
 ) -> cq.Workplane:
-    production = params.get("production_assembly", {})
-    key_h = production.get("pod_frame_key_height_z", 1.6)
-    if key_h <= 0:
-        return model
-
-    for key in _pod_frame_key_rectangles(tile_origins=[tile], params=params):
-        model = model.union(
-            _rounded_box(
-                float(key["length_x"]),
-                float(key["width_y"]),
-                key_h,
-                min(float(key["length_x"]), float(key["width_y"])) / 6,
-            ).translate((float(key["x"]), float(key["y"]), 0.0))
-        )
+    for entry in _pod_frame_key_solids(tile_origins=[tile], params=params):
+        model = model.union(entry["boss"])
     return model
 
 
@@ -567,10 +580,11 @@ def _cut_pod_frame_key_pockets(
     if key_h <= 0:
         return model
 
-    for key in _pod_frame_key_rectangles(
+    for entry in _pod_frame_key_solids(
         tile_origins=layout["tile_origins"],
         params=params,
     ):
+        key = entry["rect"]
         model = model.cut(
             cq.Workplane("XY")
             .box(
