@@ -32,6 +32,62 @@ def _clip_workplane_to_y_range(
     return model.intersect(mask)
 
 
+def _keyed_split_interface(
+    model: cq.Workplane,
+    *,
+    y_min: float,
+    y_max: float,
+    split_y: float,
+    interface: dict[str, Any],
+) -> cq.Workplane:
+    """D4 keyed split interface (flag-on only). Starts from the butt half, then adds a
+    PRINTED dovetail anti-shear key straddling split_y (its slanted X walls are non-axis
+    PLANE faces => non-flat seam) plus a witness pip on the lower half, and the
+    clearance-inflated mating pocket on the upper half. Complementary by construction:
+    both halves reference the same split_y, so the lower protrusion fits the upper pocket.
+    No metal — all box/polyline/union/cut on the polymer body."""
+    base = _clip_workplane_to_y_range(model, y_min=y_min, y_max=y_max)
+    is_lower = abs(y_max - split_y) < 1e-6
+    is_upper = abs(y_min - split_y) < 1e-6
+    if not (is_lower or is_upper):
+        return base
+
+    bb = base.val().BoundingBox()
+    x_center = (float(bb.xmin) + float(bb.xmax)) / 2.0
+    zlen = float(bb.zlen)
+    clr = float(interface.get("fit_class_clearance_mm", 0.2))
+    half_span = float(interface.get("key_half_span_y", 3.0))
+    narrow_x = float(interface.get("key_narrow_x", 6.0))
+    wide_x = float(interface.get("key_wide_x", 10.0))
+    # clamp the key depth to fit thin bodies (e.g. 0.8mm keeper doors)
+    key_depth = min(float(interface.get("key_depth_mm", 4.0)), max(zlen - 0.4, 0.4))
+    z0 = float(bb.zmin) + (zlen - key_depth) / 2.0
+
+    def _dovetail(nx: float, wx: float) -> cq.Workplane:
+        pts = [
+            (x_center - nx / 2, split_y - half_span),
+            (x_center + nx / 2, split_y - half_span),
+            (x_center + wx / 2, split_y + half_span),
+            (x_center - wx / 2, split_y + half_span),
+        ]
+        return (
+            cq.Workplane("XY").polyline(pts).close().extrude(key_depth).translate((0, 0, z0))
+        )
+
+    if is_lower:
+        w_w = float(interface.get("witness_width_mm", 1.0))
+        w_l = float(interface.get("witness_len_mm", 2.0))
+        w_h = float(interface.get("witness_height_mm", 0.5))
+        witness = (
+            cq.Workplane("XY")
+            .box(w_w, w_l, w_h, centered=(True, False, False))
+            .translate((x_center, split_y - w_l / 2, float(bb.zmax) - w_h))
+        )
+        return base.union(_dovetail(narrow_x, wide_x)).union(witness)
+    # upper half: clearance-inflated mating pocket
+    return base.cut(_dovetail(narrow_x + 2 * clr, wide_x + 2 * clr))
+
+
 def _production_y_split_parts(params: dict[str, Any]) -> tuple[str, ...]:
     from aevum_cad.row_coupon import (ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS)
     production = params.get("production_assembly", {})
@@ -99,16 +155,29 @@ def build_row_coupon_production_y_split_parts(
 ) -> dict[str, cq.Workplane]:
     from aevum_cad.row_coupon import (_row_coupon_export_models)
     models = _row_coupon_export_models(params)
+    production = params.get("production_assembly", {})
+    keyed = bool(production.get("keyed_joints_enabled", False))
+    interface = production.get("y_split_interface", {}) or {}
+    split_y = float(_production_y_split_segments(params)[0]["y_max"]) if keyed else None
     split_parts: dict[str, cq.Workplane] = {}
     for row in row_coupon_production_y_split_plan(params):
         source_part = str(row["source_part"])
         if source_part not in models:
             raise ValueError(f"unknown production Y split source part: {source_part}")
-        split_parts[str(row["name"])] = _clip_workplane_to_y_range(
-            models[source_part],
-            y_min=float(row["y_min"]),
-            y_max=float(row["y_max"]),
-        )
+        if keyed:
+            split_parts[str(row["name"])] = _keyed_split_interface(
+                models[source_part],
+                y_min=float(row["y_min"]),
+                y_max=float(row["y_max"]),
+                split_y=split_y,
+                interface=interface,
+            )
+        else:
+            split_parts[str(row["name"])] = _clip_workplane_to_y_range(
+                models[source_part],
+                y_min=float(row["y_min"]),
+                y_max=float(row["y_max"]),
+            )
     return split_parts
 
 

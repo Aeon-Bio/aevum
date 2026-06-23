@@ -514,6 +514,17 @@
     "flow_probe_adapter_diameter": 7.0,
     "flow_probe_adapter_height_z": 3.0,
     "exploded_spacing_z": 10.0,
-    "exploded_spacing_y": 16.0
+    "exploded_spacing_y": 16.0,
+    "y_split_interface": {
+      "description": "D4 keyed split interface (active only when keyed_joints_enabled); printed dovetail anti-shear key + witness + clearance",
+      "fit_class_clearance_mm": 0.2,
+      "key_half_span_y": 3.0,
+      "key_narrow_x": 6.0,
+      "key_wide_x": 10.0,
+      "key_depth_mm": 4.0,
+      "witness_width_mm": 1.0,
+      "witness_len_mm": 2.0,
+      "witness_height_mm": 0.5
+    }
   }
 }
