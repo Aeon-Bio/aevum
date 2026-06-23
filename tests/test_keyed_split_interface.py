@@ -41,6 +41,9 @@ def test_attached_key_has_real_mate_clearance_and_protruding_witness():
     assert pocket_removed > boss_added, (
         f"no fit clearance: pocket {pocket_removed:.2f} <= boss {boss_added:.2f} (interference)"
     )
+    # G5a: the structural backbone carries MULTIPLE keys (one per keyable wall), so the
+    # added boss volume is well above a single key (~192 mm^3 at default dims).
+    assert boss_added > 300.0, f"backbone should carry multiple G5a keys, got boss {boss_added:.0f}"
     # (d) reassembles within the source bbox; Z only exceeds the source by the (bounded,
     # intentional) protruding witness height, not an unbounded envelope blowup
     rb = lo.union(up).val().BoundingBox()
@@ -49,12 +52,13 @@ def test_attached_key_has_real_mate_clearance_and_protruding_witness():
     assert rb.zmax <= src_bb.zmax + w_h + 0.01, "keyed part Z envelope grew beyond the witness height"
 
 
-def test_hollow_center_part_falls_back_to_butt_not_floating_key():
+def test_thin_walled_part_falls_back_to_butt_not_floating_key():
     p = _keyed_params()
     parts = m.build_row_coupon_production_y_split_parts(p)
-    lo = parts["wet_chamber_frame_y01_of_02"]  # hollow center at the seam
-    # no key protrusion, and a single connected body (no floating disconnected boss)
-    assert abs(lo.val().BoundingBox().ymax - SEAM) < 1e-3, "hollow-center part should butt at the seam"
+    lo = parts["wet_chamber_frame_y01_of_02"]  # thin perimeter walls at the seam
+    # too thin for a robust oversized dovetail -> butt seam (retained globally / by the seal
+    # + the keyed backbone it mounts to); no key protrusion, no floating disconnected boss
+    assert abs(lo.val().BoundingBox().ymax - SEAM) < 1e-3, "thin-walled part should butt at the seam"
     assert len(lo.val().Solids()) == len(
         m._clip_workplane_to_y_range(
             m._row_coupon_export_models(p)["wet_chamber_frame"], y_min=0.0, y_max=SEAM

@@ -18,10 +18,18 @@ first-pass scaffold. This doc is the durable, tracked plan — not the tmpdir hy
   per-part-realization caveat to the D8 descriptor audit; bounded the witness Z-protrusion in
   the mate test; moved this plan into the repo.
 
+## Done (cont.)
+- **G5a** wall-aware key placement: scatter candidate keys across the seam X-span, keep those whose
+  boss overlaps seam material (deduped by spacing). Result: the structural backbone (`plate_support_frame`,
+  the datum frame) carries MULTIPLE keys (was 1); thin-walled frames/shells/discrete parts (wet_chamber_frame,
+  covers, keeper doors) correctly butt — they are too thin for a robust oversized dovetail and are retained
+  by their own snap/wedge mechanisms while riding the keyed backbone (a coherent "key the backbone, retain the
+  rest" strategy, per the print-native intent). Mate + multi-key density tested.
+
 ## Deferred design — needs physical iteration. **Do NOT ship flag-on for wet use until G5c.**
 | ID | Item | Exit criterion |
 |---|---|---|
-| **G5a** | Per-wall key placement (today only solid-seam parts key; ~1/9). | >1 part keyed via seam-cross-section-aware placement; test asserts a minimum keyed count. |
+| **G5a+** | Per-wall *sized* keys on thin perimeter walls (if a printed test shows the backbone-only joint is insufficient). | Wall-width-aware key sizing so a 2–4mm wall hosts a fitted (non-overhanging) key. |
 | **G5b** | D4 Z-shear interlock (key slides out +Z). | Add only if a physical Z-lift test on a printed pair shows the existing wedge/deck retention is insufficient; requires frozen print orientation. |
 | **G5c** | Real seal-across-split (lap applied DURING the split, one half overlapping, seated OUTSIDE the elastomer pocket). **BLOCKS wet use.** | Dye + pressure/vacuum decay evidence on a printed keyed pair. |
 | **G5d** | Real swept-solid verification (boolean interference for removal / trapped-plate / per-part key realization) replacing descriptor/coincident-seam proxies. | Checks build the solids and boolean-intersect; a butted part reports butt, not keyed. |
