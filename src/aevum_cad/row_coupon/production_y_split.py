@@ -223,7 +223,16 @@ def build_row_coupon_production_y_split_parts(
     params: dict[str, Any],
 ) -> dict[str, cq.Workplane]:
     from aevum_cad.row_coupon import (_row_coupon_export_models)
-    models = _row_coupon_export_models(params)
+    pa = params.get("production_assembly", {})
+    # The Y-split operates on full-row FUSED bodies; suppress per-instance latch
+    # packaging (D7) for the source build so the split plan's fused source-part names
+    # (e.g. printed_gas_pcb_keeper_doors, printed_wedge_locks) always resolve.
+    source_params = (
+        {**params, "production_assembly": {**pa, "export_per_instance_latch_keys": False}}
+        if pa.get("export_per_instance_latch_keys", False)
+        else params
+    )
+    models = _row_coupon_export_models(source_params)
     production = params.get("production_assembly", {})
     keyed = bool(production.get("keyed_joints_enabled", False))
     interface = production.get("y_split_interface", {}) or {}

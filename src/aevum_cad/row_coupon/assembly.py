@@ -6,8 +6,7 @@ import cadquery as cq
 
 def _row_coupon_export_models(params: dict[str, Any]) -> dict[str, cq.Workplane]:
     from aevum_cad.row_coupon import (build_cots_gas_service_tubes, build_deck_pods, build_gas_pcb_interface_gaskets, build_gas_sensor_pcbs, build_headspace_sht41_microcarriers, build_ir_thermopile_face_gaskets, build_ir_thermopiles, build_lid_cover, build_lid_harness_cover, build_lid_manifold_shell, build_lid_sensor_harness, build_lid_sensor_service_cable_pigtails, build_lid_sensor_service_connectors, build_lower_gasket, build_lower_harness_cover, build_lower_sensor_harness, build_lower_sensor_service_cable_pigtail, build_lower_sensor_service_connector, build_microplates, build_plate_support_frame, build_printed_gas_pcb_keeper_doors, build_printed_lid_sensor_connector_shrouds, build_printed_lower_sensor_connector_shroud, build_printed_sample_relief_cap, build_printed_wedge_locks, build_septum_mat_inserts, build_upper_gasket, build_wet_chamber_frame)
-    _pa = params.get("production_assembly", {})
-    if _pa.get("export_per_instance_latch_keys", False) or _pa.get("keyed_joints_enabled", False):
+    if params.get("production_assembly", {}).get("export_per_instance_latch_keys", False):
         from aevum_cad.row_coupon import (_printed_gas_pcb_keeper_door_models, _printed_wedge_lock_models)
         return {
             "deck_pods": build_deck_pods(params),
