@@ -638,6 +638,78 @@ def audit_first_print_bed_fit_split_plan(
     )
 
 
+# --- D8 feature-aware seam audit (keyed_joints_enabled only) -----------------
+# Default in-range bounds for the printed Y fit-class clearance straddling the
+# split seam (the D4 keyed dovetail clearance pocket). Sourced from the D4
+# y_split_interface policy; overridable under production_assembly. These only
+# matter when keyed_joints_enabled is True (flag-OFF leaves all new fields at
+# their dataclass defaults), so they never perturb the legacy code path.
+_Y_FIT_CLASS_CLEARANCE_MIN_MM = 0.05
+_Y_FIT_CLASS_CLEARANCE_MAX_MM = 0.6
+_DEFAULT_MATING_FEATURE_KIND = "printed_dovetail_anti_shear_key"
+
+
+def _keyed_joints_enabled(params: dict[str, Any]) -> bool:
+    return bool(
+        params.get("production_assembly", {}).get("keyed_joints_enabled", False)
+    )
+
+
+def _y_split_clearance_bounds(params: dict[str, Any]) -> tuple[float, float]:
+    production = params.get("production_assembly", {})
+    interface = production.get("y_split_interface", {}) or {}
+    lo = float(
+        interface.get(
+            "fit_class_clearance_min_mm",
+            production.get(
+                "fit_class_clearance_min_mm", _Y_FIT_CLASS_CLEARANCE_MIN_MM
+            ),
+        )
+    )
+    hi = float(
+        interface.get(
+            "fit_class_clearance_max_mm",
+            production.get(
+                "fit_class_clearance_max_mm", _Y_FIT_CLASS_CLEARANCE_MAX_MM
+            ),
+        )
+    )
+    return lo, hi
+
+
+def _y_split_anti_shear_key_present(interface: dict[str, Any]) -> bool:
+    """The D4 printed dovetail anti-shear key exists (and is a real non-planar
+    mating feature) when its descriptor dimensions are all positive AND the
+    dovetail is actually tapered (wide_x != narrow_x => slanted, non-axis-aligned
+    X walls straddling the seam). A bare butt seam (key dims zeroed / un-tapered)
+    fails this and is flagged. Descriptor-based per the M-D8 decision: the D4
+    builder constructs this key deterministically from these same interface keys,
+    so reading the descriptor is a faithful, non-fragile carrier (a live global
+    face-normal count cannot distinguish the +2 dovetail faces from the dozens of
+    pre-existing cylindrical pod/fillet faces a butt half already carries)."""
+    narrow_x = float(interface.get("key_narrow_x", 6.0))
+    wide_x = float(interface.get("key_wide_x", 10.0))
+    half_span = float(interface.get("key_half_span_y", 3.0))
+    key_depth = float(interface.get("key_depth_mm", 4.0))
+    tapered = abs(wide_x - narrow_x) > 1e-6
+    return (
+        narrow_x > 0.0
+        and wide_x > 0.0
+        and half_span > 0.0
+        and key_depth > 0.0
+        and tapered
+    )
+
+
+def _y_split_witness_present(interface: dict[str, Any]) -> bool:
+    """The D4 witness pip exists when its descriptor dims are all positive."""
+    return (
+        float(interface.get("witness_width_mm", 1.0)) > 0.0
+        and float(interface.get("witness_len_mm", 2.0)) > 0.0
+        and float(interface.get("witness_height_mm", 0.5)) > 0.0
+    )
+
+
 def first_print_y_split_artifact_rows(
     *,
     params: dict[str, Any],
@@ -655,6 +727,10 @@ def first_print_y_split_artifact_rows(
         str(row["name"]): row for row in row_coupon_production_y_split_plan(params)
     }
     split_parts = build_row_coupon_production_y_split_parts(params)
+    keyed = _keyed_joints_enabled(params)
+    interface = (
+        params.get("production_assembly", {}).get("y_split_interface", {}) or {}
+    )
     rows: list[FirstPrintYSplitArtifactRow] = []
     for split_part, model in split_parts.items():
         plan_row = split_plan[split_part]
@@ -670,6 +746,31 @@ def first_print_y_split_artifact_rows(
             bed_x_mm=bed_audit.bed_x_mm,
             bed_y_mm=bed_audit.bed_y_mm,
         )
+        # D8 feature-aware fields. Flag-OFF => leave at dataclass defaults so the
+        # row is byte-identical to pre-D8. Flag-ON => inspect the D4 keyed seam via
+        # its y_split_interface descriptor (the same carrier the D4 builder uses to
+        # construct the printed dovetail anti-shear key, witness pip, and clearance
+        # pocket). Descriptor-based per the M-D8 HIGH-risk decision (a live global
+        # face-normal count cannot isolate the dovetail from pre-existing geometry).
+        if keyed:
+            anti_shear_key_present = _y_split_anti_shear_key_present(interface)
+            # the tapered dovetail's slanted X walls are the non-planar mating face
+            interface_non_planar = anti_shear_key_present
+            mating_feature_kind = (
+                str(interface.get("mating_feature_kind", _DEFAULT_MATING_FEATURE_KIND))
+                if anti_shear_key_present
+                else ""
+            )
+            y_fit_class_clearance_mm = float(
+                interface.get("fit_class_clearance_mm", 0.2)
+            )
+            witness_mark_present = _y_split_witness_present(interface)
+        else:
+            interface_non_planar = False
+            mating_feature_kind = ""
+            y_fit_class_clearance_mm = 0.0
+            anti_shear_key_present = False
+            witness_mark_present = False
         rows.append(
             FirstPrintYSplitArtifactRow(
                 split_part=split_part,
@@ -693,6 +794,12 @@ def first_print_y_split_artifact_rows(
                     "Gate 1 dimensions, Gate 2 dry assembly, Gate 4 wet/dry "
                     "witness, and selected-slicer bed-fit evidence"
                 ),
+                mating_feature_kind=mating_feature_kind,
+                interface_non_planar=interface_non_planar,
+                y_fit_class_clearance_mm=y_fit_class_clearance_mm,
+                anti_shear_key_present=anti_shear_key_present,
+                witness_mark_present=witness_mark_present,
+                requires_physical_evidence=True,
             )
         )
     return tuple(rows)
@@ -754,6 +861,14 @@ def audit_first_print_y_split_artifacts(
             message="oversized selected-bed source part has no production split artifact",
         )
 
+    # D8 feature-aware seam checks are ADDITIVE and gated behind
+    # keyed_joints_enabled. Flag-OFF => keyed_audit is False => the four new
+    # checks below never run, so issues / split_artifacts_ready stay byte-identical
+    # to pre-D8. requires_physical_evidence posture (per row) means a CAD-clean
+    # seam is never auto-passed: physical Gate evidence is still required.
+    keyed_audit = _keyed_joints_enabled(params)
+    clearance_min, clearance_max = _y_split_clearance_bounds(params)
+
     for row in rows:
         if row.target_x_mm <= 0 or row.target_y_mm <= 0 or row.target_z_mm <= 0:
             _y_split_artifact_issue(
@@ -787,6 +902,56 @@ def audit_first_print_y_split_artifacts(
                 field="step_path",
                 message=f"split STEP does not exist: {row.step_path}",
             )
+        if keyed_audit:
+            # D8 additive feature-aware checks (flag-ON only). Each asserts a
+            # printed keyed-seam feature the D4 dovetail/witness must provide.
+            # No-hidden-authority: only printed dovetail / wedge / witness pip are
+            # accepted -- never a metal pin/screw/insert descriptor.
+            if not row.interface_non_planar:
+                _y_split_artifact_issue(
+                    issues,
+                    split_part=row.split_part,
+                    field="mating_feature",
+                    message=(
+                        "keyed split seam has no non-PLANE mating feature "
+                        "(bare butt cut); a printed dovetail/scarf interface is "
+                        "required straddling the split"
+                    ),
+                )
+            if not (
+                clearance_min <= row.y_fit_class_clearance_mm <= clearance_max
+            ):
+                _y_split_artifact_issue(
+                    issues,
+                    split_part=row.split_part,
+                    field="y_fit_class_clearance_mm",
+                    message=(
+                        f"keyed split Y fit-class clearance "
+                        f"{row.y_fit_class_clearance_mm:.3f} mm is outside the "
+                        f"in-range bound [{clearance_min:.3f}, {clearance_max:.3f}] mm"
+                    ),
+                )
+            if not row.anti_shear_key_present:
+                _y_split_artifact_issue(
+                    issues,
+                    split_part=row.split_part,
+                    field="anti_shear_key",
+                    message=(
+                        "keyed split seam has no printed anti-shear key "
+                        "(tapered dovetail/wedge); the butt cut would shear under "
+                        "in-plane load"
+                    ),
+                )
+            if not row.witness_mark_present:
+                _y_split_artifact_issue(
+                    issues,
+                    split_part=row.split_part,
+                    field="witness_mark",
+                    message=(
+                        "keyed split seam has no printed witness mark for "
+                        "Gate dry/wet seam evidence"
+                    ),
+                )
 
     covered_oversized = tuple(part for part in oversized_sources if part in split_sources)
     return FirstPrintYSplitArtifactAudit(

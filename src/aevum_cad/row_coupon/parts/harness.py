@@ -46,6 +46,9 @@ def _build_printed_sensor_connector_shrouds(
     connectors: list[dict[str, Any]] | tuple[dict[str, Any], ...],
     *,
     z_shift: float = 0.0,
+    emit_grip_rib: bool = False,
+    grip_rib_width_y: float = 2.0,
+    grip_rib_y_offset: float = 0.0,
 ) -> cq.Workplane:
     model: cq.Workplane | None = None
     for connector in connectors:
@@ -83,6 +86,23 @@ def _build_printed_sensor_connector_shrouds(
             )
             .translate((float(key["x"]), float(key["y"]), float(key["z"]) + z_shift))
         )
+        if emit_grip_rib:
+            rails = rails.union(
+                cq.Workplane("XY")
+                .box(
+                    float(key["length_x"]),
+                    float(grip_rib_width_y),
+                    float(key["height_z"]),
+                    centered=(False, False, False),
+                )
+                .translate(
+                    (
+                        float(key["x"]),
+                        float(key["y"]) + float(grip_rib_y_offset),
+                        float(key["z"]) + z_shift,
+                    )
+                )
+            )
         model = rails if model is None else model.union(rails)
     if model is None:
         raise ValueError("sensor connector shroud model requires at least one connector")
@@ -1382,7 +1402,23 @@ def build_printed_lid_sensor_connector_shrouds(
     layout = row_coupon_layout(params)
     connectors = layout["lid_service_connector_envelopes"]
     z_shift = _harness_z_shift(connectors, assembly_position=assembly_position)
-    return _build_printed_sensor_connector_shrouds(connectors, z_shift=z_shift)
+    return _build_printed_sensor_connector_shrouds(
+        connectors, z_shift=z_shift, **_shroud_grip_rib_kwargs(params)
+    )
+
+
+def _shroud_grip_rib_kwargs(params: dict[str, Any]) -> dict[str, Any]:
+    """Grip-rib kwargs for shroud builders; default-off keeps geometry byte-identical."""
+
+    production = params.get("production_assembly", {})
+    if not bool(production.get("export_per_instance_latch_keys", False)):
+        return {}
+    shroud = params.get("printed_sensor_connector_shroud", {})
+    return {
+        "emit_grip_rib": True,
+        "grip_rib_width_y": float(shroud.get("grip_rib_width_y", 2.0)),
+        "grip_rib_y_offset": float(shroud.get("grip_rib_y_offset", 0.0)),
+    }
 
 
 def build_printed_lower_sensor_connector_shroud(
@@ -1393,7 +1429,9 @@ def build_printed_lower_sensor_connector_shroud(
     layout = row_coupon_layout(params)
     connector = layout["lower_ir_connector_envelope"]
     z_shift = _harness_z_shift([connector], assembly_position=assembly_position)
-    return _build_printed_sensor_connector_shrouds([connector], z_shift=z_shift)
+    return _build_printed_sensor_connector_shrouds(
+        [connector], z_shift=z_shift, **_shroud_grip_rib_kwargs(params)
+    )
 
 
 def build_sensor_connector_service_clearance_check(

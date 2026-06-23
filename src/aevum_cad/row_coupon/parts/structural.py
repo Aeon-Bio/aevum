@@ -1122,7 +1122,7 @@ def build_lid_manifold_shell(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_add_gasket_tab_leak_witness_features, _add_headspace_sht41_sockets, _cut_gasket_capture_groove, _cut_lid_cover_tongue_groove, _cut_lid_sensor_harness_channels)
+    from aevum_cad.row_coupon import (_add_gasket_tab_leak_witness_features, _add_headspace_sht41_sockets, _add_lid_frame_keys, _cut_gasket_capture_groove, _cut_lid_cover_tongue_groove, _cut_lid_sensor_harness_channels)
     layout = row_coupon_layout(params)
     seal = params["seal_interface"]
     lid = params["lid_manifold"]
@@ -1219,6 +1219,7 @@ def build_lid_manifold_shell(
         z0=z0,
         from_side="bottom",
     )
+    model = _add_lid_frame_keys(model, params=params, z0=z0)
     model = _add_gasket_tab_leak_witness_features(
         model,
         params=params,
@@ -1370,7 +1371,7 @@ def build_microplates(
 
 
 def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_add_dry_bay_aperture_thresholds, _add_gasket_tab_leak_witness_features, _add_ir_aperture_drip_collars, _add_ir_sensor_retention_lips, _cut_dry_bay, _cut_gasket_capture_groove, _cut_ir_sensor_pockets_and_apertures, _cut_lower_sensor_harness_channels, _cut_observer_fiducials, _cut_wet_dry_witness_gutters)
+    from aevum_cad.row_coupon import (_add_dry_bay_aperture_thresholds, _add_gasket_tab_leak_witness_features, _add_ir_aperture_drip_collars, _add_ir_sensor_retention_lips, _cut_dry_bay, _cut_gasket_capture_groove, _cut_ir_sensor_pockets_and_apertures, _cut_lid_frame_key_pockets, _cut_lower_sensor_harness_channels, _cut_observer_fiducials, _cut_wet_dry_witness_gutters)
     layout = row_coupon_layout(params)
     base = params["base"]
     plate = params["plate"]
@@ -1440,6 +1441,7 @@ def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
         owner_part="plate_support_frame",
     )
     model = _cut_pod_frame_key_pockets(model, params)
+    model = _cut_lid_frame_key_pockets(model, params=params, z0=base_h)
     model = _cut_ir_sensor_pockets_and_apertures(model, params=params)
     model = _add_ir_aperture_drip_collars(model, params=params)
     model = _cut_lower_sensor_harness_channels(model, params=params)

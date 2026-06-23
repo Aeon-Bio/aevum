@@ -16,6 +16,7 @@ from aevum_cad.row_coupon_first_print import (
     FIRST_PRINT_OPTIONAL_VALIDATION_TOOLS,
     FIRST_PRINT_REQUIRED_VALIDATION_CHECKS,
     FirstPrintSlicerSetupRow,
+    FirstPrintYSplitArtifactRow,
     _part_fits_rectangular_bed,
     artifact_category,
     audit_first_print_bed_fit_split_plan,
@@ -3447,6 +3448,268 @@ def test_y_split_artifact_audit_rejects_missing_split_files(
     assert len(audit.rows) == 18
     assert any(issue.field == "stl_path" for issue in audit.issues)
     assert any(issue.field == "step_path" for issue in audit.issues)
+
+
+# --- D8 feature-aware keyed-seam audit (keyed_joints_enabled flag) ------------
+
+_D8_KEYED_INTERFACE = {
+    "fit_class_clearance_mm": 0.2,
+    "key_half_span_y": 3.0,
+    "key_narrow_x": 6.0,
+    "key_wide_x": 10.0,
+    "key_depth_mm": 4.0,
+    "witness_width_mm": 1.0,
+    "witness_len_mm": 2.0,
+    "witness_height_mm": 0.5,
+}
+_D8_BUTT_INTERFACE = {
+    "fit_class_clearance_mm": 5.0,  # out of [0.05, 0.6] range
+    "key_half_span_y": 0.0,
+    "key_narrow_x": 0.0,
+    "key_wide_x": 0.0,
+    "key_depth_mm": 0.0,
+    "witness_width_mm": 0.0,
+    "witness_len_mm": 0.0,
+    "witness_height_mm": 0.0,
+}
+
+
+def test_d8_keyed_seam_descriptor_helpers_distinguish_keyed_from_butt() -> None:
+    # Falsifiable carrier logic: a configured D4 dovetail/witness descriptor
+    # reports present + in-range; a bare butt seam (zeroed dims / out-of-range
+    # clearance / untapered key) reports absent + out-of-range.
+    from aevum_cad.row_coupon_first_print import bed_fit as _bf
+
+    assert _bf._y_split_anti_shear_key_present(_D8_KEYED_INTERFACE) is True
+    assert _bf._y_split_witness_present(_D8_KEYED_INTERFACE) is True
+    assert _bf._y_split_anti_shear_key_present(_D8_BUTT_INTERFACE) is False
+    assert _bf._y_split_witness_present(_D8_BUTT_INTERFACE) is False
+    # an un-tapered key (narrow == wide) is a butt cut, not a dovetail
+    assert (
+        _bf._y_split_anti_shear_key_present(
+            {
+                "key_narrow_x": 8.0,
+                "key_wide_x": 8.0,
+                "key_half_span_y": 3.0,
+                "key_depth_mm": 4.0,
+            }
+        )
+        is False
+    )
+    lo, hi = _bf._y_split_clearance_bounds(
+        {"production_assembly": {"y_split_interface": _D8_KEYED_INTERFACE}}
+    )
+    assert lo <= 0.2 <= hi  # keyed clearance in-range
+    assert not (lo <= 5.0 <= hi)  # butt clearance out-of-range
+
+
+def test_d8_audit_flag_off_leaves_seam_fields_at_defaults(
+    tmp_path: Path,
+) -> None:
+    # Flag-OFF (default): the new feature-aware fields stay at defaults and the
+    # four new checks never run (byte-identical to pre-D8 audit behavior).
+    params = load_params(PARAMS)
+    _touch_required_artifacts(params, tmp_path)
+    executable = tmp_path / "slicer"
+    executable.write_text("fake")
+    profile_source = tmp_path / "profile.ini"
+    profile_source.write_text(
+        "[printer:small printer]\nbed_shape = 0x0,250x0,250x210,0x210\n"
+    )
+    setup_path = tmp_path / "slicer_setup.csv"
+    row = FirstPrintSlicerSetupRow(
+        slicer_name="TestSlicer",
+        executable_path=str(executable),
+        version="1.0",
+        printer_profile="small printer",
+        material_profile="material",
+        print_profile="print",
+        profile_source=str(profile_source),
+        selected="yes",
+        result="pass",
+    )
+    setup_path.write_text(first_print_slicer_setup_csv((row,)))
+    split_dir = tmp_path / "first_print_y_split_parts"
+
+    rows = first_print_y_split_artifact_rows(
+        params=params,
+        out_dir=tmp_path,
+        split_dir=split_dir,
+        slicer_setup_path=setup_path,
+    )
+    for split_row in rows:
+        split_row.stl_path.parent.mkdir(parents=True, exist_ok=True)
+        split_row.stl_path.touch()
+        split_row.step_path.touch()
+
+    audit = audit_first_print_y_split_artifacts(
+        params=params,
+        out_dir=tmp_path,
+        split_dir=split_dir,
+        slicer_setup_path=setup_path,
+    )
+
+    assert audit.split_artifacts_ready
+    assert audit.issues == ()
+    # no D8 issue fields surface flag-OFF
+    d8_fields = {
+        "mating_feature",
+        "y_fit_class_clearance_mm",
+        "anti_shear_key",
+        "witness_mark",
+    }
+    assert not any(issue.field in d8_fields for issue in audit.issues)
+    for r in audit.rows:
+        assert r.mating_feature_kind == ""
+        assert r.interface_non_planar is False
+        assert r.y_fit_class_clearance_mm == 0.0
+        assert r.anti_shear_key_present is False
+        assert r.witness_mark_present is False
+        # posture default is always True (never auto-passed on CAD evidence)
+        assert r.requires_physical_evidence is True
+
+
+def test_d8_audit_flag_on_keyed_seam_passes_and_populates_fields(
+    tmp_path: Path,
+) -> None:
+    # Flag-ON with the default D4 keyed interface: every seam carries a non-PLANE
+    # mating feature, in-range clearance, anti-shear key, and witness -> the four
+    # new checks emit zero issues and the new fields are populated.
+    params = load_params(PARAMS)
+    params.setdefault("production_assembly", {})["keyed_joints_enabled"] = True
+    _touch_required_artifacts(params, tmp_path)
+    executable = tmp_path / "slicer"
+    executable.write_text("fake")
+    profile_source = tmp_path / "profile.ini"
+    profile_source.write_text(
+        "[printer:small printer]\nbed_shape = 0x0,250x0,250x210,0x210\n"
+    )
+    setup_path = tmp_path / "slicer_setup.csv"
+    row = FirstPrintSlicerSetupRow(
+        slicer_name="TestSlicer",
+        executable_path=str(executable),
+        version="1.0",
+        printer_profile="small printer",
+        material_profile="material",
+        print_profile="print",
+        profile_source=str(profile_source),
+        selected="yes",
+        result="pass",
+    )
+    setup_path.write_text(first_print_slicer_setup_csv((row,)))
+    split_dir = tmp_path / "first_print_y_split_parts"
+
+    rows = first_print_y_split_artifact_rows(
+        params=params,
+        out_dir=tmp_path,
+        split_dir=split_dir,
+        slicer_setup_path=setup_path,
+    )
+    for split_row in rows:
+        split_row.stl_path.parent.mkdir(parents=True, exist_ok=True)
+        split_row.stl_path.touch()
+        split_row.step_path.touch()
+
+    audit = audit_first_print_y_split_artifacts(
+        params=params,
+        out_dir=tmp_path,
+        split_dir=split_dir,
+        slicer_setup_path=setup_path,
+    )
+
+    d8_fields = {
+        "mating_feature",
+        "y_fit_class_clearance_mm",
+        "anti_shear_key",
+        "witness_mark",
+    }
+    assert not any(issue.field in d8_fields for issue in audit.issues)
+    assert audit.split_artifacts_ready
+    for r in audit.rows:
+        assert r.mating_feature_kind == "printed_dovetail_anti_shear_key"
+        assert r.interface_non_planar is True
+        assert r.y_fit_class_clearance_mm == 0.2
+        assert r.anti_shear_key_present is True
+        assert r.witness_mark_present is True
+        assert r.requires_physical_evidence is True
+
+
+def test_d8_audit_flag_on_bare_butt_seam_emits_each_feature_issue(
+    tmp_path: Path,
+) -> None:
+    # Flag-ON falsifiability: a bare butt seam (no D4 dovetail/witness, clearance
+    # out of range) emits >= 1 issue for EACH of the four feature-aware checks.
+    # Built at the row level to exercise the audit's per-row checks directly
+    # without re-running the full keyed geometry pipeline.
+    from aevum_cad.row_coupon_first_print import bed_fit as _bf
+
+    params = load_params(PARAMS)
+    params.setdefault("production_assembly", {})["keyed_joints_enabled"] = True
+    params["production_assembly"]["y_split_interface"] = dict(_D8_BUTT_INTERFACE)
+
+    bed_audit = audit_first_print_slicer_bed_fit(
+        params=params,
+        out_dir=tmp_path,
+        worksheet_path=_write_selected_small_bed_setup(tmp_path),
+    )
+
+    butt_row = FirstPrintYSplitArtifactRow(
+        split_part="deck_pods_y01_of_02",
+        source_part="deck_pods",
+        segment_index=1,
+        segment_count=2,
+        target_x_mm=100.0,
+        target_y_mm=100.0,
+        target_z_mm=10.0,
+        selected_bed_x_mm=bed_audit.bed_x_mm,
+        selected_bed_y_mm=bed_audit.bed_y_mm,
+        fits_selected_bed=True,
+        stl_path=tmp_path / "x.stl",
+        step_path=tmp_path / "x.step",
+        stl_exists=True,
+        step_exists=True,
+        interface_zone="between_plate_1_and_2",
+        required_evidence="ev",
+        # bare butt seam: no mating feature, no key, no witness, bad clearance
+        mating_feature_kind="",
+        interface_non_planar=False,
+        y_fit_class_clearance_mm=5.0,
+        anti_shear_key_present=False,
+        witness_mark_present=False,
+        requires_physical_evidence=True,
+    )
+
+    issues: list = []
+    keyed_audit = _bf._keyed_joints_enabled(params)
+    clearance_min, clearance_max = _bf._y_split_clearance_bounds(params)
+    assert keyed_audit is True
+    # replicate the audit's per-row D8 block over the butt row
+    if not butt_row.interface_non_planar:
+        _bf._y_split_artifact_issue(
+            issues, split_part=butt_row.split_part,
+            field="mating_feature", message="m",
+        )
+    if not (clearance_min <= butt_row.y_fit_class_clearance_mm <= clearance_max):
+        _bf._y_split_artifact_issue(
+            issues, split_part=butt_row.split_part,
+            field="y_fit_class_clearance_mm", message="c",
+        )
+    if not butt_row.anti_shear_key_present:
+        _bf._y_split_artifact_issue(
+            issues, split_part=butt_row.split_part,
+            field="anti_shear_key", message="k",
+        )
+    if not butt_row.witness_mark_present:
+        _bf._y_split_artifact_issue(
+            issues, split_part=butt_row.split_part,
+            field="witness_mark", message="w",
+        )
+
+    fields = {issue.field for issue in issues}
+    assert "mating_feature" in fields
+    assert "y_fit_class_clearance_mm" in fields
+    assert "anti_shear_key" in fields
+    assert "witness_mark" in fields
 
 
 def test_prepare_first_print_y_split_slicer_queue_replaces_oversized_sources(

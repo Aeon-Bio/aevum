@@ -637,6 +637,53 @@ def _wet_dry_failure_path_geometry(
                         "z": round(base_top_z - gutter_d, 3),
                     }
                 )
+
+    # D5 seal-across-split (flag-on only): relocate a wet/dry witness gutter into the
+    # blind 170.8-206.5 inter-plate service gap so its Y-band straddles the structural
+    # split. split_y is CONSUMED from the split-policy owner (production_y_split.py), not
+    # re-derived. The gutter runs along X across the service gap; it lands in a band with
+    # NO aperture, so the per-aperture no-overlap invariant is untouched. Printed gutter
+    # cut into the support frame in the service gap — never on the CellVis plate.
+    if (
+        bool(production.get("keyed_joints_enabled", False))
+        and apertures
+        and gutter_d > 0
+    ):
+        from aevum_cad.row_coupon import _split_y_from_tile_origins
+
+        # Reconstruct the plate tile origins from the apertures already passed in (each
+        # carries its tile_y); split_y is then computed by the split-policy owner's pure
+        # helper — the SAME formula used by _production_y_split_segments, no fourth
+        # re-derivation and no row_coupon_layout recursion.
+        tile_origins = [{"y": float(aperture["tile_y"])} for aperture in apertures]
+        split_y = _split_y_from_tile_origins(tile_origins, params)
+        split_gutter_w = float(
+            production.get(
+                "wet_dry_split_witness_gutter_width_y",
+                gutter_w if gutter_w > 0 else 1.2,
+            )
+        )
+        split_gutter_d = float(
+            production.get("wet_dry_split_witness_gutter_depth_z", gutter_d)
+        )
+        # span the shared aperture X extent (all tiles share x/length_x); stays inside
+        # tile bounds and off the plate footprint.
+        ap0 = apertures[0]
+        split_gutter_x = float(ap0["x"])
+        split_gutter_len = float(ap0["length_x"])
+        gutters.append(
+            {
+                "tile_index": -1,
+                "side": "split_y",
+                "x": round(split_gutter_x, 3),
+                "y": round(split_y - split_gutter_w / 2, 3),
+                "length_x": round(split_gutter_len, 3),
+                "width_y": round(split_gutter_w, 3),
+                "depth_z": round(split_gutter_d, 3),
+                "z": round(base_top_z - split_gutter_d, 3),
+            }
+        )
+
     return {
         "dry_bay_aperture_thresholds": thresholds,
         "wet_dry_witness_gutters": gutters,

@@ -1131,6 +1131,16 @@ class FirstPrintYSplitArtifactRow:
     step_exists: bool
     interface_zone: str
     required_evidence: str
+    # --- D8 feature-aware seam fields (keyed_joints_enabled only) ---
+    # All carry back-compat defaults so existing positional/keyword constructors
+    # and the flag-OFF code path stay byte-identical (these stay at their defaults
+    # when keyed_joints_enabled is false/absent).
+    mating_feature_kind: str = ""
+    interface_non_planar: bool = False
+    y_fit_class_clearance_mm: float = 0.0
+    anti_shear_key_present: bool = False
+    witness_mark_present: bool = False
+    requires_physical_evidence: bool = True
 
 
 @dataclass(frozen=True)

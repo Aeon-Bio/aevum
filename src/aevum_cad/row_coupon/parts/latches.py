@@ -1253,6 +1253,25 @@ def build_printed_wedge_locks(
     return locks
 
 
+def _printed_wedge_lock_models(
+    params: dict[str, Any],
+    *,
+    assembly_position: bool = False,
+) -> dict[str, cq.Workplane]:
+    """Per-instance wedge-lock bodies (single solid each, no cross-instance union)."""
+
+    layout = row_coupon_layout(params)
+    lid = params["lid_manifold"]
+    z0 = layout["lid_top_z"] + lid["duct_height_z"] if assembly_position else 0.0
+
+    models: dict[str, cq.Workplane] = {}
+    for i, lock_rect in enumerate(_wedge_lock_rectangles(layout, params)):
+        models[f"printed_wedge_lock_{i}"] = _build_wedge_lock_body(
+            lock_rect, params=params, z0=z0
+        )
+    return models
+
+
 def build_unseated_wedge_locks_review(
     params: dict[str, Any],
     *,

@@ -97,6 +97,71 @@ def _production_y_split_parts(params: dict[str, Any]) -> tuple[str, ...]:
     return tuple(str(part) for part in configured)
 
 
+def _split_y_from_tile_origins(
+    tile_origins: list[dict[str, Any]],
+    params: dict[str, Any],
+) -> float:
+    """Single source of truth for the structural split_y (D1/D4/D5 share this datum).
+    Pure function of the sorted plate tile origins + plate width — no layout call, so it
+    can be consumed from inside ``row_coupon_layout`` without recursion."""
+    ordered = sorted(tile_origins, key=lambda tile: float(tile["y"]))
+    if len(ordered) < 2:
+        raise ValueError("production Y split requires at least two plate tiles")
+    split_after = len(ordered) // 2
+    lower_tile = ordered[split_after - 1]
+    upper_tile = ordered[split_after]
+    return round(
+        (
+            float(lower_tile["y"])
+            + float(params["plate"]["width_y"])
+            + float(upper_tile["y"])
+        )
+        / 2,
+        3,
+    )
+
+
+def _two_module_joint_metadata(
+    *,
+    params: dict[str, Any],
+    split_y: float,
+    lower_tile: dict[str, Any],
+    upper_tile: dict[str, Any],
+) -> dict[str, Any]:
+    """D1 2-module joint descriptor (flag-on only). Composition/metadata that ties the
+    already-shipped D4 keyed seam (``_keyed_split_interface``: printed dovetail anti-shear
+    key + witness pip + clearance pocket straddling ``split_y``) and the D5 captured seal
+    (``_add_gasket_capture_split_lap``: printed labyrinth tongue lap bridging the gasket
+    capture groove across ``split_y``) into ONE coherent 2-module joint at the inter-plate
+    service gap. Pure metadata — emits NO geometry of its own, so the keyed/sealed features
+    remain owned by D4/D5; this only names the intentional module boundary and asserts the
+    retention is printed-feature-only (no metal pins/screws/inserts, plate untouched).
+
+    ``split_y`` is CONSUMED from the split-policy owner (the same datum D4/D5 read), not
+    re-derived, so the joint description always matches the geometry that lands at the seam."""
+    production = params.get("production_assembly", {})
+    interface = production.get("y_split_interface", {}) or {}
+    return {
+        "joint_id": f"two_module_joint_{lower_tile['index']}_{upper_tile['index']}",
+        "split_y": split_y,
+        "module_boundary": "inter-plate service gap (intentional 2-module split)",
+        "keyed_seam": (
+            "D4 printed dovetail anti-shear key with witness pip on the lower module and "
+            "a clearance-inflated mating pocket on the upper module, straddling split_y"
+        ),
+        "key_half_span_y": float(interface.get("key_half_span_y", 3.0)),
+        "captured_seal": (
+            "D5 printed labyrinth tongue lap bridges the gasket capture groove across "
+            "split_y, so the seal crossing is a tongue/groove lap, not a flat butt"
+        ),
+        "seal_lap_len_y": float(production.get("gasket_capture_split_lap_len_y", 8.0)),
+        "retention_authority": (
+            "joint is retained by printed dovetail key, wedge locks, and the tongue/groove "
+            "seal lap only — no screws, glue, or metal inserts; nothing grips the plate"
+        ),
+    }
+
+
 def _production_y_split_segments(params: dict[str, Any]) -> tuple[dict[str, Any], ...]:
     layout = row_coupon_layout(params)
     if layout["row_axis"] != "y":
@@ -111,43 +176,47 @@ def _production_y_split_segments(params: dict[str, Any]) -> tuple[dict[str, Any]
     split_after = len(tile_origins) // 2
     lower_tile = tile_origins[split_after - 1]
     upper_tile = tile_origins[split_after]
-    split_y = round(
-        (
-            float(lower_tile["y"])
-            + float(params["plate"]["width_y"])
-            + float(upper_tile["y"])
+    split_y = _split_y_from_tile_origins(tile_origins, params)
+    lower_segment: dict[str, Any] = {
+        "segment_index": 1,
+        "segment_count": segment_count,
+        "suffix": "y01_of_02",
+        "y_min": 0.0,
+        "y_max": split_y,
+        "interface_zone": f"between_plate_{lower_tile['index']}_and_{upper_tile['index']}",
+        "interface_role": "lower segment terminates at inter-plate service gap",
+        "retention": (
+            "existing deck keys, tongue/groove, snap covers, and wedge locks "
+            "must retain this split segment without screws or glue"
+        ),
+    }
+    upper_segment: dict[str, Any] = {
+        "segment_index": 2,
+        "segment_count": segment_count,
+        "suffix": "y02_of_02",
+        "y_min": split_y,
+        "y_max": float(layout["width_y"]),
+        "interface_zone": f"between_plate_{lower_tile['index']}_and_{upper_tile['index']}",
+        "interface_role": "upper segment starts at inter-plate service gap",
+        "retention": (
+            "existing deck keys, tongue/groove, snap covers, and wedge locks "
+            "must retain this split segment without screws or glue"
+        ),
+    }
+    if bool(production.get("keyed_joints_enabled", False)):
+        # D1 flag-on: tie the D4 keyed seam + D5 captured seal into one coherent
+        # 2-module joint descriptor on each module. segment_count stays 2 (the joint
+        # is the intentional module boundary, not a new bay subdivision). Pure metadata;
+        # flag-off leaves the two segment dicts byte-identical to the pre-D1 tuple.
+        joint = _two_module_joint_metadata(
+            params=params,
+            split_y=split_y,
+            lower_tile=lower_tile,
+            upper_tile=upper_tile,
         )
-        / 2,
-        3,
-    )
-    return (
-        {
-            "segment_index": 1,
-            "segment_count": segment_count,
-            "suffix": "y01_of_02",
-            "y_min": 0.0,
-            "y_max": split_y,
-            "interface_zone": f"between_plate_{lower_tile['index']}_and_{upper_tile['index']}",
-            "interface_role": "lower segment terminates at inter-plate service gap",
-            "retention": (
-                "existing deck keys, tongue/groove, snap covers, and wedge locks "
-                "must retain this split segment without screws or glue"
-            ),
-        },
-        {
-            "segment_index": 2,
-            "segment_count": segment_count,
-            "suffix": "y02_of_02",
-            "y_min": split_y,
-            "y_max": float(layout["width_y"]),
-            "interface_zone": f"between_plate_{lower_tile['index']}_and_{upper_tile['index']}",
-            "interface_role": "upper segment starts at inter-plate service gap",
-            "retention": (
-                "existing deck keys, tongue/groove, snap covers, and wedge locks "
-                "must retain this split segment without screws or glue"
-            ),
-        },
-    )
+        lower_segment["joint"] = {**joint, "joint_role": "lower module of two_module_joint"}
+        upper_segment["joint"] = {**joint, "joint_role": "upper module of two_module_joint"}
+    return (lower_segment, upper_segment)
 
 
 def build_row_coupon_production_y_split_parts(
@@ -207,31 +276,35 @@ def row_coupon_production_y_split_plan(
     rows: list[dict[str, Any]] = []
     for part in _production_y_split_parts(params):
         for segment in _production_y_split_segments(params):
-            rows.append(
-                {
-                    "name": f"{part}_{segment['suffix']}",
-                    "source_part": part,
-                    "segment_index": segment["segment_index"],
-                    "segment_count": segment["segment_count"],
-                    "y_min": segment["y_min"],
-                    "y_max": segment["y_max"],
-                    "interface_zone": segment["interface_zone"],
-                    "interface_role": segment["interface_role"],
-                    "retention": segment["retention"],
-                    "sealing": (
-                        "split lies in the inter-plate service gap; wet-frame, "
-                        "lid-shell, and lid-cover split segments require Gate 4 "
-                        "dye evidence before wet operation"
-                    ),
-                    "serviceability": (
-                        "plate, septum, sensor, gas-PCB, gas-tube, and latch service "
-                        "checks remain required on the assembled split stack"
-                    ),
-                    "required_evidence": (
-                        "Gate 1 dimensions, Gate 2 dry assembly, Gate 4 wet/dry "
-                        "witness, and selected-slicer bed-fit evidence before this "
-                        "split artifact replaces the monolithic queue part"
-                    ),
-                }
-            )
+            row: dict[str, Any] = {
+                "name": f"{part}_{segment['suffix']}",
+                "source_part": part,
+                "segment_index": segment["segment_index"],
+                "segment_count": segment["segment_count"],
+                "y_min": segment["y_min"],
+                "y_max": segment["y_max"],
+                "interface_zone": segment["interface_zone"],
+                "interface_role": segment["interface_role"],
+                "retention": segment["retention"],
+                "sealing": (
+                    "split lies in the inter-plate service gap; wet-frame, "
+                    "lid-shell, and lid-cover split segments require Gate 4 "
+                    "dye evidence before wet operation"
+                ),
+                "serviceability": (
+                    "plate, septum, sensor, gas-PCB, gas-tube, and latch service "
+                    "checks remain required on the assembled split stack"
+                ),
+                "required_evidence": (
+                    "Gate 1 dimensions, Gate 2 dry assembly, Gate 4 wet/dry "
+                    "witness, and selected-slicer bed-fit evidence before this "
+                    "split artifact replaces the monolithic queue part"
+                ),
+            }
+            # D1 flag-on: carry the coherent 2-module joint descriptor onto the plan
+            # row when the keyed seam + captured seal are present. Absent flag-off
+            # (no "joint" key on the segment), the row is byte-identical to pre-D1.
+            if "joint" in segment:
+                row["joint"] = segment["joint"]
+            rows.append(row)
     return tuple(rows)

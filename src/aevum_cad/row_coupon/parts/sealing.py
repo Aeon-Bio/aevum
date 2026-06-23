@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 import cadquery as cq
 from ..layout import (row_coupon_layout)
-from ._geom_base import (_boxes_from_rectangles, _perimeter_rails)
+from ._geom_base import (_boxes_from_rectangles, _perimeter_rails, _rounded_box)
 
 
 def _add_gasket_service_tabs(
@@ -71,16 +71,65 @@ def _cut_gasket_capture_groove(
         raise ValueError("gasket capture groove side must be top or bottom")
 
     groove_z = z0 - depth if from_side == "top" else z0 - 0.05
+    rail_width = seal["gasket_rail_width"] - outer_land + clearance
     cutter = _perimeter_rails(
         x0=outer_land,
         y0=outer_land,
         length=layout["length_x"] - 2 * outer_land,
         width=layout["width_y"] - 2 * outer_land,
-        rail_width=seal["gasket_rail_width"] - outer_land + clearance,
+        rail_width=rail_width,
         height=depth + 0.1,
         z0=groove_z,
     )
-    return model.cut(cutter)
+    model = model.cut(cutter)
+    return _add_gasket_capture_split_lap(
+        model,
+        params=params,
+        layout=layout,
+        outer_land=outer_land,
+        rail_width=rail_width,
+        groove_z=groove_z,
+        depth=depth,
+    )
+
+
+def _add_gasket_capture_split_lap(
+    model: cq.Workplane,
+    *,
+    params: dict[str, Any],
+    layout: dict[str, Any],
+    outer_land: float,
+    rail_width: float,
+    groove_z: float,
+    depth: float,
+) -> cq.Workplane:
+    """D5 seal-across-split (flag-on only). CAPTURE the gasket seal where it crosses the
+    structural split: refill a short labyrinth tongue lap into the capture groove on the
+    two Y-running rails, straddling split_y. The tongue is a printed raised land that
+    bridges the seam, so the capture interface at split_y is a tongue/groove lap — NOT a
+    coincident flat butt. split_y is CONSUMED from the split-policy owner, not re-derived.
+    Printed polymer rib only (box union) — no metal pins/screws."""
+    production = params.get("production_assembly", {})
+    if not bool(production.get("keyed_joints_enabled", False)) or depth <= 0:
+        return model
+    from aevum_cad.row_coupon import _split_y_from_tile_origins
+
+    split_y = _split_y_from_tile_origins(layout["tile_origins"], params)
+    lap_len = float(production.get("gasket_capture_split_lap_len_y", 8.0))
+    lap_height = float(production.get("gasket_capture_split_lap_height_z", depth))
+    length_x = float(layout["length_x"])
+    rail_x = [
+        outer_land,
+        length_x - outer_land - rail_width,
+    ]
+    lap_y = split_y - lap_len / 2.0
+    for x in rail_x:
+        model = model.union(
+            cq.Workplane("XY")
+            .box(rail_width, lap_len, lap_height, centered=(False, False, False))
+            .translate((x, lap_y, groove_z))
+        )
+    return model
 
 
 def _cut_lid_cover_tongue_groove(
@@ -103,6 +152,112 @@ def _cut_lid_cover_tongue_groove(
     if groove is None:
         return shell
     return shell.cut(groove)
+
+
+def _lid_frame_key_rectangles(*, params: dict[str, Any]) -> list[dict[str, Any]]:
+    """Single source of truth (D3 lesson) for the D6 lateral lid<->frame locating key.
+
+    Returns corner key rects (``x, y, length_x, width_y``) seated strictly INBOARD of the
+    gasket capture groove envelope. The gasket band occupies, on each edge,
+    ``[outer_land, outer_land + (gasket_rail_width - outer_land + clearance)]`` i.e.
+    ``[0.8, 5.25]`` with the stock params; the keys sit at ``band_inner + inset_xy`` on both
+    axes so the XY footprint is disjoint from the groove on every edge it is near.
+
+    Returns ``[]`` unless ``keyed_joints_enabled`` is set and length/width are positive, so the
+    flag-off geometry is byte-identical. The boss adder and the pocket cutter both consume THIS
+    list (the pocket derives from the boss rect + clearance — no parallel re-derivation)."""
+    layout = row_coupon_layout(params)
+    seal = params["seal_interface"]
+    production = params.get("production_assembly", {})
+    if not bool(production.get("keyed_joints_enabled", False)):
+        return []
+    length = production.get("lid_frame_key_length_x", 0.0)
+    width = production.get("lid_frame_key_width_y", 0.0)
+    if length <= 0 or width <= 0:
+        return []
+
+    inset = production.get("lid_frame_key_inset_xy", 0.0)
+    clearance = production.get("gasket_capture_clearance_xy", 0.0)
+    outer_land = min(
+        production.get("gasket_capture_outer_land_xy", 0.8),
+        seal["gasket_rail_width"] - 0.2,
+    )
+    band_inner = outer_land + (seal["gasket_rail_width"] - outer_land + clearance)
+
+    near = band_inner + inset
+    x_lo = near
+    x_hi = layout["length_x"] - near - length
+    y_lo = near
+    y_hi = layout["width_y"] - near - width
+    return [
+        {"x": round(x, 3), "y": round(y, 3), "length_x": round(length, 3), "width_y": round(width, 3)}
+        for x in (x_lo, x_hi)
+        for y in (y_lo, y_hi)
+    ]
+
+
+def _add_lid_frame_keys(
+    model: cq.Workplane,
+    *,
+    params: dict[str, Any],
+    z0: float,
+) -> cq.Workplane:
+    """Add the printed lid<->frame locating boss(es) to the lid manifold shell (flag-on only).
+
+    Printed feature only — a rounded box union per key rect, NO metal/insert/fastener. Early
+    returns the model unchanged when the feature is off (empty rect list or zero height)."""
+    production = params.get("production_assembly", {})
+    key_h = production.get("lid_frame_key_height_z", 0.0)
+    if key_h <= 0:
+        return model
+    for key in _lid_frame_key_rectangles(params=params):
+        boss = _rounded_box(
+            float(key["length_x"]),
+            float(key["width_y"]),
+            key_h,
+            min(float(key["length_x"]), float(key["width_y"])) / 6,
+        ).translate((float(key["x"]), float(key["y"]), z0))
+        model = model.union(boss)
+    return model
+
+
+def _cut_lid_frame_key_pockets(
+    model: cq.Workplane,
+    *,
+    params: dict[str, Any],
+    z0: float,
+) -> cq.Workplane:
+    """Cut the mating pocket(s) into the plate support frame (flag-on only).
+
+    The pocket rects are DERIVED from the SAME ``_lid_frame_key_rectangles`` boss list inflated
+    by ``lid_frame_key_clearance_xy`` (single source — avoids the D3 parallel-derivation
+    anti-pattern). A clearance box ``.cut`` descending from the receiving top face ``z0`` —
+    printed slip/press fit, NO metal."""
+    production = params.get("production_assembly", {})
+    key_h = production.get("lid_frame_key_height_z", 0.0)
+    clearance = production.get("lid_frame_key_clearance_xy", 0.25)
+    pocket_extra_z = production.get("lid_frame_key_pocket_extra_z", 0.2)
+    if key_h <= 0:
+        return model
+    pocket_h = key_h + pocket_extra_z
+    for key in _lid_frame_key_rectangles(params=params):
+        model = model.cut(
+            cq.Workplane("XY")
+            .box(
+                float(key["length_x"]) + 2 * clearance,
+                float(key["width_y"]) + 2 * clearance,
+                pocket_h + 0.1,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    float(key["x"]) - clearance,
+                    float(key["y"]) - clearance,
+                    z0 - pocket_h,
+                )
+            )
+        )
+    return model
 
 
 def _cut_rectangular_gas_interface_window(

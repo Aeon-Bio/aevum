@@ -1209,12 +1209,15 @@ def build_gas_sensor_pcbs(
     return pcbs
 
 
-def build_printed_gas_pcb_keeper_doors(
+def _keeper_door_body(
+    mount: dict[str, Any],
+    layout: dict[str, Any],
     params: dict[str, Any],
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    layout = row_coupon_layout(params)
+    """Single per-mount keeper door body (door box + release tab union)."""
+
     mounts = params.get("sensor_mounts", {})
     install = params.get("sensor_installation", {})
     wall = mounts.get("gas_pcb_socket_wall_thickness", 1.2)
@@ -1222,52 +1225,80 @@ def build_printed_gas_pcb_keeper_doors(
     tab_len = install.get("gas_pcb_keeper_release_tab_length_y", 4.0)
     tab_w = install.get("gas_pcb_keeper_release_tab_width_x", 3.0)
 
+    x = float(mount["x"])
+    y = float(mount["y"])
+    z = float(mount["z"]) if assembly_position else 0.0
+    length_x = float(mount["length_x"])
+    width_y = float(mount["width_y"])
+    height_z = float(mount["height_z"])
+    door_z = z + height_z - door_h
+    door = (
+        cq.Workplane("XY")
+        .box(
+            length_x + 2 * wall,
+            width_y + 2 * wall,
+            door_h,
+            centered=(False, False, False),
+        )
+        .translate((x - wall, y - wall, door_z))
+    )
+    if length_x <= width_y:
+        if mount["role"] == "supply":
+            tab_x = max(0.0, x - wall - tab_w)
+        else:
+            tab_x = min(float(layout["length_x"]) - tab_w, x + length_x + wall)
+        tab_y = float(mount["aperture_y"]) - tab_len / 2
+        tab = (
+            cq.Workplane("XY")
+            .box(tab_w, tab_len, door_h, centered=(False, False, False))
+            .translate((tab_x, tab_y, door_z))
+        )
+    else:
+        if mount["role"] == "supply":
+            tab_y = max(0.0, y - wall - tab_len)
+        else:
+            tab_y = min(float(layout["width_y"]) - tab_len, y + width_y + wall)
+        tab_x = float(mount["aperture_x"]) - tab_w / 2
+        tab = (
+            cq.Workplane("XY")
+            .box(tab_w, tab_len, door_h, centered=(False, False, False))
+            .translate((tab_x, tab_y, door_z))
+        )
+    return door.union(tab)
+
+
+def build_printed_gas_pcb_keeper_doors(
+    params: dict[str, Any],
+    *,
+    assembly_position: bool = False,
+) -> cq.Workplane:
+    layout = row_coupon_layout(params)
+
     doors: cq.Workplane | None = None
     for mount in layout["gas_sensor_pcb_mounts"]:
-        x = float(mount["x"])
-        y = float(mount["y"])
-        z = float(mount["z"]) if assembly_position else 0.0
-        length_x = float(mount["length_x"])
-        width_y = float(mount["width_y"])
-        height_z = float(mount["height_z"])
-        door_z = z + height_z - door_h
-        door = (
-            cq.Workplane("XY")
-            .box(
-                length_x + 2 * wall,
-                width_y + 2 * wall,
-                door_h,
-                centered=(False, False, False),
-            )
-            .translate((x - wall, y - wall, door_z))
+        door = _keeper_door_body(
+            mount, layout, params, assembly_position=assembly_position
         )
-        if length_x <= width_y:
-            if mount["role"] == "supply":
-                tab_x = max(0.0, x - wall - tab_w)
-            else:
-                tab_x = min(float(layout["length_x"]) - tab_w, x + length_x + wall)
-            tab_y = float(mount["aperture_y"]) - tab_len / 2
-            tab = (
-                cq.Workplane("XY")
-                .box(tab_w, tab_len, door_h, centered=(False, False, False))
-                .translate((tab_x, tab_y, door_z))
-            )
-        else:
-            if mount["role"] == "supply":
-                tab_y = max(0.0, y - wall - tab_len)
-            else:
-                tab_y = min(float(layout["width_y"]) - tab_len, y + width_y + wall)
-            tab_x = float(mount["aperture_x"]) - tab_w / 2
-            tab = (
-                cq.Workplane("XY")
-                .box(tab_w, tab_len, door_h, centered=(False, False, False))
-                .translate((tab_x, tab_y, door_z))
-            )
-        door = door.union(tab)
         doors = door if doors is None else doors.union(door)
     if doors is None:
         raise ValueError("gas PCB keeper doors require at least one mount")
     return doors
+
+
+def _printed_gas_pcb_keeper_door_models(
+    params: dict[str, Any],
+    *,
+    assembly_position: bool = False,
+) -> dict[str, cq.Workplane]:
+    """Per-instance keeper-door bodies (single solid each, no cross-instance union)."""
+
+    layout = row_coupon_layout(params)
+    models: dict[str, cq.Workplane] = {}
+    for i, mount in enumerate(layout["gas_sensor_pcb_mounts"]):
+        models[f"keeper_door_{i}"] = _keeper_door_body(
+            mount, layout, params, assembly_position=assembly_position
+        )
+    return models
 
 
 def build_side_gas_leak_witness_check(
