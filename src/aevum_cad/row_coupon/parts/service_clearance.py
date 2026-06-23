@@ -307,7 +307,12 @@ def _split_segment_swept_removal_check(
         "split_y": round(float(split_y), 3),
         "removal_axis": removal_axis,
         "segment_pair_count": pair_count,
-        # REAL geometric verdict fields (measured, not hard-coded):
+        # HONEST LIMITATION (G3): the seam is coincident by construction
+        # (lower.y_max == upper.y_min == split_y) so min_neighbor_clearance_mm is
+        # identically 0.0 and meets_clearance is therefore a TAUTOLOGY (0 >= 0) — it does
+        # NOT measure removability and is blind to the keyed interlock crossing the seam.
+        # The authoritative disassembly verdict is physical (requires_physical_evidence).
+        # A true swept-solid boolean-interference check is deferred (FINDINGS G5).
         "min_neighbor_clearance_mm": min_neighbor_clearance_mm,
         "meets_clearance": min_neighbor_clearance_mm >= 0.0,
         "source_layout_checks": [

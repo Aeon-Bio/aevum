@@ -103,12 +103,17 @@ def _add_gasket_capture_split_lap(
     groove_z: float,
     depth: float,
 ) -> cq.Workplane:
-    """D5 seal-across-split (flag-on only). CAPTURE the gasket seal where it crosses the
-    structural split: refill a short labyrinth tongue lap into the capture groove on the
-    two Y-running rails, straddling split_y. The tongue is a printed raised land that
-    bridges the seam, so the capture interface at split_y is a tongue/groove lap — NOT a
-    coincident flat butt. split_y is CONSUMED from the split-policy owner, not re-derived.
-    Printed polymer rib only (box union) — no metal pins/screws."""
+    """D5 seal-across-split lap (flag-on only). Adds a short printed land into the gasket
+    capture groove on the two Y-running rails, straddling split_y.
+
+    KNOWN LIMITATIONS — this is a SCAFFOLD, NOT a validated wet seal (FINDINGS G5):
+    (1) the land is unioned onto the FULL-ROW body BEFORE the Y-split, so the split bisects
+        it at split_y — it does NOT bridge the two modules (it becomes two butting halves);
+    (2) at the default lap height it fills the elastomer seat up to the capture face,
+        locally reducing gasket compression at the highest-risk leak location.
+    A real seal-across-split (lap applied DURING the split so one half overlaps the other,
+    seated OUTSIDE the elastomer pocket) plus dye/pressure wet evidence is required before
+    any wet use. Printed polymer only (box union) — no metal."""
     production = params.get("production_assembly", {})
     if not bool(production.get("keyed_joints_enabled", False)) or depth <= 0:
         return model
