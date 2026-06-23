@@ -28,12 +28,16 @@ def _add_deck_engagement_feet(
 
     front_left = min(feet, key=lambda foot: (foot["x"], foot["y"]))
 
+    keyed = bool(
+        params.get("production_assembly", {}).get("keyed_joints_enabled", False)
+    )
     return _cut_deck_key_notch(
         model,
         x=front_left["x"] + front_left["length_x"] / 2,
         y=front_left["y"],
         z=-foot_h,
         deck=deck,
+        two_sided=keyed,
     )
 
 
@@ -467,7 +471,22 @@ def _cut_deck_key_notch(
     y: float,
     z: float,
     deck: dict[str, Any],
+    two_sided: bool = False,
 ) -> cq.Workplane:
+    if two_sided:
+        # Printed two-sided datum channel: two opposing -Y/+Y PLANE walls separated by
+        # exactly key_notch_depth_y bound the pod foot in Y (locating it to the OT-2 deck
+        # slot edge). X width unchanged; Z overcut by 0.1 keeps the cut penetrating.
+        return model.cut(
+            cq.Workplane("XY")
+            .box(
+                deck["key_notch_width_x"],
+                deck["key_notch_depth_y"],
+                deck["key_notch_depth_z"] + 0.1,
+                centered=(True, False, False),
+            )
+            .translate((x, y, z - 0.05))
+        )
     return model.cut(
         cq.Workplane("XY")
         .box(
@@ -478,6 +497,23 @@ def _cut_deck_key_notch(
         )
         .translate((x, y - 0.05, z - 0.05))
     )
+
+
+def _deck_slot_datum(*, tile: dict[str, Any], params: dict[str, Any]) -> dict[str, Any]:
+    """OT-2 deck-slot datum root: origin + >=2 orthogonal contact faces, made explicit
+    from the existing front-left engagement foot (today's implicit datum). Pure
+    descriptors — never unioned into a solid — so it cannot perturb golden geometry."""
+    deck = params["deck_interface"]
+    foot_h = deck["standoff_height_z"]
+    feet = _deck_engagement_foot_rectangles(tile_origins=[tile], params=params)
+    front_left = min(feet, key=lambda foot: (foot["x"], foot["y"]))
+    origin_xyz = (front_left["x"], front_left["y"], -foot_h)
+    contact_faces = [
+        {"normal": (0.0, -1.0, 0.0), "point": origin_xyz},  # Y datum wall
+        {"normal": (-1.0, 0.0, 0.0), "point": origin_xyz},  # orthogonal X datum wall
+        {"normal": (0.0, 0.0, 1.0), "point": origin_xyz},   # seating plane
+    ]
+    return {"origin_xyz": origin_xyz, "contact_faces": contact_faces}
 
 
 def _cut_locator_relief(

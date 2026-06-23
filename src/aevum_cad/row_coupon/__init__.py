@@ -33,6 +33,7 @@ from .layout import (
 )
 from .manifest import row_coupon_part_manifest, _part_manifest_entry
 from .parts.structural import (
+    _deck_slot_datum,
     _add_deck_engagement_feet,
     _add_deck_slot_shoes,
     _add_latch_tension_posts,
