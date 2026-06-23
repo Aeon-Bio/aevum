@@ -194,10 +194,13 @@ def _lid_frame_key_rectangles(*, params: dict[str, Any]) -> list[dict[str, Any]]
     x_hi = layout["length_x"] - near - length
     y_lo = near
     y_hi = layout["width_y"] - near - width
+    # G5e: THREE keys (kinematic plane location), not four. A rigid lid on four corner keys
+    # is over-constrained and rocks between whichever diagonal pair touches (degrading the
+    # gasket/tongue registration the keys are meant to improve); three points fully locate a
+    # plane in XY without fighting. The dropped (x_hi, y_hi) corner is the free corner.
     return [
         {"x": round(x, 3), "y": round(y, 3), "length_x": round(length, 3), "width_y": round(width, 3)}
-        for x in (x_lo, x_hi)
-        for y in (y_lo, y_hi)
+        for (x, y) in ((x_lo, y_lo), (x_hi, y_lo), (x_lo, y_hi))
     ]
 
 
