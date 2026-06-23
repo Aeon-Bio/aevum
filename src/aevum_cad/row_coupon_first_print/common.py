@@ -1,6 +1,7 @@
 """Cross-cutting first-print audit helpers (extracted, behavior-preserving)."""
 
 from __future__ import annotations
+from .models import FirstPrintArtifact
 
 import csv
 from hashlib import sha256
