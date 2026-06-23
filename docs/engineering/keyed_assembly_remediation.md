@@ -39,3 +39,20 @@ first-pass scaffold. This doc is the durable, tracked plan — not the tmpdir hy
 ## Standing constraints (all keyed features)
 No-hidden-authority (printed dovetail/hook/wedge only — no metal pins/screws/inserts);
 plate-as-consumable keepout (nothing lands on/grips the CellVis plate); COTS crossed as connectors.
+
+## Status: CODE-COMPLETE; physical validation pending
+Tractable code work is done: G4 (golden gate), G1+G5a (keyed joint — multi-keyed backbone, real
+mate), G2/G3/G6 (honesty + loop-closing fixes), G5e (D6 kinematic). Real solid-inspection
+verification lives in the test suite (mate clearance, multi-key density, reassembly, flag-off
+golden). The keyed witness is 0.5mm (printable).
+
+The ONLY remaining work is NOT code — it is hardware:
+- **G5c (BLOCKS wet use):** real during-split overlapping seal lap + DYE/PRESSURE evidence on a printed pair.
+- **G5b:** add a D4 Z-shear interlock ONLY if a printed Z-lift test shows backbone retention is insufficient.
+- **G5d (disassembly):** swept-removal serviceability proof requires a printed pair, not CAD.
+- **G5a+ (conditional):** wall-width-sized keys on thin perimeter walls only if backbone-only keying tests insufficient.
+- **G5f:** freeze FDM process/orientation before fit-clearances; the pre-existing default wedge-detent
+  sub-nozzle sizing is a separate fix (changes shipping geometry, out of this remediation's scope).
+
+Net: the flag-on keyed assembly is geometrically as sound as it can be without a printer; flag-off
+ships unchanged and CI-gated. The next step is a physical print of one keyed module pair.
