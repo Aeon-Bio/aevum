@@ -534,7 +534,8 @@
       "key_depth_mm": 4.0,
       "witness_width_mm": 1.0,
       "witness_len_mm": 2.0,
-      "witness_height_mm": 0.5
+      "witness_height_mm": 0.5,
+      "key_min_wall_mm": 0.8
     }
   }
 }

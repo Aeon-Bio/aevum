@@ -40,30 +40,41 @@ def _keyed_split_interface(
     split_y: float,
     interface: dict[str, Any],
 ) -> cq.Workplane:
-    """D4 keyed split interface (flag-on only). Starts from the butt half, then adds a
-    PRINTED dovetail anti-shear key straddling split_y (its slanted X walls are non-axis
-    PLANE faces => non-flat seam) plus a witness pip on the lower half, and the
-    clearance-inflated mating pocket on the upper half. Complementary by construction:
-    both halves reference the same split_y, so the lower protrusion fits the upper pocket.
-    No metal — all box/polyline/union/cut on the polymer body."""
+    """D4 keyed split interface (flag-on only). Adds a PRINTED dovetail key straddling
+    split_y: its tapered X walls capture the two Y-adjacent modules against Y separation
+    (the governing load for a Y-split) and resist X shear; residual Z shear is carried by
+    the existing global retention (deck keys / wedge locks), per the print-native intent.
+    The lower half gets the boss + a protruding witness; the upper half gets the
+    clearance-inflated mating pocket. No metal — box/polyline/union/cut on the polymer body.
+
+    G1 fixes vs the first pass: (a) the key Z datum comes from the SOURCE body bbox (the
+    Y-clip preserves Z), so boss and pocket are co-located in Z even on Y-varying-Z parts
+    instead of each centering in its own half; (b) the pocket is inflated by clearance on X
+    AND Z so the printed boss seats instead of jamming; (c) the witness PROTRUDES above the
+    top face (locatable, not a no-op union); (d) parts too thin for a real through-key (e.g.
+    0.8mm keeper doors) get a plain butt seam retained globally, not a fragile sub-layer key."""
     base = _clip_workplane_to_y_range(model, y_min=y_min, y_max=y_max)
     is_lower = abs(y_max - split_y) < 1e-6
     is_upper = abs(y_min - split_y) < 1e-6
     if not (is_lower or is_upper):
         return base
 
+    src_bb = model.val().BoundingBox()  # shared Z datum (Y-clip does not change Z extent)
     bb = base.val().BoundingBox()
     x_center = (float(bb.xmin) + float(bb.xmax)) / 2.0
-    zlen = float(bb.zlen)
+    src_zmin, src_zlen, src_zmax = float(src_bb.zmin), float(src_bb.zlen), float(src_bb.zmax)
     clr = float(interface.get("fit_class_clearance_mm", 0.2))
     half_span = float(interface.get("key_half_span_y", 3.0))
     narrow_x = float(interface.get("key_narrow_x", 6.0))
     wide_x = float(interface.get("key_wide_x", 10.0))
-    # clamp the key depth to fit thin bodies (e.g. 0.8mm keeper doors)
-    key_depth = min(float(interface.get("key_depth_mm", 4.0)), max(zlen - 0.4, 0.4))
-    z0 = float(bb.zmin) + (zlen - key_depth) / 2.0
+    key_depth = float(interface.get("key_depth_mm", 4.0))
+    min_wall = float(interface.get("key_min_wall_mm", 0.8))
+    # thin-part guard: a through-key needs real wall above and below the key band.
+    if src_zlen < key_depth + 2 * min_wall:
+        return base
+    z0 = src_zmin + (src_zlen - key_depth) / 2.0  # shared datum, both halves identical
 
-    def _dovetail(nx: float, wx: float) -> cq.Workplane:
+    def _dovetail(nx: float, wx: float, depth: float, z_base: float) -> cq.Workplane:
         pts = [
             (x_center - nx / 2, split_y - half_span),
             (x_center + nx / 2, split_y - half_span),
@@ -71,21 +82,31 @@ def _keyed_split_interface(
             (x_center - wx / 2, split_y + half_span),
         ]
         return (
-            cq.Workplane("XY").polyline(pts).close().extrude(key_depth).translate((0, 0, z0))
+            cq.Workplane("XY").polyline(pts).close().extrude(depth).translate((0, 0, z_base))
         )
+
+    boss = _dovetail(narrow_x, wide_x, key_depth, z0)
+    # Apply the key only where it ATTACHES to seam material. A bbox-center key lands in the
+    # hollow middle of a frame/shell section and would float (add a disconnected solid) or
+    # cut nothing; there we fall back to a plain butt seam, retained by the existing global
+    # features (deck keys / wedge locks) per the print-native intent. Robust per-wall key
+    # placement on hollow sections is a deferred design item (FINDINGS G5).
+    if base.intersect(boss).val().Volume() < 0.1 * boss.val().Volume():
+        return base
 
     if is_lower:
         w_w = float(interface.get("witness_width_mm", 1.0))
         w_l = float(interface.get("witness_len_mm", 2.0))
         w_h = float(interface.get("witness_height_mm", 0.5))
-        witness = (
+        witness = (  # protrudes above the source top face -> visible/locatable
             cq.Workplane("XY")
             .box(w_w, w_l, w_h, centered=(True, False, False))
-            .translate((x_center, split_y - w_l / 2, float(bb.zmax) - w_h))
+            .translate((x_center, split_y - w_l / 2, src_zmax))
         )
-        return base.union(_dovetail(narrow_x, wide_x)).union(witness)
-    # upper half: clearance-inflated mating pocket
-    return base.cut(_dovetail(narrow_x + 2 * clr, wide_x + 2 * clr))
+        return base.union(boss).union(witness)
+    # upper half: pocket inflated by clearance on X (walls) and Z (top + bottom)
+    pocket = _dovetail(narrow_x + 2 * clr, wide_x + 2 * clr, key_depth + 2 * clr, z0 - clr)
+    return base.cut(pocket)
 
 
 def _production_y_split_parts(params: dict[str, Any]) -> tuple[str, ...]:
