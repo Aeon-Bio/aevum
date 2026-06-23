@@ -64,11 +64,17 @@ def test_flag_off_layout_and_manifest_hashes_match_golden():
 
 
 def test_keyed_flag_is_actually_wired():
-    """Guard against the gate passing because the feature is dead: flag-ON must change
-    the y-split seam geometry (keyed lower segment protrudes past the flat split plane)."""
-    p = _params()
-    off_ymax = m.build_row_coupon_production_y_split_parts(p)["wet_chamber_frame_y01_of_02"].val().BoundingBox().ymax
-    p_on = copy.deepcopy(p)
+    """Guard against the gate passing because the feature is dead: flag-ON must produce at
+    least one keyed seam (some split part's lower segment protrudes past the flat split
+    plane). Robust to WHICH parts attach a key — a bbox-centre key falls back to a butt
+    seam on hollow frame/shell sections (only solid-seam parts key today; per-wall
+    placement is deferred, G5a), so this asserts existence, not a specific part."""
+    seam = 188.625  # split_y for the shipped one-row params
+    p_on = copy.deepcopy(_params())
     p_on["production_assembly"]["keyed_joints_enabled"] = True
-    on_ymax = m.build_row_coupon_production_y_split_parts(p_on)["wet_chamber_frame_y01_of_02"].val().BoundingBox().ymax
-    assert on_ymax > off_ymax + 0.5, "keyed_joints_enabled does not change geometry — flag is not wired"
+    on = m.build_row_coupon_production_y_split_parts(p_on)
+    keyed = [
+        k for k, v in on.items()
+        if k.endswith("y01_of_02") and v.val().BoundingBox().ymax > seam + 0.5
+    ]
+    assert keyed, "keyed_joints_enabled produced no keyed seam — flag is not wired / feature inert"

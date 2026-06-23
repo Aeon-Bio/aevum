@@ -686,7 +686,14 @@ def _y_split_anti_shear_key_present(interface: dict[str, Any]) -> bool:
     builder constructs this key deterministically from these same interface keys,
     so reading the descriptor is a faithful, non-fragile carrier (a live global
     face-normal count cannot distinguish the +2 dovetail faces from the dozens of
-    pre-existing cylindrical pod/fillet faces a butt half already carries)."""
+    pre-existing cylindrical pod/fillet faces a butt half already carries).
+
+    HONEST CAVEAT (G3/G5d): this reports that the keyed-split FEATURE is CONFIGURED, not
+    that this specific part's exported solid carries a key. The D4 builder only attaches a
+    key where the seam cross-section is solid; on hollow frame/shell sections it falls back
+    to a butt seam (G5a), which this descriptor-level check does NOT reflect. A per-part
+    geometric realization check (build the solid + boolean-inspect the seam) is deferred,
+    G5d — until then a butted part can still be reported keyed here."""
     narrow_x = float(interface.get("key_narrow_x", 6.0))
     wide_x = float(interface.get("key_wide_x", 10.0))
     half_span = float(interface.get("key_half_span_y", 3.0))

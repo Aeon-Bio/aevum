@@ -41,9 +41,12 @@ def test_attached_key_has_real_mate_clearance_and_protruding_witness():
     assert pocket_removed > boss_added, (
         f"no fit clearance: pocket {pocket_removed:.2f} <= boss {boss_added:.2f} (interference)"
     )
-    # (d) reassembles within the source bbox (+ witness epsilon)
+    # (d) reassembles within the source bbox; Z only exceeds the source by the (bounded,
+    # intentional) protruding witness height, not an unbounded envelope blowup
     rb = lo.union(up).val().BoundingBox()
+    w_h = float(p["production_assembly"]["y_split_interface"].get("witness_height_mm", 0.5))
     assert rb.ymin >= src_bb.ymin - 0.01 and rb.ymax <= src_bb.ymax + 0.01
+    assert rb.zmax <= src_bb.zmax + w_h + 0.01, "keyed part Z envelope grew beyond the witness height"
 
 
 def test_hollow_center_part_falls_back_to_butt_not_floating_key():

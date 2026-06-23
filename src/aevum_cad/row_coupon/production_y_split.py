@@ -167,18 +167,24 @@ def _two_module_joint_metadata(
         "split_y": split_y,
         "module_boundary": "inter-plate service gap (intentional 2-module split)",
         "keyed_seam": (
-            "D4 printed dovetail anti-shear key with witness pip on the lower module and "
-            "a clearance-inflated mating pocket on the upper module, straddling split_y"
+            "D4 printed dovetail anti-shear key + protruding witness on the lower module, "
+            "clearance-inflated mating pocket on the upper, straddling split_y. NOTE: a "
+            "bbox-centre key only attaches where the seam cross-section is solid; on hollow "
+            "frame/shell sections it falls back to a butt seam retained globally (per-wall "
+            "key placement is deferred, G5a) — so not every part carries a key"
         ),
         "key_half_span_y": float(interface.get("key_half_span_y", 3.0)),
         "captured_seal": (
-            "D5 printed labyrinth tongue lap bridges the gasket capture groove across "
-            "split_y, so the seal crossing is a tongue/groove lap, not a flat butt"
+            "D5 seal-across-split lap is a SCAFFOLD, not a validated wet seal: it is unioned "
+            "pre-split so the split bisects it (no bridge) and it intrudes the elastomer "
+            "seat; a real during-split overlapping lap + dye/pressure evidence is required "
+            "before wet use (deferred, G5c)"
         ),
         "seal_lap_len_y": float(production.get("gasket_capture_split_lap_len_y", 8.0)),
         "retention_authority": (
-            "joint is retained by printed dovetail key, wedge locks, and the tongue/groove "
-            "seal lap only — no screws, glue, or metal inserts; nothing grips the plate"
+            "intended retention is printed dovetail key, wedge locks, and the seam seal "
+            "lap only — no screws, glue, or metal inserts; nothing grips the plate. The "
+            "seal lap and full key coverage are not yet validated (G5)"
         ),
     }
 
