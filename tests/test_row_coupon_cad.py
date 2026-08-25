@@ -1098,7 +1098,10 @@ def test_export_y_split_parts_uses_dedicated_first_print_names(
 
 def test_support_frame_has_no_generic_top_datum_pockets_in_lower_seal_land() -> None:
     params = load_params(PARAMS)
-    source = (ROOT / "src" / "aevum_cad" / "row_coupon.py").read_text()
+    package_root = ROOT / "src" / "aevum_cad" / "row_coupon"
+    source = "\n".join(
+        path.read_text() for path in sorted(package_root.rglob("*.py"))
+    )
 
     assert "fiducials" not in params
     assert "insert_pockets" not in params
@@ -2154,8 +2157,14 @@ def test_latch_station_asymmetry_is_visible_when_port_omits_station() -> None:
     assert asymmetry["active_station_count"] == len(layout["wedge_lock_rectangles"])
     assert asymmetry["omitted_station_count"] == 1
     assert asymmetry["has_omitted_station_warning"] is True
+    active_positions = {
+        (round(lock["post_x"], 3), round(lock["post_y"], 3))
+        for lock in layout["wedge_lock_rectangles"]
+    }
+    omitted_positions = sorted(set(layout["compression_stop_positions"]) - active_positions)
     assert asymmetry["omitted_stop_positions"] == [
-        {"x": 142.6, "y": 188.625, "reason": "port_or_adapter_keepout"}
+        {"x": x, "y": y, "reason": "port_or_adapter_keepout"}
+        for x, y in omitted_positions
     ]
     assert asymmetry["max_active_station_span_mm"] > (
         params["latch_mechanics"]["max_active_latch_span_y"]

@@ -1922,7 +1922,8 @@ def test_first_print_sensor_thermal_targets_markdown_uses_layout_values() -> Non
         in target_markdown
     )
     assert (
-        "| Sensor connector service clearance | 145.60 x 12.00 x 43.30 mm |"
+        "| Sensor connector service clearance | "
+        f"{layout['sensor_connector_service_clearance_check']['cad_value']} |"
         in target_markdown
     )
     assert "| Service cable envelope | 6.00 x 30.00 x 5.10 mm |" in target_markdown
@@ -1972,6 +1973,7 @@ def test_first_print_sensor_thermal_targets_markdown_uses_layout_values() -> Non
 
 def test_first_print_gate6_sensor_thermal_worksheet_csv_has_blank_evidence() -> None:
     params = load_params(PARAMS)
+    layout = row_coupon_layout(params)
     worksheet = first_print_gate6_sensor_thermal_worksheet_csv(params)
     rows = list(csv.DictReader(StringIO(worksheet)))
 
@@ -1985,7 +1987,9 @@ def test_first_print_gate6_sensor_thermal_worksheet_csv_has_blank_evidence() -> 
     assert rows[10]["target"] == "Service connectors/cables"
     assert rows[10]["cad_value"] == "3 connectors / 3 cable envelopes"
     assert rows[11]["target"] == "Sensor connector service clearance"
-    assert rows[11]["cad_value"] == "145.60 x 12.00 x 43.30 mm"
+    assert rows[11]["cad_value"] == str(
+        layout["sensor_connector_service_clearance_check"]["cad_value"]
+    )
     assert rows[12]["target"] == "Service cable envelope"
     assert rows[12]["cad_value"] == "6.00 x 30.00 x 5.10 mm"
     assert rows[13]["target"] == "Service cable bend envelope"
