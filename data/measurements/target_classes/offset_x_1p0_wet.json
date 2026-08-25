@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "target_class": "offset_x_1p0_wet",
+  "fixture_load_name": "aevum_p300_poc_fixture",
+  "fixture_params_sha256": "98a73b6501b41d683fb242acac11871c6ccb7c1c7a732c1b83844f147f0c8a24",
+  "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+  "robot_serial": "rough-morning",
+  "robot_server_version": "9.0.0",
+  "slot": "1",
+  "pipette_name": "p300_single_gen2",
+  "pipette_mount": "left",
+  "tiprack_load_name": "opentrons_96_tiprack_300ul",
+  "offset_registry_record": "not-yet-registered",
+  "run_id": "",
+  "maintenance_run_id": "172a3df8-2875-478b-90f6-c059558c3350",
+  "command_ids": [],
+  "evidence": [],
+  "claims": [],
+  "result": "blocked",
+  "predecessor_records": []
+}
