@@ -840,4 +840,3 @@ def first_print_cad_target_sections_markdown(
             first_print_sensor_thermal_targets_markdown(params)
         ),
     }
-

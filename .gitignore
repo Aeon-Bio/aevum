@@ -6,11 +6,7 @@ __pycache__/
 .ruff_cache/
 
 # Generated artifacts
-outputs/**/*.stl
-outputs/**/*.step
-outputs/**/*.3mf
-outputs/**/*.json
-outputs/**/*.py
+/outputs/
 
 # Local OT-2 runtime state
 data/measurements/ot2_bridge_state.sqlite3*
@@ -23,7 +19,5 @@ data/measurements/legacy_image_evidence/
 *.FCStd1
 tools/
 
-# Slicer build artifacts (gcode not covered by the outputs/* rules above)
-outputs/sliced/
-outputs/**/*.gcode
+# Slicer build artifacts
 result.json
