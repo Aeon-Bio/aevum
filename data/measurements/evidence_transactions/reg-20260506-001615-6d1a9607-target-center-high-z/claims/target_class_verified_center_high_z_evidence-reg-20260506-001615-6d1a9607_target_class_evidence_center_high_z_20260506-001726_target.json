@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "claim_id": "target_class_verified:center_high_z:evidence-reg-20260506-001615-6d1a9607:target_class_evidence:center_high_z:20260506-001726:target",
+  "claim_type": "target_class_verified:center_high_z",
+  "value": true,
+  "created_at": "2026-05-06T00:17:26.090575",
+  "session_id": "reg-20260506-001615-6d1a9607",
+  "fixture_load_name": "aevum_p300_poc_fixture",
+  "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+  "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+  "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+  "method": "target_class_evidence_packet_v1",
+  "quality": "usable",
+  "evidence": [
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260506-001615-6d1a9607:target_class_evidence:center_high_z:20260506-001726:target",
+      "source_kind": "inspection_note",
+      "path": "data/measurements/sessions/reg-20260506-001615-6d1a9607/center_high_z_target_evidence.json",
+      "checksum_sha256": "13c4ac1b167bb3f02200cf348e707447aa7c34850d5daf2cda2065fa09579265",
+      "created_at": "2026-05-06T00:17:26.090145",
+      "session_id": "reg-20260506-001615-6d1a9607",
+      "quality": "usable"
+    }
+  ],
+  "reasons": []
+}

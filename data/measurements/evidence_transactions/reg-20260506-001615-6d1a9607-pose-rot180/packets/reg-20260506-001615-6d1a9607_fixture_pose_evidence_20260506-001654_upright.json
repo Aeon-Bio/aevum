@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "evidence_id": "reg-20260506-001615-6d1a9607:fixture_pose_evidence:20260506-001654:upright",
+  "source_kind": "fixture_upright",
+  "created_at": "2026-05-06T00:16:54.606703",
+  "session_id": "reg-20260506-001615-6d1a9607",
+  "robot_serial": "rough-morning",
+  "robot_server_version": "9.0.0",
+  "fixture_load_name": "aevum_p300_poc_fixture",
+  "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+  "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+  "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+  "operation": "",
+  "command_id": "",
+  "artifact_path": "data/measurements/sessions/reg-20260506-001615-6d1a9607/fixture_pose_evidence.json",
+  "checksum_sha256": "936d42b989f6a6a9bac93989be7e165075783520a99401843cc95b826b117b04",
+  "provenance": {},
+  "payload": {
+    "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+    "fixture_upright": true,
+    "slot": "5",
+    "image_path": "/Users/noot/Documents/aevum/data/measurements/images/reg-20260506-001615-6d1a9607_slot5_rot180_target.jpg",
+    "image_checksum_sha256": "565818fab35a2dea50a313fd2e8c1cd9a552b35dcf95ce7e2f05449465e11306",
+    "image_captured_at": "2026-05-06T00:16:24.276991",
+    "image_capture_robot_url": "http://192.168.109.136:31950",
+    "image_capture_endpoint": "/camera/picture",
+    "image_capture_checksum_sha256": "565818fab35a2dea50a313fd2e8c1cd9a552b35dcf95ce7e2f05449465e11306",
+    "vision_result_path": "",
+    "vision_result_checksum_sha256": ""
+  },
+  "quality": "usable",
+  "notes": []
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "transaction_id": "reg-20260507-211019-1f87dfc6-target-center-high-z-post-home",
+  "created_at": "2026-05-07T21:22:24.967946",
+  "committed_at": "2026-05-07T21:22:24.967937",
+  "status": "committed",
+  "session_id": "reg-20260507-211019-1f87dfc6",
+  "index_path": "/Users/noot/Documents/aevum/data/measurements/sessions/reg-20260507-211019-1f87dfc6/evidence_index.json",
+  "packets": [
+    {
+      "artifact_type": "packet",
+      "artifact_id": "reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212224:target",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-post-home/packets/reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212224_target.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-post-home/packets/reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212224_target.json.sha256",
+      "checksum_sha256": "72a1d4e9db511f077325cf1bd92e8a52c0723381bde1370cb3caa110efd3b4fd"
+    }
+  ],
+  "claims": [
+    {
+      "artifact_type": "claim",
+      "artifact_id": "target_class_verified:center_high_z:evidence-reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212224:target",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-post-home/claims/target_class_verified_center_high_z_evidence-reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212224_target.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-post-home/claims/target_class_verified_center_high_z_evidence-reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212224_target.json.sha256",
+      "checksum_sha256": "162e1fc362c8bfd6e6dc722b9786dbbde2f0dc1692e4e64ceabb1e629d72a8ae"
+    }
+  ],
+  "blockers": []
+}

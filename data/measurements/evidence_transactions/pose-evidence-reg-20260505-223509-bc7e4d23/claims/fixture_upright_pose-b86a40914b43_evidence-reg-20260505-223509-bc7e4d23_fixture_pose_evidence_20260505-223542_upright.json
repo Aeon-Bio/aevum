@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "claim_id": "fixture_upright:pose-b86a40914b43:evidence-reg-20260505-223509-bc7e4d23:fixture_pose_evidence:20260505-223542:upright",
+  "claim_type": "fixture_upright",
+  "value": true,
+  "created_at": "2026-05-05T22:35:42.165595",
+  "session_id": "reg-20260505-223509-bc7e4d23",
+  "fixture_load_name": "aevum_p300_poc_fixture",
+  "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+  "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+  "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+  "method": "fixture_pose_evidence_packet_v1",
+  "quality": "usable",
+  "evidence": [
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260505-223509-bc7e4d23:fixture_pose_evidence:20260505-223542:upright",
+      "source_kind": "fixture_upright",
+      "path": "data/measurements/sessions/reg-20260505-223509-bc7e4d23/20260505_reg-20260505-223509-bc7e4d23_fixture_pose_evidence.json",
+      "checksum_sha256": "4fb64aeb29ccc260d44876c0deb20c4ea0c38e993c92a3c89f6917a0440ad90c",
+      "created_at": "2026-05-05T22:35:42.165131",
+      "session_id": "reg-20260505-223509-bc7e4d23",
+      "quality": "usable"
+    }
+  ],
+  "reasons": []
+}

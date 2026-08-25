@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "transaction_id": "reg-20260507-211019-1f87dfc6-target-center-high-z-after-move",
+  "created_at": "2026-05-07T21:26:03.986325",
+  "committed_at": "2026-05-07T21:26:03.986317",
+  "status": "committed",
+  "session_id": "reg-20260507-211019-1f87dfc6",
+  "index_path": "/Users/noot/Documents/aevum/data/measurements/sessions/reg-20260507-211019-1f87dfc6/evidence_index.json",
+  "packets": [
+    {
+      "artifact_type": "packet",
+      "artifact_id": "reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212603:target",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-after-move/packets/reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212603_target.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-after-move/packets/reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212603_target.json.sha256",
+      "checksum_sha256": "898cfaa1d4cb76e26ed218e5a9364c45dbee5a5da895a2d62d7245b31577d789"
+    }
+  ],
+  "claims": [
+    {
+      "artifact_type": "claim",
+      "artifact_id": "target_class_verified:center_high_z:evidence-reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212603:target",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-after-move/claims/target_class_verified_center_high_z_evidence-reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212603_target.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260507-211019-1f87dfc6-target-center-high-z-after-move/claims/target_class_verified_center_high_z_evidence-reg-20260507-211019-1f87dfc6_target_class_evidence_center_high_z_20260507-212603_target.json.sha256",
+      "checksum_sha256": "7082ec64972b9619739408945b70a781aacb1b1eab948d588a3cfc4ed84c469e"
+    }
+  ],
+  "blockers": []
+}

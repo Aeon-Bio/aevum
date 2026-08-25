@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "transaction_id": "reg-20260506-001615-6d1a9607-pose-rot180",
+  "created_at": "2026-05-06T00:16:54.609122",
+  "committed_at": "2026-05-06T00:16:54.609114",
+  "status": "committed",
+  "session_id": "reg-20260506-001615-6d1a9607",
+  "index_path": "/Users/noot/Documents/aevum/data/measurements/sessions/reg-20260506-001615-6d1a9607/evidence_index.json",
+  "packets": [
+    {
+      "artifact_type": "packet",
+      "artifact_id": "reg-20260506-001615-6d1a9607:fixture_pose_evidence:20260506-001654:orientation",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/packets/reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_orientation.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/packets/reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_orientation.json.sha256",
+      "checksum_sha256": "9b2fad70cb413acb0f0060a461aaa5d6bb9db6de84921130960725559f17b163"
+    },
+    {
+      "artifact_type": "packet",
+      "artifact_id": "reg-20260506-001615-6d1a9607:fixture_pose_evidence:20260506-001654:upright",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/packets/reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_upright.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/packets/reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_upright.json.sha256",
+      "checksum_sha256": "0ed6c6c6226db553a41dae845f678bc75a4d11501354c4cd7c261d80b8dd7dbb"
+    }
+  ],
+  "claims": [
+    {
+      "artifact_type": "claim",
+      "artifact_id": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294:pose-b86a40914b43:evidence-reg-20260506-001615-6d1a9607:fixture_pose_evidence:20260506-001654:orientation",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/claims/fixture_pose_orientation_rot180_slot-5_c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294_pose-b86a40914b43_evidence-reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_orientation.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/claims/fixture_pose_orientation_rot180_slot-5_c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294_pose-b86a40914b43_evidence-reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_orientation.json.sha256",
+      "checksum_sha256": "ed86879cb8a969c746188400dde75ee6bc143851ed2c42c5ac51e29c4cba6617"
+    },
+    {
+      "artifact_type": "claim",
+      "artifact_id": "fixture_upright:pose-b86a40914b43:evidence-reg-20260506-001615-6d1a9607:fixture_pose_evidence:20260506-001654:upright",
+      "path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/claims/fixture_upright_pose-b86a40914b43_evidence-reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_upright.json",
+      "checksum_path": "/Users/noot/Documents/aevum/data/measurements/evidence_transactions/reg-20260506-001615-6d1a9607-pose-rot180/claims/fixture_upright_pose-b86a40914b43_evidence-reg-20260506-001615-6d1a9607_fixture_pose_evidence_20260506-001654_upright.json.sha256",
+      "checksum_sha256": "7f04519ed39e95c38238c53c158c775e4db4925d79e62539c7c72310754b812a"
+    }
+  ],
+  "blockers": []
+}
