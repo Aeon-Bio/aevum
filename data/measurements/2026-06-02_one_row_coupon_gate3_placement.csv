@@ -1,0 +1,13 @@
+target,cad_value,physical_check,measured_value,evidence_path,result,notes
+Assembly deck-to-top envelope,140.60 mm,measured high point <= 141.60 mm,,,not_tested,
+Assembly footprint X,147.60 mm,seated module stays inside intended deck-frame width,,,not_tested,
+Assembly footprint Y,377.25 mm,four-plate row stays inside intended deck-frame length,,,not_tested,
+Deck pod seating repeatability,16 feet / 16 keys / 4 slots / 5 cycles,"five seat/release cycles prove no rocking, yaw, wear, frame contact, or dry-bay debris",,,not_tested,
+Adjacent-slot service clearance,4.10 mm,dressed tube/cable route does not touch adjacent-slot keepout,,,not_tested,
+Required adjacent-slot clearance,2.00 mm,measured service dress remains above the keepout by at least this margin,,,not_tested,
+Operating service dress envelope,219.60 x 348.75 x 43.30 mm / 11 envelopes,dressed gas and electrical services stay inside exported validation body,,,not_tested,
+Row tiling/service clearance check,8 neighbor keepouts / 11 service envelopes / 4.10 mm minimum clearance,inspect printed row with adjacent OT-2 slot/service dress before operating deck use,,,not_tested,
+OT-2 toolhead swept body envelope,250.00 x 445.50 x 45.00 mm / 384 wells,measured OT-2 toolhead body clears exported validation body at every puncture target,,,not_tested,
+OT-2 toolhead lower clearance,8.00 mm assembly / 27.90 mm services / 2.00 mm tip path,do not replace conservative CAD envelope without measured two-pipette OT-2 toolhead evidence,,,not_tested,
+Pipette puncture targets,384 wells,"no cap, latch, tube, cable, or connector over any septum target",,,not_tested,
+Dry-bay protected footprint,120.20 x 347.90 mm,"no service lead, wet witness path, or debris bridge enters this footprint",,,not_tested,

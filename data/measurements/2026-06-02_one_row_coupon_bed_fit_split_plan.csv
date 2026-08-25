@@ -1,0 +1,13 @@
+part,target_x_mm,target_y_mm,target_z_mm,selected_bed_x_mm,selected_bed_y_mm,fits_as_exported,minimum_y_segments,max_segment_y_mm,segment_fits_selected_bed,required_decision,result,notes
+deck_pods,128.00,357.50,84.10,250.00,210.00,no,2,178.75,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+plate_support_frame,147.60,377.25,11.20,250.00,210.00,no,2,188.62,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+lower_harness_cover,10.40,326.38,0.70,250.00,210.00,no,2,163.19,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+printed_lower_sensor_connector_shroud,12.40,9.40,4.80,250.00,210.00,yes,1,9.40,yes,none,not_tested,
+wet_chamber_frame,147.60,377.25,32.10,250.00,210.00,no,2,188.62,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+lid_manifold_shell,147.60,377.25,8.60,250.00,210.00,no,2,188.62,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+lid_harness_cover,147.00,326.38,8.30,250.00,210.00,no,2,163.19,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+printed_lid_sensor_connector_shrouds,147.20,9.40,4.80,250.00,210.00,yes,1,9.40,yes,none,not_tested,
+lid_cover,162.80,377.25,26.00,250.00,210.00,no,2,188.62,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+printed_gas_pcb_keeper_doors,141.00,289.65,0.80,250.00,210.00,no,2,144.82,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,
+printed_sample_relief_cap,16.80,12.00,4.60,250.00,210.00,yes,1,12.00,yes,none,not_tested,
+printed_wedge_locks,147.60,377.25,3.00,250.00,210.00,no,2,188.62,yes,split_y_2_segments_with_print_native_retention_sealing_service_evidence,not_tested,

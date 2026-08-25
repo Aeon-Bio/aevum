@@ -1,0 +1,11 @@
+target,cad_value,physical_check,measured_value,evidence_path,result,notes
+Headspace barrier perimeter,"147.60 x 377.25 x 5.80 mm perimeter, 2.00 mm wall",required barrier body traces sealed gasket perimeter with no dye bypass,,,not_tested,
+Shared wet headspace volume,137.60 x 367.25 x 5.80 mm shared volume,required volume body remains continuous and free of blocked bridges,,,not_tested,
+Dry-bay protected volume,120.20 x 347.90 x 80.00 mm,"required dry-bay envelope body admits no dye, condensate, debris, or service lead",,,not_tested,
+Dry-bay ingress audit,10 wet collectors / 7 inboard dams / 1 protected footprint,"exported audit body shows no wet collector, dam, or debris bridge into protected footprint",,,not_tested,
+Dry-bay boundary rail clearance,"132.20 x 347.90 x 3.00 mm, 4.00 mm rails",required boundary body leaves side rails clear and unbridged,,,not_tested,
+Side-gas service witness set,4 wet collectors / 2 inboard dams,side fitting dye routes to visible outboard collectors,,,not_tested,
+Sample/relief cap witness set,2 wet collectors / 1 inboard dams,cap-seat dye routes to visible edge witness,,,not_tested,
+Gasket-tab root witness set,4 wet collectors / 4 inboard dams,lower/upper front/rear tab roots stay outside dry bay,,,not_tested,
+Dry-bay aperture thresholds,4 raised thresholds,raised collars remain unbridged by dye or support debris,,,not_tested,
+Aperture-adjacent witness gutters,"8 gutters, 0.45 mm depth",aperture-side dye stays in witness gutters and out of optics bay,,,not_tested,
