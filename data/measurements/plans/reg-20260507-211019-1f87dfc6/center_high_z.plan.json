@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "session_id": "reg-20260507-211019-1f87dfc6",
+  "steps": [
+    {
+      "step_id": "center-high-z",
+      "operation": "move_high_z",
+      "target_class": "center_high_z",
+      "parameters": {},
+      "notes": "First dry high-Z move after home only; dispatch translation is restricted to center_high_z -> moveToWell(A1, top +15 mm) with the safety profile minimumZHeight."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "session_id": "reg-20260507-211019-1f87dfc6",
+  "steps": [
+    {
+      "step_id": "home",
+      "operation": "home",
+      "parameters": {},
+      "notes": "Home gantry after the first high-Z move; no arbitrary coordinate, low-Z, wet, or offset motion."
+    }
+  ]
+}

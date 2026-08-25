@@ -1,0 +1,9 @@
+{
+  "robot_url": "http://192.168.109.136:31950",
+  "captured_at": "2026-05-05T22:35:24.294647",
+  "endpoint": "/camera/picture",
+  "image_path": "/Users/noot/Documents/aevum/data/measurements/images/20260505_reg-20260505-223509-bc7e4d23_slot5_rot180.jpg",
+  "image_checksum_sha256": "0056c2460ec3ca68bb7e30b067773f2d8d9e9936575d55b13278c6a04ea84acf",
+  "content_type": "image/jpg",
+  "bytes_written": 35872
+}

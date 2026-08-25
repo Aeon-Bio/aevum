@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "session_id": "reg-20260505-223509-bc7e4d23",
+  "steps": [
+    {
+      "step_id": "home",
+      "operation": "home",
+      "parameters": {},
+      "notes": "Dry-run validation artifact only; do not execute physical motion from this file."
+    }
+  ]
+}

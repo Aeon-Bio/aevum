@@ -1,0 +1,74 @@
+{
+  "image_path": "data/measurements/images/20260505_reg-20260505-201354-d16acb71_slot5_rot180.jpg",
+  "analyzed_at": "2026-05-05T20:14:31.124809",
+  "purpose": "fixture_presence",
+  "metrics": {
+    "width_px": 640,
+    "height_px": 480,
+    "mode": "RGB",
+    "mean_luma": 53.055,
+    "luma_stddev": 35.702,
+    "edge_mean": 5.482
+  },
+  "evidence_ok": true,
+  "motion_gate": false,
+  "checks": [
+    {
+      "name": "minimum_resolution",
+      "passed": true,
+      "severity": "blocker",
+      "details": "image meets minimum OT-2 still capture resolution",
+      "observed": "640x480",
+      "threshold": "640x480"
+    },
+    {
+      "name": "not_underexposed",
+      "passed": true,
+      "severity": "blocker",
+      "details": "mean luminance is high enough for evidence review",
+      "observed": 53.055,
+      "threshold": 20.0
+    },
+    {
+      "name": "not_overexposed",
+      "passed": true,
+      "severity": "blocker",
+      "details": "mean luminance is low enough to avoid washed-out evidence",
+      "observed": 53.055,
+      "threshold": 235.0
+    },
+    {
+      "name": "minimum_contrast",
+      "passed": true,
+      "severity": "blocker",
+      "details": "image contrast is high enough for coarse scene evidence",
+      "observed": 35.702,
+      "threshold": 8.0
+    },
+    {
+      "name": "minimum_structure",
+      "passed": true,
+      "severity": "warning",
+      "details": "edge response suggests visible deck structure",
+      "observed": 5.482,
+      "threshold": 1.0
+    },
+    {
+      "name": "motion_authorization",
+      "passed": false,
+      "severity": "blocker",
+      "details": "this first-pass vision analysis records evidence only and cannot authorize motion",
+      "observed": false,
+      "threshold": true
+    },
+    {
+      "name": "validated_fixture_detector",
+      "passed": false,
+      "severity": "blocker",
+      "details": "fixture/fiducial detector has not been calibrated with installed-fixture evidence",
+      "observed": false,
+      "threshold": true
+    }
+  ],
+  "summary": "image recorded for commissioning; calibrated detector is still required"
+}

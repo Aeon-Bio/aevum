@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "target_class": "center_high_z",
+  "fixture_load_name": "aevum_p300_poc_fixture",
+  "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+  "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+  "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+  "robot_serial": "rough-morning",
+  "robot_server_version": "9.0.0",
+  "slot": "5",
+  "pipette_name": "p300_single_gen2",
+  "pipette_mount": "left",
+  "tiprack_load_name": "opentrons_96_tiprack_300ul",
+  "offset_registry_record": "not-yet-registered",
+  "run_id": "",
+  "maintenance_run_id": "51e96e90-c6b2-4a48-ac50-de5f5cf9b7d5",
+  "command_ids": [],
+  "evidence": [
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212603:target",
+      "source_kind": "vision_analysis",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/center_high_z_target_evidence_after_move.json",
+      "checksum_sha256": "b607d1a6043827793ac55968c5251ba68d38e442ba00ba50ee25dda7b829e9dc",
+      "created_at": "2026-05-07T21:26:03.984580",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:orientation",
+      "source_kind": "fixture_pose_orientation",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_pre_home.json",
+      "checksum_sha256": "c2cb549ea500563cccbc4df18e8aa06b721b32ca6cbca777736978ce0ce37b7a",
+      "created_at": "2026-05-07T21:11:09.152601",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:upright",
+      "source_kind": "fixture_upright",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_pre_home.json",
+      "checksum_sha256": "c2cb549ea500563cccbc4df18e8aa06b721b32ca6cbca777736978ce0ce37b7a",
+      "created_at": "2026-05-07T21:11:09.152609",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:orientation",
+      "source_kind": "fixture_pose_orientation",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_home.json",
+      "checksum_sha256": "c78ba234e763d16edb409d7ab512666b5b7a2259aaf12e41b8c671f56e6f240b",
+      "created_at": "2026-05-07T21:21:43.629943",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:upright",
+      "source_kind": "fixture_upright",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_home.json",
+      "checksum_sha256": "c78ba234e763d16edb409d7ab512666b5b7a2259aaf12e41b8c671f56e6f240b",
+      "created_at": "2026-05-07T21:21:43.629950",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:orientation",
+      "source_kind": "fixture_pose_orientation",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_high_z.json",
+      "checksum_sha256": "da5bf1bb561d2c5d52f905bace5fb0e98c4a3b65a40930427be359e15aaf6b8a",
+      "created_at": "2026-05-07T21:25:18.510024",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    },
+    {
+      "schema_version": 1,
+      "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:upright",
+      "source_kind": "fixture_upright",
+      "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_high_z.json",
+      "checksum_sha256": "da5bf1bb561d2c5d52f905bace5fb0e98c4a3b65a40930427be359e15aaf6b8a",
+      "created_at": "2026-05-07T21:25:18.510031",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "quality": "usable"
+    }
+  ],
+  "claims": [
+    {
+      "schema_version": 1,
+      "claim_id": "target_class_verified:center_high_z:evidence-reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212603:target",
+      "claim_type": "target_class_verified:center_high_z",
+      "value": true,
+      "created_at": "2026-05-07T21:26:03.984949",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "target_class_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:target_class_evidence:center_high_z:20260507-212603:target",
+          "source_kind": "vision_analysis",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/center_high_z_target_evidence_after_move.json",
+          "checksum_sha256": "b607d1a6043827793ac55968c5251ba68d38e442ba00ba50ee25dda7b829e9dc",
+          "created_at": "2026-05-07T21:26:03.984580",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:orientation",
+      "claim_type": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "value": true,
+      "created_at": "2026-05-07T21:11:09.152931",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:orientation",
+          "source_kind": "fixture_pose_orientation",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_pre_home.json",
+          "checksum_sha256": "c2cb549ea500563cccbc4df18e8aa06b721b32ca6cbca777736978ce0ce37b7a",
+          "created_at": "2026-05-07T21:11:09.152601",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_upright:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:upright",
+      "claim_type": "fixture_upright",
+      "value": true,
+      "created_at": "2026-05-07T21:11:09.153138",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-211109:upright",
+          "source_kind": "fixture_upright",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_pre_home.json",
+          "checksum_sha256": "c2cb549ea500563cccbc4df18e8aa06b721b32ca6cbca777736978ce0ce37b7a",
+          "created_at": "2026-05-07T21:11:09.152609",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:orientation",
+      "claim_type": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "value": true,
+      "created_at": "2026-05-07T21:21:43.630264",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:orientation",
+          "source_kind": "fixture_pose_orientation",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_home.json",
+          "checksum_sha256": "c78ba234e763d16edb409d7ab512666b5b7a2259aaf12e41b8c671f56e6f240b",
+          "created_at": "2026-05-07T21:21:43.629943",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_upright:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:upright",
+      "claim_type": "fixture_upright",
+      "value": true,
+      "created_at": "2026-05-07T21:21:43.630507",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212143:upright",
+          "source_kind": "fixture_upright",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_home.json",
+          "checksum_sha256": "c78ba234e763d16edb409d7ab512666b5b7a2259aaf12e41b8c671f56e6f240b",
+          "created_at": "2026-05-07T21:21:43.629950",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:orientation",
+      "claim_type": "fixture_pose_orientation:rot180:slot-5:c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "value": true,
+      "created_at": "2026-05-07T21:25:18.510404",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:orientation",
+          "source_kind": "fixture_pose_orientation",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_high_z.json",
+          "checksum_sha256": "da5bf1bb561d2c5d52f905bace5fb0e98c4a3b65a40930427be359e15aaf6b8a",
+          "created_at": "2026-05-07T21:25:18.510024",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    },
+    {
+      "schema_version": 1,
+      "claim_id": "fixture_upright:pose-b86a40914b43:evidence-reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:upright",
+      "claim_type": "fixture_upright",
+      "value": true,
+      "created_at": "2026-05-07T21:25:18.510711",
+      "session_id": "reg-20260507-211019-1f87dfc6",
+      "fixture_load_name": "aevum_p300_poc_fixture",
+      "fixture_params_sha256": "5b423f7da6545703d04b7b7e6f2ec6ad32f04a66e658b706f0fc2e6fe0d76fd7",
+      "labware_definition_sha256": "c45f53aef70eb77fc402134f62f058bbbadc8793a39657e9e5fb4f9998674294",
+      "pose_digest_sha256": "b86a40914b4364b4456204ee35e8b768d73b169bfcf8f81e953d64db2df8adf6",
+      "method": "fixture_pose_evidence_packet_v1",
+      "quality": "usable",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "evidence_id": "reg-20260507-211019-1f87dfc6:fixture_pose_evidence:20260507-212518:upright",
+          "source_kind": "fixture_upright",
+          "path": "data/measurements/sessions/reg-20260507-211019-1f87dfc6/fixture_pose_evidence_post_high_z.json",
+          "checksum_sha256": "da5bf1bb561d2c5d52f905bace5fb0e98c4a3b65a40930427be359e15aaf6b8a",
+          "created_at": "2026-05-07T21:25:18.510031",
+          "session_id": "reg-20260507-211019-1f87dfc6",
+          "quality": "usable"
+        }
+      ],
+      "reasons": []
+    }
+  ],
+  "result": "passed",
+  "predecessor_records": []
+}

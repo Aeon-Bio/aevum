@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "session_id": "reg-20260506-001615-6d1a9607",
+  "steps": [
+    {
+      "step_id": "home",
+      "operation": "home",
+      "parameters": {},
+      "notes": "Validation artifact only; this file does not dispatch physical motion."
+    }
+  ]
+}
