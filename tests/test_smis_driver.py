@@ -181,7 +181,7 @@ def test_lease_validity_matches_terminal_exclusion_not_active_literal() -> None:
 
 def test_terminal_lease_states_mirror_the_bridge() -> None:
     # Drift guard: SMIS's terminal set must equal the bridge's authoritative set.
-    from aevum_ot2.core.lock import TERMINAL_LOCK_STATES
+    from ot2_harness.core.lock import TERMINAL_LOCK_STATES
 
     assert TERMINAL_LEASE_STATES == set(TERMINAL_LOCK_STATES)
 
@@ -200,7 +200,7 @@ def test_registry_register_create_and_unknown() -> None:
 
 
 def test_bridge_lock_shaped_object_satisfies_motion_lease() -> None:
-    from aevum_ot2.core.models import BridgeLock
+    from ot2_harness.core.models import BridgeLock
 
     lock = BridgeLock(
         robot_url="http://robot.local",

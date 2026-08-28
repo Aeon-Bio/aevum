@@ -27,7 +27,7 @@ from aevum_smis.manifest import ModuleManifest
 
 ENTRY_POINT_GROUP = "aevum_modules"
 
-# Mirror of aevum_ot2.core.lock.TERMINAL_LOCK_STATES: the bridge holds a lease unless
+# Mirror of ot2_harness.core.lock.TERMINAL_LOCK_STATES: the harness holds a lease unless
 # its state is terminal, so SMIS must use the SAME predicate (terminal-exclusion), not a
 # stricter "== active" literal that would wrongly reject a valid non-active, non-terminal
 # state (e.g. a session mirrored as high_z_ready). Kept as a local copy so SMIS does not

@@ -1,5 +1,10 @@
 # Aevum OT-2 Task Graph
 
+> Historical product task graph. Generic robot-control implementation now belongs to
+> [`Aeon-Bio/ot2-harness`](https://github.com/Aeon-Bio/ot2-harness). Aevum retains the
+> consumer profile, CAD, physical protocols, and evidence; old package paths below are
+> provenance, not live ownership.
+
 ## Scope
 
 This graph is the package-owned path from the first printed P300 PoC fixture to

@@ -28,6 +28,12 @@ outputs/              Generated CAD, labware, protocols, and reports
 scripts/              Command-line entry points
 ```
 
+The generic robot-control, safety, daemon, CLI, and MCP implementation is owned by
+[`Aeon-Bio/ot2-harness`](https://github.com/Aeon-Bio/ot2-harness). This repository keeps
+the Aevum-specific fixture profile, CAD, physical protocols, and evidence. The dependency
+is pinned in `pyproject.toml` and `uv.lock` to the immutable harness commit
+`f53ea3fbd67558fa9765ec1b96a1df26b490bf61`.
+
 ## Local Setup
 
 CadQuery should run in the local project environment rather than the system Python.

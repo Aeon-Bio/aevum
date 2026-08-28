@@ -5,10 +5,8 @@ description = "OT-2 raised plate-mode incubator and inverted photonics engineeri
 requires-python = ">=3.11,<3.13"
 dependencies = [
   "cadquery>=2.5,<3",
-  "pillow>=10,<13",
+  "ot2-harness @ git+https://github.com/Aeon-Bio/ot2-harness.git@f53ea3fbd67558fa9765ec1b96a1df26b490bf61",
   "pydantic>=2.8",
-  "typer>=0.12",
-  "zeroconf>=0.132,<1",
 ]
 
 [project.optional-dependencies]
@@ -17,15 +15,19 @@ dev = [
   "ruff>=0.7",
 ]
 
-[project.scripts]
-aevum-ot2 = "aevum_ot2.adapters.cli:app"
-
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/aevum_cad", "src/aevum_ot2", "src/aevum_smis"]
+packages = [
+  "src/aevum_cad",
+  "src/aevum_ot2_profile",
+  "src/aevum_smis",
+]
 
 [tool.ruff]
 line-length = 100

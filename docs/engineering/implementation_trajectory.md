@@ -1,5 +1,10 @@
 # Implementation Trajectory
 
+> Historical design record. Generic robot-control implementation now belongs to
+> [`Aeon-Bio/ot2-harness`](https://github.com/Aeon-Bio/ot2-harness); Aevum owns only its
+> consumer fixture/profile, CAD, physical protocols, and evidence. Names below describe
+> the pre-extraction implementation and are not current package paths.
+
 ## Direction
 
 Aevum should be implemented as a stateful OT-2 bridge core with thin adapters.
