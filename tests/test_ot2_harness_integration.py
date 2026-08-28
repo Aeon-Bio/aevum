@@ -855,8 +855,6 @@ def test_boundary_predecessor_authority_rejects_distinct_invalid_states(
 def test_isolated_installed_aevum_wheel_resolves_pinned_harness(tmp_path: Path) -> None:
     repository = Path(__file__).resolve().parents[1]
     harness_repository = repository.parent / "ot2-harness"
-    if not harness_repository.exists():
-        harness_repository = Path("/Users/noot/Documents/ot2-harness")
     wheels = tmp_path / "wheels"
     wheels.mkdir()
     aevum_wheel = _build_local_wheel(repository, wheels)
@@ -909,7 +907,7 @@ assert paths.state_db == expected_state
     environment["A1_REPOSITORY"] = str(repository)
     environment["A1_HARNESS"] = str(harness_repository)
     environment["EXPECTED_OT2_HARNESS_COMMIT"] = (
-        "f53ea3fbd67558fa9765ec1b96a1df26b490bf61"
+        "663cf647d2bae516f955e2daf51ae2b3ae8abb0f"
     )
     subprocess.run(
         [str(python), "-I", "-c", script],

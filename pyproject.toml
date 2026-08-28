@@ -5,7 +5,7 @@ description = "OT-2 raised plate-mode incubator and inverted photonics engineeri
 requires-python = ">=3.11,<3.13"
 dependencies = [
   "cadquery>=2.5,<3",
-  "ot2-harness @ git+https://github.com/Aeon-Bio/ot2-harness.git@f53ea3fbd67558fa9765ec1b96a1df26b490bf61",
+  "ot2-harness @ git+https://github.com/Aeon-Bio/ot2-harness.git@663cf647d2bae516f955e2daf51ae2b3ae8abb0f",
   "pydantic>=2.8",
 ]
 

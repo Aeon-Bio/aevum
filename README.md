@@ -32,7 +32,7 @@ The generic robot-control, safety, daemon, CLI, and MCP implementation is owned 
 [`Aeon-Bio/ot2-harness`](https://github.com/Aeon-Bio/ot2-harness). This repository keeps
 the Aevum-specific fixture profile, CAD, physical protocols, and evidence. The dependency
 is pinned in `pyproject.toml` and `uv.lock` to the immutable harness commit
-`f53ea3fbd67558fa9765ec1b96a1df26b490bf61`.
+`663cf647d2bae516f955e2daf51ae2b3ae8abb0f`.
 
 ## Local Setup
 

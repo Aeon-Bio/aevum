@@ -21,7 +21,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cadquery", specifier = ">=2.5,<3" },
-    { name = "ot2-harness", git = "https://github.com/Aeon-Bio/ot2-harness.git?rev=f53ea3fbd67558fa9765ec1b96a1df26b490bf61" },
+    { name = "ot2-harness", git = "https://github.com/Aeon-Bio/ot2-harness.git?rev=663cf647d2bae516f955e2daf51ae2b3ae8abb0f" },
     { name = "pydantic", specifier = ">=2.8" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7" },
@@ -621,7 +621,7 @@ wheels = [
 [[package]]
 name = "ot2-harness"
 version = "0.1.0"
-source = { git = "https://github.com/Aeon-Bio/ot2-harness.git?rev=f53ea3fbd67558fa9765ec1b96a1df26b490bf61#f53ea3fbd67558fa9765ec1b96a1df26b490bf61" }
+source = { git = "https://github.com/Aeon-Bio/ot2-harness.git?rev=663cf647d2bae516f955e2daf51ae2b3ae8abb0f#663cf647d2bae516f955e2daf51ae2b3ae8abb0f" }
 dependencies = [
     { name = "pillow" },
     { name = "pydantic" },
