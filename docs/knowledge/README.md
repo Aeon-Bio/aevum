@@ -21,6 +21,10 @@ why the package is shaped the way it is, not just how to run the current files.
 - [Hardware systems lessons](hardware_systems_lessons.md): adjacent instrument
   families, common hardware failure modes, authority separation, and the next
   row-module coupon focus.
+- [Byonoy plate readers](byonoy_plate_readers.md): adjacent prior art — the
+  solid-state 96-channel on-deck reader, what it settles about parallel-vs-scanning
+  architecture, the catalog gap it exposes, and the cost it adds to the C-OB2
+  illumination fork.
 - [Materials strategy](materials_strategy.md): material boundaries for a
   row-shared environmental module, including what can be printed and what needs
   inserts, glass, elastomers, metal, sensors, diffusers, or COTS parts.

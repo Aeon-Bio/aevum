@@ -364,6 +364,15 @@ Q4 Z-CLOSURE: 8 + FE_z + focus_stroke + margin ≤ 62, element ≤ z = −8, bar
   even folded fails → Z BUDGET FAILS → deepen bay / lower mag / remote sensor via relay.
 ```
 
+The Q2 branches carry more than contrast. A **transmission absorbance / OD600
+readout needs the same clear vertical path as transmitted-from-above brightfield**
+(source above, sample between, detector below), and the pre-slit silicone sealing
+mat is opaque as well as the lid — so the "sealed top" branch also gives up
+transmission absorbance for the life of that lid design, and the "optical window"
+branch gains absorbance as a rider that belongs in its re-cost. See
+`../knowledge/byonoy_plate_readers.md`.
+
+
 **Expected happy path:** 4× infinity + f ≈ 50 mm tube + single 45° fold + IMX178
 mono, oblique-from-below illumination → focuses with ~22 mm WD margin, DOF ±55 µm
 swallows plate tilt, straight-down ~60 mm closes the 62 mm budget, barrel Ø ≤ 25 <

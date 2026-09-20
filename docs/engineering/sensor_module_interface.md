@@ -123,6 +123,13 @@ objective, and stage are sunk). TRL-solo is the realistic technology-readiness f
 | 12 | Photoacoustic | Optical-absorption contrast at depth | Head-swap | $5-23k | 4 | Niche. Acoustic couplant breaks the dry-bay/no-contact rule. |
 | — | OCT / CARS-SRS / O-PTIR / light-sheet / SIM-STORM | 3D structure / fast Raman / IR-chem / sectioning / super-res | Whole new instrument or architecturally excluded | high | 1-3 | Platform-headroom slide only. Geometry or NA forbids on this stage. |
 
+Row #3 and the catalog's missing luminescence row are re-examined against the
+commercial solid-state parallel readers (Byonoy / the Opentrons Flex absorbance
+module) in `../knowledge/byonoy_plate_readers.md`: absorbance survives NA 0.10
+because it is ratiometric, what we would ship is serial per-well spectrophotometry
+of an imaged field rather than plate reading, and luminescence is the one modality
+that is *better* without an objective — the first real Level-3 candidate.
+
 ### The bounded claims (honesty, load-bearing)
 
 Three entries in the catalog are routinely over-sold, and SMIS documents their
