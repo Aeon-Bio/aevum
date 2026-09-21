@@ -116,13 +116,14 @@ incubated, registered, liquid-handled context. That is a different product from 
 3-second plate read, and the docs should say so rather than implying we get plate
 reading for free.
 
-### The catalog is missing luminescence, and it is the one modality that *wants* no objective
+### The catalog was missing luminescence, and it is the one modality that *wants* no objective
 
 Luminescence 96 (96 SiPMs, 100 fmol ATP/well, 8 decades) is the interesting
 entry, because bioluminescent reporters — luciferase viability, reporter assays,
 circadian and pathway readouts — are a first-class *live-cell kinetic* modality,
 which is our stated territory, and the catalog in `sensor_module_interface.md`
-has **no row for it**. It should.
+had **no row for it**. It does now: row **#13, luminescence (SiPM, non-imaging)**,
+added 2026-09-21 as the first real Level-3 candidate — reserved, not scheduled.
 
 The physics is unusually favorable to the SMIS Level-3 (non-imaging) tier. A
 luminescent sample emits without excitation; the limit is photons collected.
@@ -234,11 +235,15 @@ to a normal do→review cycle rather than edited into a FROZEN-adjacent spec her
 - **A, applied** — the C-OB2 fork statement in `observer_optical_bench.md` now
   carries the absorbance/OD600 rider and the opaque-mat obstruction.
 - **A, applied** — the catalog in `sensor_module_interface.md` now points here
-  for row #3's real rationale and the missing luminescence row.
-- **A, open** — add the luminescence row to the catalog proper as the first real
-  Level-3 candidate (SiPM-per-well, no objective), with the
-  shutter/afterglow/crosstalk watch-outs named, and restate row #3's verdict as
-  ratiometric-survives-NA rather than free-rider.
+  for the provenance of rows #3 and #13.
+- **A, applied** — the catalog now carries row **#13, luminescence (SiPM,
+  non-imaging)** as the first real Level-3 candidate, appended rather than
+  rank-inserted so the document's existing #N references do not silently break;
+  row #3's verdict is restated as ratiometric-survives-NA; and the bounded-claims
+  section gains the luminescence limit (no spatial information, and three
+  environmental failure modes — bay stray light, SiPM dark counts at the 37 °C
+  setpoint, plate/mat afterglow). Reserved, not scheduled: it does not gate the
+  wedge.
 - **C** — wedge wording (C-SM2): stop claiming on-deck detection; claim
   registered below-deck live-cell imaging on the OT-2 install base.
 - **C** — whether to buy a standalone reader as *benchmarking* gear (an

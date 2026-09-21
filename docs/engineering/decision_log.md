@@ -1537,3 +1537,49 @@ blocker, never clear one or open emission (review verdict: ship-it, no findings)
 tests (bounds, checksum-mismatch, empty-checksum, unknown-well, malformed-well, missing-file,
 within-bounds predicate) + a descent-translator tamper test. **Open tail (B):** ground a real
 sub-rim dry endpoint by measuring the safe dry depth within these bounds, then flip the gate.
+
+## 2026-09-21: Luminescence Is The Catalog's First Level-3 Candidate, And Row #3 Survives On Ratiometry
+
+Decision: add **row #13, luminescence (SiPM, non-imaging)** to the SMIS modality
+catalog as the first genuine exercise of the Level-3 tier, restate row #3's
+absorbance verdict as *ratiometric-survives-NA* rather than free-rider, and mark
+both as reserved-not-scheduled. The catalog's existing numbering is treated as a
+reference surface: #13 is **appended, not rank-inserted**, because this document
+and the roadmap cite rows by number (#1/#2, #1-#5, #3 and #5) and renumbering
+would silently break them. The rank the row would have earned (~#4/#5) is stated
+in the legend instead.
+
+Reason: the Byonoy prior-art review (`../knowledge/byonoy_plate_readers.md`)
+exposed a real gap and a real mis-rationale.
+
+- **The gap:** bioluminescent reporters are first-class live-cell kinetics — our
+  stated territory — and the catalog had no row for them. Commercial 96-SiPM
+  readers demonstrate the detector side is solved and cheap.
+- **Why it is Level-3 and not a head:** luminescence has no excitation to turn
+  up, so it is purely collection-limited. The 4× NA-0.10 objective discards
+  ~99.75 % of the emission; a large-area SiPM with a light guide directly under
+  the well buys back one to two orders of magnitude of solid angle (geometric
+  estimate, unmeasured) and needs no focus. It is the one entry where deleting
+  the objective *improves* the measurement, which makes it the cleanest test of
+  a tier the spec has reserved but never used. Because our stage scans, one
+  detector replaces a commercial reader's 96.
+- **What it costs:** spatial information. It reports that a well lit up, never
+  which cells did. Recorded in bounded claims so it is not re-sold as imaging.
+- **Where the real work is:** not the detector. Bay stray light (the WS2812 ring
+  and deck-side leaks must be dark during acquisition, which the bay is not built
+  for today), SiPM dark-count rise at the 37 °C row setpoint, and plate/mat
+  afterglow after any illuminated step.
+- **Row #3:** the recorded rationale ("reuses #1/#2 hardware") undersold the
+  physics. Absorbance is I/I₀, so the NA collection penalty largely cancels — the
+  same argument row #4 already makes for ratiometric thermometry. The verdict was
+  right for the wrong reason, and the corrected reason also names what we would
+  actually ship: serial per-well spectrophotometry of an imaged field, not a
+  3-second plate read. Transmission absorbance additionally depends on the
+  lid-window branch of C-OB2.
+
+Scope: catalog and honesty text only. No FROZEN contract, envelope, gate, or
+build order changes; the near-term ordering stays #1 QPI → #2 fluorescence, and
+#13 explicitly does not gate the wedge or become a third head. Nothing here is
+Gate-6 evidence — no SiPM has been sourced, and every collection figure is
+geometric.
+

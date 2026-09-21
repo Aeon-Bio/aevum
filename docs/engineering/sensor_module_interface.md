@@ -103,15 +103,22 @@ These two facts split the catalog cleanly:
 Ranked by value-per-effort for a solo builder. "Share" = back-end/front-end swap
 preserving the 4× objective and the fiducial registration; "Head-swap" = new
 objective/probe plus re-registration; "Fork" = plate contact required → sibling
-consumable, not a head. Cost is added optics/source only (the shared camera,
-objective, and stage are sunk). TRL-solo is the realistic technology-readiness for
-*this* geometry built by one person, not the modality's textbook maturity.
+consumable, not a head; "Level-3" = non-imaging — no objective and no infinity
+port, dock + bus + manifest only. Cost is added optics/source only (the shared
+camera, objective, and stage are sunk). TRL-solo is the realistic
+technology-readiness for *this* geometry built by one person, not the modality's
+textbook maturity.
+
+Rows #1-#12 are rank-ordered. **#13 is appended, not ranked** — the numbering was
+already load-bearing across this document and the roadmap when it was added, and
+renumbering a catalog other sections cite by number is a silent reference break.
+On value-per-effort #13 sits near #4/#5, below the two wedge heads.
 
 | # | Modality | Measures | Share / swap / fork | Cost | TRL-solo | Verdict |
 |---|---|---|---|---|---|---|
 | 1 | **QPI / DPC / FPM** ⭐ | Label-free dry mass (pg/cell), morphology, confluency, motility | **Share** — LED matrix only | ~$20 | 7-8 | **Near-term win. The wedge. Build now.** Quantitative, differentiating, zero new optics. |
 | 2 | **Epifluorescence 1-4 ch** ⭐ | Viability, GFP/RFP reporters, nuclei, IF, Ca²⁺ | **Share** — dichroic cube in infinity port | $300-800 | 8-9 | **Near-term win. The revenue modality.** NA 0.10 limits it to *bright* labels; dim single-molecule needs a high-NA head. |
-| 3 | **Multispectral + polarization** ⭐ | Absorbance/chromophore; birefringence (collagen, spindle, fibrosis) | **Share** — reuses #1/#2 hardware | <$100 | 7-8 | **Near-term win, as free variants.** Ship with #1/#2, not as headline heads. Plastic-optic strain birefringence is the watch-out. |
+| 3 | **Multispectral + polarization** ⭐ | Absorbance/chromophore; birefringence (collagen, spindle, fibrosis) | **Share** — reuses #1/#2 hardware | <$100 | 7-8 | **Near-term win, as free variants.** Absorbance survives NA 0.10 because it is **ratiometric** (I/I₀), so the collection penalty largely cancels — the #4 argument, not a free-rider accident. What ships is *serial per-well spectrophotometry of an imaged field*, never a 3-second plate read (`../knowledge/byonoy_plate_readers.md`). Transmission absorbance also needs the lid-window branch of C-OB2. Ship with #1/#2, not as headline heads. Plastic-optic strain birefringence is the watch-out. |
 | 4 | **UCNP / lanthanide ratiometric thermometry** ⭐ | Sample-plane / per-well T, 0.1-0.5 K, in living cells | **Share** — 980 nm pump + 525/545 split | <$550 | ~6 | **Near-term win. The real quantum-adjacent head.** Ratiometric ⇒ NA-insensitive; no microwave; a genuine upgrade over the MLX90614 thermopiles. |
 | 5 | **Optical O₂ / pH chemical-spot** | Dissolved O₂, pH ratiometrically (Ru/porphyrin, fluorescein) | **Share** — same epi path as #4 | ~$200 | 7 | Near-term, no-contact compatible (spot lives in media/film, not on hardware). Metabolic readout. |
 | 6 | **Raman 785 nm point-probe** 🎯 | Label-free molecular fingerprint (lipid/protein/NA, drug uptake) | **Share** pickoff; **wants own high-NA head**; spectrometer **offboard via fiber** | $10-23k | 4-5 pt / 2-3 map | **Frontier bet. The moat, and the reason the 80 mm bay exists.** Throughput-limited to sparse/targeted spot-checks — *not* a 384-well raster. Must not gate the platform. |
@@ -121,18 +128,20 @@ objective, and stage are sunk). TRL-solo is the realistic technology-readiness f
 | 10 | Electrochemical (O₂/pH/lactate/neurotransmitter) | Amperometric/potentiometric media analytes | **Fork** (prefer optical #5 for no-contact) | low | 7 / 3 | Use the optical route #5 instead where possible. |
 | 11 | IR-thermography (microbolometer) | Coarse bay/lid thermal map | Head/lid-side only | ~$150 | 8 | Low. Glass is LWIR-opaque → cannot see the sample plane through the coverslip from below; lid/oblique only. |
 | 12 | Photoacoustic | Optical-absorption contrast at depth | Head-swap | $5-23k | 4 | Niche. Acoustic couplant breaks the dry-bay/no-contact rule. |
+| 13 | **Luminescence (SiPM, non-imaging)** | ATP/viability, luciferase reporters, pathway + circadian kinetics | **Level-3** — no objective; one large-area SiPM + light guide, scanned well-to-well by the stage that already exists | ~$150-300 | 6-7 | **Reserved, not promised — and the first honest Level-3 candidate.** The one entry where *deleting* the objective improves the measurement: a SiPM under the well buys back one to two orders of magnitude of solid angle over the 0.25 % NA-0.10 path (geometric estimate, unmeasured). One detector, not Byonoy's 96, because the stage scans. Failure modes are environmental, not optical (see bounded claims). Does not gate the wedge. |
 | — | OCT / CARS-SRS / O-PTIR / light-sheet / SIM-STORM | 3D structure / fast Raman / IR-chem / sectioning / super-res | Whole new instrument or architecturally excluded | high | 1-3 | Platform-headroom slide only. Geometry or NA forbids on this stage. |
 
-Row #3 and the catalog's missing luminescence row are re-examined against the
-commercial solid-state parallel readers (Byonoy / the Opentrons Flex absorbance
-module) in `../knowledge/byonoy_plate_readers.md`: absorbance survives NA 0.10
-because it is ratiometric, what we would ship is serial per-well spectrophotometry
-of an imaged field rather than plate reading, and luminescence is the one modality
-that is *better* without an objective — the first real Level-3 candidate.
+Rows #3 and #13 come from a review of the commercial solid-state parallel readers
+(Byonoy / the Opentrons Flex absorbance module) in
+`../knowledge/byonoy_plate_readers.md`: absorbance survives NA 0.10 because it is
+ratiometric, what we would ship is serial per-well spectrophotometry of an imaged
+field rather than plate reading, and luminescence — which that review found the
+catalog was missing entirely — is the one modality that is *better* without an
+objective.
 
 ### The bounded claims (honesty, load-bearing)
 
-Three entries in the catalog are routinely over-sold, and SMIS documents their
+Four entries in the catalog are routinely over-sold, and SMIS documents their
 real limits so the project stops spending cycles on them:
 
 - **NV is an mK *reference* thermometer, not intracellular thermometry and not
@@ -161,6 +170,24 @@ real limits so the project stops spending cycles on them:
   Level-2 head, and the heavy cooled spectrometer **rides offboard via fiber**,
   never on the head (see the offboard rule). It is the flagship R&D module,
   partner-built against a frozen spec, and must not gate the platform.
+- **Luminescence is a photon-collection problem, and the objective is the
+  problem.** The over-sell is "we get luminescence free on the imaging head":
+  through the 4× NA-0.10 path a reporter-level bioluminescent signal is
+  integration-bound — seconds to minutes per field, flux-dependent — because the
+  objective throws away 99.75 % of an emission that has no excitation to turn up.
+  The defensible build is **Level-3, non-imaging**: one large-area SiPM with a
+  light guide directly under the well, one number per well, scanned by the stage
+  (#13). What that buys is solid angle and no focus requirement; what it does
+  **not** buy is spatial information — it reports that the well lit up, never
+  which cells did. It is also the only catalog entry whose dominant failure modes
+  are environmental rather than optical: stray light in the bay (the WS2812 ring
+  and any deck-side leak must be dark during acquisition, which the bay is not
+  built for today), SiPM dark-count rise at the 37 °C row setpoint, and
+  plate/mat afterglow following any illuminated step. Those three, not the
+  detector, are the build. Electrically it is an ordinary tenant of the existing
+  bus — SiPM bias (~27-55 V, part-dependent) is a **module-side** boost from the
+  HEAD-BUS +24 V rail, which the FREE column already allows — so appending #13
+  forces no SMIS-major bump. An appended row owes the contract that check.
 - **SPAD/FLIM is sourcing-blocked, not physics-blocked.** The optics are a clean
   detector swap behind the infinity port; the wall is that a SPAD array is
   $20-60k+ with no China/Taobao path. Park it; revisit when automotive-LiDAR SPAD
@@ -168,7 +195,9 @@ real limits so the project stops spending cycles on them:
 
 **Near-term wins (build now):** #1 QPI/FPM, #2 fluorescence, #4 UCNP thermometry,
 with #3 and #5 as cheap riders. **Frontier bets:** #6 Raman and #7 NV-thermometry
-arch-(B).
+arch-(B). **Reserved Level-3 candidate:** #13 luminescence — cheap and
+physically favorable, but it spends the same solo build-hours as the wedge, so it
+waits behind #1 and #2 and is not a third head.
 
 ## SMIS v0.1 — the interface contract
 
@@ -205,7 +234,9 @@ pinout.
   new head must still respect the envelope, mass, keepout, Z budget, and present
   the same HEAD-BUS. Tier-B/C registration.
 - **Level-3 — non-imaging.** No objective, no infinity port: impedance probe,
-  MW-resonator, NV quantum head. Uses only the dock + bus + manifest.
+  MW-resonator, NV quantum head, SiPM luminescence head (#13 — the first
+  candidate that is *better* in this tier than above it, and the first the tier
+  has to actually exercise). Uses only the dock + bus + manifest.
 
 ### Mechanical — the kinematic dock (FROZEN)
 
@@ -533,8 +564,11 @@ its own limits:
   observer bench's Stage-3 motion problem, unchanged by SMIS. SMIS only guarantees
   that *any* head it hosts respects the same envelope the gantry must carry.
 - **The catalog's frontier rows are reserved, not promised.** Raman, NV, SPAD,
-  ECIS are documented so the platform is designed not to *preclude* them — not
-  asserted as deliverable on the current geometry. The bounded-claims section is
+  ECIS — and the appended Level-3 luminescence row #13 — are documented so the
+  platform is designed not to *preclude* them, not asserted as deliverable on the
+  current geometry. #13 is cheap and physically favorable, which is exactly why
+  it needs saying: cheap is not the same as scheduled, and nothing about it has
+  been built or measured. The bounded-claims section is
   load-bearing: NV is an mK reference, not intracellular and not magnetometry;
   Raman is sparse spot-checks wanting its own head; SPAD is sourcing-blocked.
 
