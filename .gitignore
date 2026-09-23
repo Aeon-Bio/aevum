@@ -21,3 +21,6 @@ tools/
 
 # Slicer build artifacts
 result.json
+
+# Task-hypergraph scratch workspaces (incl. .stage-<uuid> backups); 0 tracked files
+/plans/
