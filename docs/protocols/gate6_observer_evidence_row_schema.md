@@ -20,7 +20,7 @@ This schema sits downstream of all of them and decides only admissibility of sha
 
 CAD envelope geometry is NOT evidence and never fills a row. The CAD checks
 `observer_front_end_swept_body_check` and `observer_carriage_envelope_check`
-(`src/aevum_cad/row_coupon.py`) are geometric scaffolding — reserved-air placeholders
+(`src/aevum_cad/row_coupon/`) are geometric scaffolding — reserved-air placeholders
 that prove a head *could* fit a dry-bay budget, not that a frame *was* captured. They
 do not satisfy any field below and may not be entered as an observer Gate-6 row. Only a
 minted, persisted observer frame fills a row.

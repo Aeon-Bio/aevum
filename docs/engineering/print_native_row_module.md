@@ -164,19 +164,19 @@ honest enough to cut parts:
   0.15 mm layer height, 2.0..25.0 N insertion-force range, and 1.0..15.0 N
   release-force range for the first bench protocol;
 - the compression budget uses the production wedge, not the demo wedge:
-  2.20 mm ramp rise, 6.40 mm ramp run, 0.45 mm tolerance allowance, and
+  2.20 mm ramp rise, 8.40 mm ramp run, 0.45 mm tolerance allowance, and
   0.55 mm target bounded squeeze against a 0.80 mm hard-stop limit;
-- the ramp self-lock check is explicit: 18.97 deg ramp angle against a
-  19.29 deg friction angle at mu=0.35. The 0.32 deg positive margin is below
-  the 1.0 deg desired margin, so backdrive remains a print-test risk rather
-  than a closed claim;
+- the ramp self-lock check is explicit: 14.68 deg ramp angle against a
+  19.29 deg friction angle at mu=0.35. The 4.61 deg positive margin clears the
+  1.0 deg CAD threshold, while printed retention remains a dry-cycle gate;
 - the post/cap/root screen assumes 8.0 N per latch, a 2.4 mm printed post,
   4.524 mm2 shaft area, 1.768 MPa nominal shaft stress, and 6.786x provisional
   safety factor against a 12 MPa wet-polymer allowable;
-- the latch-station screen shows the port-driven asymmetry: 10 expected
-  compression stations, 9 active wedge stations, one omitted right-side station,
-  and a 181.0 mm maximum active-station span against the 100.0 mm warning
-  threshold.
+- the latch-station screen shows 12 expected compression stations, 12 active
+  wedge stations, zero omissions, and a 77.125 mm maximum active-station span
+  against the 100.0 mm warning threshold. The center station is replaced by a
+  symmetric 24 mm flanking pair on both sides so receivers do not cross the lid
+  split and the right-side pair clears the sample/relief boss.
 
 That means the next physical question is sharply scoped. The print has to
 measure insertion force, release force, retained compression, wet backdrive,

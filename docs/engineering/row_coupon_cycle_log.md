@@ -4378,3 +4378,50 @@ springs, threaded retention, thermal stakes, permanent welds, or hidden bonded
 authority inside the printed coupon's mechanical assembly. Nonprinted
 consumables, electronics, gaskets, tubing, and cable assemblies remain scoped
 boundary parts, not permission to import hidden mechanical authority.
+
+RS163 replace the global Y-split queue with canonical physical print pieces
+  do: established one physical-artifact inventory and one final-print
+  realization shared by CAD export, bed-fit, slicer, QC, and the CQ-editor
+  viewer. The rigid queue is now 35 connected bodies: 19 canonical artifacts
+  remain whole and eight approved oversized structural artifacts become 16
+  deterministic pieces. Eight flexible/compressible fabricated artifacts stay
+  outside the rigid queue. Discrete pods, keeper doors, wedge locks, connector
+  shrouds, and the sample-relief cap are never bisected. Removed the obsolete
+  geometry flag, grouped split module, split-only public names, and Y-split
+  executable filenames; historical records above remain evidence of the former
+  pipeline rather than current operating instructions.
+  review: independent realization produced 35 one-solid bodies; all eight
+  structural pairs had zero mutual overlap. Seven butt-fallback pairs
+  reconstructed exactly. The keyed support-frame pair had nine keys, declared
+  0.20 mm clearance in X/Y/Z, bounded source subtraction/addition, and zero
+  interference. Focused keyed-interface and production-plan/reconstruction
+  tests passed. The CQ viewer now labels whole, structural, and small removable
+  service pieces separately beside the complete installed assembly.
+  finding: the old tiny fragments were an artifact of globally clipping grouped
+  assembly compounds. The remaining small models are intentional removable
+  service components with stable physical identities.
+  next: slice the generated canonical final-piece queue and dry-fit each
+  structural pair before installing the removable service components.
+
+RS164 close the central latch span without adding a print pass
+  do: replaced the joint/port-crowded center latch station with symmetric
+  stations at Y=164.625 and 212.625 mm on both long sides. The installed lid
+  stack now has 12 expected and 12 active posts, receivers, and removable
+  wedges, zero sample/relief-port omissions, and a 77.125 mm maximum station
+  span against the 100.0 mm CAD screen. Migrated the artifact authority from
+  35 to 38 rigid bodies and from 43 to 46 total release bodies, then atomically
+  regenerated 38 STEP/STL pairs and the 12-plate MK4/Elegoo PLA package. The
+  three additional wedges consolidate onto plate 10; plate count remains 12.
+  review: the focused geometry, authority, 3MF/BGCODE identity, and ledger
+  checks passed after regeneration. The integrated assembly audit found 38/38
+  rigid bodies, 46/46 release identities, zero hash mismatches, and zero
+  forbidden or unclassified installed intersections. Manufacturing status is
+  gate_pass while overall assembly remains gate_fail by design.
+  finding: the 181 mm unsupported latch span and asymmetric port-side omission
+  are digitally removed. CAD and slicing cannot prove receiver-lip fatigue,
+  post damage, retention after cycling, gasket compression, or PLA suitability
+  for incubator service.
+  next: print as a dry assembly mule only; inspect all receiver rails and posts,
+  cycle all 12 wedges at least five times, measure uniform seated gasket gap,
+  and keep wet/biological operation blocked until material, seal, exact-COTS,
+  and service-motion gates pass.

@@ -27,7 +27,9 @@ why the package is shaped the way it is, not just how to run the current files.
   illumination fork.
 - [Materials strategy](materials_strategy.md): material boundaries for a
   row-shared environmental module, including what can be printed and what needs
-  inserts, glass, elastomers, metal, sensors, diffusers, or COTS parts.
+  inserts, glass, elastomers, metal, sensors, diffusers, or COTS parts, and the
+  open water-immersion proposal against the plate-as-consumable per-well sensing
+  clause (2026-09-23; a proposal, not an amendment).
 - [Agent OT-2 bridge assessment](agent_ot2_bridge_assessment.md): validated
   risks and mitigations from adversarial architecture review.
 - [First fixture QC acceptance](../engineering/fixture_qc_acceptance.md):
@@ -82,7 +84,7 @@ why the package is shaped the way it is, not just how to run the current files.
 Active row-coupon hardware workstream:
 
 - Mechanical parameters: `cad/one_row_coupon.params.json`
-- CAD generator: `src/aevum_cad/row_coupon.py`
+- CAD generator: `src/aevum_cad/row_coupon/`
 - CAD viewer: `cad/view_one_row_coupon.py`
 - Generated artifacts: `outputs/cad/`
 - Focused CAD tests: `tests/test_row_coupon_cad.py`

@@ -83,7 +83,7 @@ If generated production Y-split CAD exists, audit the split STEP/STL files
 before any split queue replacement:
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_artifacts.py \
+uv run python scripts/audit_row_coupon_first_print_final_piece_artifacts.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
   --require-ready
 ```
@@ -96,11 +96,11 @@ After the split-artifact audit is ready, prepare and audit the alternate split
 slicer queue:
 
 ```bash
-uv run python scripts/prepare_row_coupon_first_print_y_split_slicer_queue.py \
+uv run python scripts/prepare_row_coupon_first_print_final_piece_slicer_queue.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
   --overwrite
 
-uv run python scripts/audit_row_coupon_first_print_y_split_slicer_queue.py \
+uv run python scripts/audit_row_coupon_first_print_final_piece_slicer_queue.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv
 ```
 
@@ -108,20 +108,20 @@ Then generate and audit the split sliced-output worksheet from that alternate
 queue:
 
 ```bash
-uv run python scripts/write_row_coupon_first_print_y_split_sliced_outputs.py \
+uv run python scripts/write_row_coupon_first_print_final_piece_sliced_outputs.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
-  --output data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+  --output data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md
 
-uv run python scripts/slice_row_coupon_first_print_y_split_slicer_queue.py \
+uv run python scripts/slice_row_coupon_first_print_final_piece_slicer_queue.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
-  --sliced-dir outputs/sliced/first_print_y_split \
-  --output data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+  --sliced-dir outputs/sliced/first_print_final_piece \
+  --output data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --overwrite
 
-uv run python scripts/audit_row_coupon_first_print_y_split_sliced_outputs.py \
+uv run python scripts/audit_row_coupon_first_print_final_piece_sliced_outputs.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
-  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md
 ```
 
@@ -135,34 +135,34 @@ Generate and audit the matching split Gate 1 QC worksheet before using the
 split queue for physical inspection:
 
 ```bash
-uv run python scripts/write_row_coupon_first_print_y_split_gate1_qc_worksheet.py \
+uv run python scripts/write_row_coupon_first_print_final_piece_gate1_qc_worksheet.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
-  --output data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv
+  --output data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv
 
-uv run python scripts/audit_row_coupon_first_print_y_split_gate1_qc_worksheet.py \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate1_qc_worksheet.py \
   --slicer-setup data/measurements/YYYY-MM-DD_one_row_coupon_slicer_setup.csv \
-  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv
+  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv
 ```
 
 Generate and audit the split print batch traveler before handing files to the
 printer:
 
 ```bash
-uv run python scripts/write_row_coupon_first_print_y_split_print_batch_traveler.py \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --output data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
+uv run python scripts/write_row_coupon_first_print_final_piece_print_batch_traveler.py \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --output data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md
 
-uv run python scripts/audit_row_coupon_first_print_y_split_print_batch_traveler.py \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_print_batch_traveler.py \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --worksheet data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md \
   --require-handoff-ready
 ```
 
-The traveler is a physical print handoff. It must match the current split
+The traveler is a physical print handoff. It must match the current final-piece
 sliced-output hashes and split Gate 1 QC worksheet, but it does not mark Gate 1
 passed; rows begin as `not_printed` until the physical print is run. Rows
 changed to `printed` require a `print_evidence_path` that resolves to an
@@ -175,10 +175,10 @@ print QC; every passing Gate 1 row must have a matching traveler row marked
 Those evidence paths must resolve to existing nonempty files.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate1_print_qc.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate1_print_qc.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md \
   --require-print-qc-ready
 ```
@@ -187,9 +187,9 @@ The split queue, split sliced-output worksheet, and split Gate 1 QC worksheet
 must refer to the same split artifact set before they can replace the active
 monolithic queue path.
 
-To make that replacement active, set `Active print queue mode` in the measurement
-record to `split_y` and rerun preflight. Preflight then treats `Split slicer
-queue`, `Split sliced output worksheet`, and `Split Gate 1 QC worksheet` as the
+To make that replacement active, set `Final print queue` in the measurement
+record to `final_print_pieces` and rerun preflight. Preflight then treats `Final-piece
+slicer queue`, `Final sliced output worksheet`, and `Final Gate 1 QC worksheet` as the
 authoritative print path while leaving print start blocked until sliced files and
 hashes are entered.
 
@@ -386,10 +386,10 @@ Gate 2 pass row depends on split Gate 1 print-QC readiness, ready installed
 nonprinted items, and ready installed/service/negative-review mode evidence.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate2_dry_assembly_readiness.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate2_dry_assembly_readiness.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --gate2-dry-assembly data/measurements/YYYY-MM-DD_one_row_coupon_gate2_dry_assembly.csv \
   --install-inventory data/measurements/YYYY-MM-DD_one_row_coupon_install_inventory.csv \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
@@ -402,10 +402,10 @@ audit. Do not use the Gate 3 placement worksheet alone to claim OT-2 placement;
 every Gate 3 pass row depends on Gate 2 dry-assembly readiness.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate3_placement_readiness.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate3_placement_readiness.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --gate2-dry-assembly data/measurements/YYYY-MM-DD_one_row_coupon_gate2_dry_assembly.csv \
   --install-inventory data/measurements/YYYY-MM-DD_one_row_coupon_install_inventory.csv \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
@@ -420,10 +420,10 @@ production wet/dry isolation; every Gate 4 pass row depends on Gate 3 placement
 readiness.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate4_wet_dry_witness_readiness.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate4_wet_dry_witness_readiness.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --gate2-dry-assembly data/measurements/YYYY-MM-DD_one_row_coupon_gate2_dry_assembly.csv \
   --install-inventory data/measurements/YYYY-MM-DD_one_row_coupon_install_inventory.csv \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
@@ -439,10 +439,10 @@ production puncture access or consumable compatibility; every Gate 5 pass row
 depends on Gate 4 wet/dry witness readiness.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate5_consumable_puncture_readiness.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate5_consumable_puncture_readiness.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --gate2-dry-assembly data/measurements/YYYY-MM-DD_one_row_coupon_gate2_dry_assembly.csv \
   --install-inventory data/measurements/YYYY-MM-DD_one_row_coupon_install_inventory.csv \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
@@ -461,10 +461,10 @@ readiness and a real sensor/electrical install inventory with no dimensional
 electronics or sensor blanks.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_gate6_sensor_thermal_readiness.py \
-  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_y_split_gate1_qc.csv \
-  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_y_split_print_batch_traveler.csv \
-  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_y_split_sliced_outputs.csv \
+uv run python scripts/audit_row_coupon_first_print_final_piece_gate6_sensor_thermal_readiness.py \
+  --gate1-qc data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_gate1_qc.csv \
+  --print-batch-traveler data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_print_batch_traveler.csv \
+  --sliced-outputs data/measurements/YYYY-MM-DD_one_row_coupon_final_piece_sliced_outputs.csv \
   --gate2-dry-assembly data/measurements/YYYY-MM-DD_one_row_coupon_gate2_dry_assembly.csv \
   --install-inventory data/measurements/YYYY-MM-DD_one_row_coupon_install_inventory.csv \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
@@ -483,7 +483,7 @@ physical evidence chain, a real sensor/electrical install inventory, and
 `operating_prototype_ready: true`.
 
 ```bash
-uv run python scripts/audit_row_coupon_first_print_y_split_operating_prototype_acceptance.py \
+uv run python scripts/audit_row_coupon_first_print_final_piece_operating_prototype_acceptance.py \
   --service-state-review data/measurements/YYYY-MM-DD_one_row_coupon_service_state_review.csv \
   --record data/measurements/YYYY-MM-DD_one_row_coupon_first_print.md \
   --require-operating-prototype-ready
