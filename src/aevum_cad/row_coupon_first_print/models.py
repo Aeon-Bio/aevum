@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
 
 @dataclass(frozen=True)
@@ -1114,7 +1113,7 @@ class FirstPrintBedFitSplitPlanAudit:
 
 
 @dataclass(frozen=True)
-class FirstPrintYSplitArtifactRow:
+class FirstPrintFinalPieceArtifactRow:
     split_part: str
     source_part: str
     segment_index: int
@@ -1131,10 +1130,8 @@ class FirstPrintYSplitArtifactRow:
     step_exists: bool
     interface_zone: str
     required_evidence: str
-    # --- D8 feature-aware seam fields (keyed_joints_enabled only) ---
-    # All carry back-compat defaults so existing positional/keyword constructors
-    # and the flag-OFF code path stay byte-identical (these stay at their defaults
-    # when keyed_joints_enabled is false/absent).
+    # Realized seam fields. Identity pieces retain the defaults; split pieces
+    # receive the measured key/butt result from their exact realization.
     mating_feature_kind: str = ""
     interface_non_planar: bool = False
     y_fit_class_clearance_mm: float = 0.0
@@ -1144,27 +1141,27 @@ class FirstPrintYSplitArtifactRow:
 
 
 @dataclass(frozen=True)
-class FirstPrintYSplitArtifactIssue:
+class FirstPrintFinalPieceArtifactIssue:
     split_part: str
     field: str
     message: str
 
 
 @dataclass(frozen=True)
-class FirstPrintYSplitArtifactAudit:
-    split_dir: Path
+class FirstPrintFinalPieceArtifactAudit:
+    piece_dir: Path
     selected_setup_summary: str
     bed_x_mm: float
     bed_y_mm: float
     expected_row_count: int
-    rows: tuple[FirstPrintYSplitArtifactRow, ...]
+    rows: tuple[FirstPrintFinalPieceArtifactRow, ...]
     split_source_parts: tuple[str, ...]
     covered_oversized_parts: tuple[str, ...]
     missing_oversized_parts: tuple[str, ...]
-    issues: tuple[FirstPrintYSplitArtifactIssue, ...]
+    issues: tuple[FirstPrintFinalPieceArtifactIssue, ...]
 
     @property
-    def split_artifacts_ready(self) -> bool:
+    def final_piece_artifacts_ready(self) -> bool:
         return (
             self.bed_x_mm > 0
             and self.bed_y_mm > 0

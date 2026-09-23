@@ -1,7 +1,7 @@
-"""First-print bed-fit geometry, split-plan, and y-split-artifact audits, extracted verbatim.
+"""First-print bed-fit geometry, split-plan, and final-piece-artifact audits, extracted verbatim.
 
 This module owns the bed-fit geometry predicates (``_part_fits_rectangular_bed`` /
-``_minimum_y_segments_for_bed``) and the bed-fit -> split-plan -> y-split-artifact audit chain.
+``_minimum_y_segments_for_bed``) and the bed-fit -> split-plan -> final-piece-artifact audit chain.
 The slicer-setup audits, ``_target_lookup`` and ``first_print_slicer_queue_artifacts`` it calls
 still live on the package facade (extracted in later cycles); importing them at module top would
 form a partially-initialized-module cycle (the facade imports this module during its own load,
@@ -21,24 +21,23 @@ from pathlib import Path
 from typing import Any
 
 from aevum_cad.row_coupon import (
-    build_row_coupon_production_y_split_parts,
-    row_coupon_production_y_split_plan,
+    realize_row_coupon_final_print_pieces,
+    row_coupon_final_print_piece_plan,
 )
 
 from .common import _parse_bool_cell
-from .package import audit_first_print_package
 from .models import (
-    FirstPrintQCTarget,
+    FirstPrintBedFitSplitPlanAudit,
+    FirstPrintBedFitSplitPlanIssue,
+    FirstPrintBedFitSplitPlanRow,
+    FirstPrintFinalPieceArtifactAudit,
+    FirstPrintFinalPieceArtifactIssue,
+    FirstPrintFinalPieceArtifactRow,
     FirstPrintSlicerBedFitAudit,
     FirstPrintSlicerBedFitIssue,
     FirstPrintSlicerBedFitOversize,
-    FirstPrintBedFitSplitPlanRow,
-    FirstPrintBedFitSplitPlanIssue,
-    FirstPrintBedFitSplitPlanAudit,
-    FirstPrintYSplitArtifactRow,
-    FirstPrintYSplitArtifactIssue,
-    FirstPrintYSplitArtifactAudit,
 )
+from .package import audit_first_print_package
 
 # Facade-owned helpers the bodies below reference as plain globals (slicer-setup audits +
 # _target_lookup + slicer-queue artifacts, not yet extracted this cycle). Late-bound by the facade
@@ -361,7 +360,7 @@ def first_print_bed_fit_split_plan_rows(
             decision = "none"
         elif segment_fits:
             decision = (
-                f"split_y_{minimum_segments}_segments_with_print_native_"
+                f"structural_split_y_{minimum_segments}_segments_with_print_native_"
                 "retention_sealing_service_evidence"
             )
         else:
@@ -638,152 +637,76 @@ def audit_first_print_bed_fit_split_plan(
     )
 
 
-# --- D8 feature-aware seam audit (keyed_joints_enabled only) -----------------
-# Default in-range bounds for the printed Y fit-class clearance straddling the
-# split seam (the D4 keyed dovetail clearance pocket). Sourced from the D4
-# y_split_interface policy; overridable under production_assembly. These only
-# matter when keyed_joints_enabled is True (flag-OFF leaves all new fields at
-# their dataclass defaults), so they never perturb the legacy code path.
-_Y_FIT_CLASS_CLEARANCE_MIN_MM = 0.05
-_Y_FIT_CLASS_CLEARANCE_MAX_MM = 0.6
-_DEFAULT_MATING_FEATURE_KIND = "printed_dovetail_anti_shear_key"
-
-
-def _keyed_joints_enabled(params: dict[str, Any]) -> bool:
-    return bool(
-        params.get("production_assembly", {}).get("keyed_joints_enabled", False)
-    )
-
-
-def _y_split_clearance_bounds(params: dict[str, Any]) -> tuple[float, float]:
-    production = params.get("production_assembly", {})
-    interface = production.get("y_split_interface", {}) or {}
-    lo = float(
-        interface.get(
-            "fit_class_clearance_min_mm",
-            production.get(
-                "fit_class_clearance_min_mm", _Y_FIT_CLASS_CLEARANCE_MIN_MM
-            ),
-        )
-    )
-    hi = float(
-        interface.get(
-            "fit_class_clearance_max_mm",
-            production.get(
-                "fit_class_clearance_max_mm", _Y_FIT_CLASS_CLEARANCE_MAX_MM
-            ),
-        )
-    )
-    return lo, hi
-
-
-def _y_split_anti_shear_key_present(interface: dict[str, Any]) -> bool:
-    """The D4 printed dovetail anti-shear key exists (and is a real non-planar
-    mating feature) when its descriptor dimensions are all positive AND the
-    dovetail is actually tapered (wide_x != narrow_x => slanted, non-axis-aligned
-    X walls straddling the seam). A bare butt seam (key dims zeroed / un-tapered)
-    fails this and is flagged. Descriptor-based per the M-D8 decision: the D4
-    builder constructs this key deterministically from these same interface keys,
-    so reading the descriptor is a faithful, non-fragile carrier (a live global
-    face-normal count cannot distinguish the +2 dovetail faces from the dozens of
-    pre-existing cylindrical pod/fillet faces a butt half already carries).
-
-    HONEST CAVEAT (G3/G5d): this reports that the keyed-split FEATURE is CONFIGURED, not
-    that this specific part's exported solid carries a key. The D4 builder only attaches a
-    key where the seam cross-section is solid; on hollow frame/shell sections it falls back
-    to a butt seam (G5a), which this descriptor-level check does NOT reflect. A per-part
-    geometric realization check (build the solid + boolean-inspect the seam) is deferred,
-    G5d — until then a butted part can still be reported keyed here."""
-    narrow_x = float(interface.get("key_narrow_x", 6.0))
-    wide_x = float(interface.get("key_wide_x", 10.0))
-    half_span = float(interface.get("key_half_span_y", 3.0))
-    key_depth = float(interface.get("key_depth_mm", 4.0))
-    tapered = abs(wide_x - narrow_x) > 1e-6
-    return (
-        narrow_x > 0.0
-        and wide_x > 0.0
-        and half_span > 0.0
-        and key_depth > 0.0
-        and tapered
-    )
-
-
-def _y_split_witness_present(interface: dict[str, Any]) -> bool:
-    """The D4 witness pip exists when its descriptor dims are all positive."""
-    return (
-        float(interface.get("witness_width_mm", 1.0)) > 0.0
-        and float(interface.get("witness_len_mm", 2.0)) > 0.0
-        and float(interface.get("witness_height_mm", 0.5)) > 0.0
-    )
-
-
-def first_print_y_split_artifact_rows(
+def first_print_final_piece_artifact_rows(
     *,
     params: dict[str, Any],
-    split_dir: str | Path,
+    piece_dir: str | Path,
     slicer_setup_path: str | Path,
     out_dir: str | Path,
-) -> tuple[FirstPrintYSplitArtifactRow, ...]:
+) -> tuple[FirstPrintFinalPieceArtifactRow, ...]:
     bed_audit = audit_first_print_slicer_bed_fit(
         params=params,
         out_dir=out_dir,
         worksheet_path=slicer_setup_path,
     )
-    split_path = Path(split_dir)
-    split_plan = {
-        str(row["name"]): row for row in row_coupon_production_y_split_plan(params)
-    }
-    split_parts = build_row_coupon_production_y_split_parts(params)
-    keyed = _keyed_joints_enabled(params)
-    interface = (
-        params.get("production_assembly", {}).get("y_split_interface", {}) or {}
+    # Bed dimensions are authority for final-piece realization, not merely an
+    # optional fit annotation.  Passing the unresolved 0 x 0 sentinel through
+    # to the splitter makes an absent or malformed setup record look like a CAD
+    # defect (usually on the first deck pod).  Stop at the authority boundary;
+    # the caller records the typed bed_shape blocker below.
+    if not bed_audit.bed_resolved:
+        return ()
+    piece_path = Path(piece_dir)
+    realization = realize_row_coupon_final_print_pieces(
+        params,
+        bed_x_mm=bed_audit.bed_x_mm,
+        bed_y_mm=bed_audit.bed_y_mm,
     )
-    rows: list[FirstPrintYSplitArtifactRow] = []
+    # Deliberately NOT require_printable() here.  This function feeds an AUDIT,
+    # and an audit must report a bed-fit failure, not raise on it.  Every plan
+    # row that cannot be printed carries a diagnostic, so require_printable()
+    # raised on the first one -- which made the `if not row.fits_selected_bed`
+    # reporting branch below unreachable and turned "operator selected a printer
+    # too small" into a ValueError instead of a named issue.  Blocked rows are
+    # emitted as rows with fits_selected_bed=False and no STL (see the loop after
+    # the piece loop), so nothing is swallowed: the audit reports what the raise
+    # used to hide.
+    split_plan = {str(row["name"]): row for row in realization.plan}
+    split_parts = realization.pieces
+    rows: list[FirstPrintFinalPieceArtifactRow] = []
     for split_part, model in split_parts.items():
         plan_row = split_plan[split_part]
         bb = model.val().BoundingBox()
-        target_x = round(float(bb.xlen), 2)
-        target_y = round(float(bb.ylen), 2)
+        raw_target_x = float(bb.xlen)
+        raw_target_y = float(bb.ylen)
+        target_x = round(raw_target_x, 2)
+        target_y = round(raw_target_y, 2)
         target_z = round(float(bb.zlen), 2)
-        stl_path = split_path / f"{params['name']}_{split_part}.stl"
-        step_path = split_path / f"{params['name']}_{split_part}.step"
+        stl_path = piece_path / f"{params['name']}_{split_part}.stl"
+        step_path = piece_path / f"{params['name']}_{split_part}.step"
         fits_selected_bed = bed_audit.bed_resolved and _part_fits_rectangular_bed(
-            target_x_mm=target_x,
-            target_y_mm=target_y,
+            target_x_mm=raw_target_x,
+            target_y_mm=raw_target_y,
             bed_x_mm=bed_audit.bed_x_mm,
             bed_y_mm=bed_audit.bed_y_mm,
         )
-        # D8 feature-aware fields. Flag-OFF => leave at dataclass defaults so the
-        # row is byte-identical to pre-D8. Flag-ON => inspect the D4 keyed seam via
-        # its y_split_interface descriptor (the same carrier the D4 builder uses to
-        # construct the printed dovetail anti-shear key, witness pip, and clearance
-        # pocket). Descriptor-based per the M-D8 HIGH-risk decision (a live global
-        # face-normal count cannot isolate the dovetail from pre-existing geometry).
-        if keyed:
-            anti_shear_key_present = _y_split_anti_shear_key_present(interface)
-            # the tapered dovetail's slanted X walls are the non-planar mating face
-            interface_non_planar = anti_shear_key_present
-            mating_feature_kind = (
-                str(interface.get("mating_feature_kind", _DEFAULT_MATING_FEATURE_KIND))
-                if anti_shear_key_present
-                else ""
-            )
-            y_fit_class_clearance_mm = float(
-                interface.get("fit_class_clearance_mm", 0.2)
-            )
-            witness_mark_present = _y_split_witness_present(interface)
-        else:
-            interface_non_planar = False
-            mating_feature_kind = ""
-            y_fit_class_clearance_mm = 0.0
-            anti_shear_key_present = False
-            witness_mark_present = False
+        seam = plan_row.get("seam", {})
+        realized_key_count = int(seam.get("realized_key_count", 0))
+        anti_shear_key_present = realized_key_count > 0
+        interface_non_planar = anti_shear_key_present
+        mating_feature_kind = str(seam.get("mating_feature_kind", ""))
+        y_fit_class_clearance_mm = (
+            float(seam.get("fit_class_clearance_mm", 0.0))
+            if anti_shear_key_present
+            else 0.0
+        )
+        witness_mark_present = float(seam.get("witness_protrusion_mm", 0.0)) > 0.0
         rows.append(
-            FirstPrintYSplitArtifactRow(
+            FirstPrintFinalPieceArtifactRow(
                 split_part=split_part,
-                source_part=str(plan_row["source_part"]),
-                segment_index=int(plan_row["segment_index"]),
-                segment_count=int(plan_row["segment_count"]),
+                source_part=str(plan_row["source_artifact"]),
+                segment_index=int(plan_row["piece_index"]),
+                segment_count=int(plan_row["piece_count"]),
                 target_x_mm=target_x,
                 target_y_mm=target_y,
                 target_z_mm=target_z,
@@ -794,7 +717,7 @@ def first_print_y_split_artifact_rows(
                 step_path=step_path,
                 stl_exists=stl_path.exists(),
                 step_exists=step_path.exists(),
-                interface_zone=str(plan_row["interface_zone"]),
+                interface_zone=str(plan_row.get("interface_zone", "identity")),
                 required_evidence=str(plan_row["required_evidence"])
                 if "required_evidence" in plan_row
                 else (
@@ -809,18 +732,61 @@ def first_print_y_split_artifact_rows(
                 requires_physical_evidence=True,
             )
         )
+
+    # Plan rows with no realized geometry: a source the plan could not turn into
+    # a printable piece at this bed (action="blocked" -- it does not fit and is
+    # not allowlisted to split, or it is discrete/unsplittable).  These never
+    # appear in `realization.pieces`, so without this loop an undersized printer
+    # silently shrinks the artifact list instead of failing the audit.
+    for name, plan_row in split_plan.items():
+        if name in split_parts:
+            continue
+        stl_path = piece_path / f"{params['name']}_{name}.stl"
+        step_path = piece_path / f"{params['name']}_{name}.step"
+        rows.append(
+            FirstPrintFinalPieceArtifactRow(
+                split_part=name,
+                source_part=str(plan_row["source_artifact"]),
+                segment_index=int(plan_row["piece_index"]),
+                segment_count=int(plan_row["piece_count"]),
+                target_x_mm=round(float(plan_row["target_x_mm"]), 2),
+                target_y_mm=round(float(plan_row["target_y_mm"]), 2),
+                target_z_mm=round(float(plan_row["target_z_mm"]), 2),
+                selected_bed_x_mm=bed_audit.bed_x_mm,
+                selected_bed_y_mm=bed_audit.bed_y_mm,
+                fits_selected_bed=bool(plan_row.get("fits_selected_bed", False)),
+                stl_path=stl_path,
+                step_path=step_path,
+                stl_exists=stl_path.exists(),
+                step_exists=step_path.exists(),
+                interface_zone=str(plan_row.get("interface_zone", "identity")),
+                required_evidence=str(
+                    plan_row.get(
+                        "required_evidence",
+                        "Gate 1 dimensions, Gate 2 dry assembly, Gate 4 wet/dry "
+                        "witness, and selected-slicer bed-fit evidence",
+                    )
+                ),
+                mating_feature_kind="",
+                interface_non_planar=False,
+                y_fit_class_clearance_mm=0.0,
+                anti_shear_key_present=False,
+                witness_mark_present=False,
+                requires_physical_evidence=True,
+            )
+        )
     return tuple(rows)
 
 
-def _y_split_artifact_issue(
-    issues: list[FirstPrintYSplitArtifactIssue],
+def _final_piece_artifact_issue(
+    issues: list[FirstPrintFinalPieceArtifactIssue],
     *,
     split_part: str,
     field: str,
     message: str,
 ) -> None:
     issues.append(
-        FirstPrintYSplitArtifactIssue(
+        FirstPrintFinalPieceArtifactIssue(
             split_part=split_part,
             field=field,
             message=message,
@@ -828,27 +794,27 @@ def _y_split_artifact_issue(
     )
 
 
-def audit_first_print_y_split_artifacts(
+def audit_first_print_final_piece_artifacts(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     slicer_setup_path: str | Path,
-) -> FirstPrintYSplitArtifactAudit:
+) -> FirstPrintFinalPieceArtifactAudit:
     bed_audit = audit_first_print_slicer_bed_fit(
         params=params,
         out_dir=out_dir,
         worksheet_path=slicer_setup_path,
     )
-    rows = first_print_y_split_artifact_rows(
+    rows = first_print_final_piece_artifact_rows(
         params=params,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         slicer_setup_path=slicer_setup_path,
         out_dir=out_dir,
     )
-    issues: list[FirstPrintYSplitArtifactIssue] = []
+    issues: list[FirstPrintFinalPieceArtifactIssue] = []
     if not bed_audit.bed_resolved:
-        _y_split_artifact_issue(
+        _final_piece_artifact_issue(
             issues,
             split_part="selected_bed",
             field="bed_shape",
@@ -856,36 +822,29 @@ def audit_first_print_y_split_artifacts(
         )
 
     split_sources = tuple(dict.fromkeys(row.source_part for row in rows))
+    covered_sources = set(split_sources)
     oversized_sources = tuple(item.part for item in bed_audit.oversized_parts)
     missing_oversized = tuple(
-        part for part in oversized_sources if part not in split_sources
+        part for part in oversized_sources if part not in covered_sources
     )
     for part in missing_oversized:
-        _y_split_artifact_issue(
+        _final_piece_artifact_issue(
             issues,
             split_part=part,
             field="source_part",
-            message="oversized selected-bed source part has no production split artifact",
+            message="oversized selected-bed source artifact has no final print piece",
         )
-
-    # D8 feature-aware seam checks are ADDITIVE and gated behind
-    # keyed_joints_enabled. Flag-OFF => keyed_audit is False => the four new
-    # checks below never run, so issues / split_artifacts_ready stay byte-identical
-    # to pre-D8. requires_physical_evidence posture (per row) means a CAD-clean
-    # seam is never auto-passed: physical Gate evidence is still required.
-    keyed_audit = _keyed_joints_enabled(params)
-    clearance_min, clearance_max = _y_split_clearance_bounds(params)
 
     for row in rows:
         if row.target_x_mm <= 0 or row.target_y_mm <= 0 or row.target_z_mm <= 0:
-            _y_split_artifact_issue(
+            _final_piece_artifact_issue(
                 issues,
                 split_part=row.split_part,
                 field="target_*_mm",
-                message="split artifact has a nonpositive CAD bound",
+                message="final-piece artifact has a nonpositive CAD bound",
             )
         if not row.fits_selected_bed:
-            _y_split_artifact_issue(
+            _final_piece_artifact_issue(
                 issues,
                 split_part=row.split_part,
                 field="fits_selected_bed",
@@ -896,77 +855,38 @@ def audit_first_print_y_split_artifacts(
                 ),
             )
         if not row.stl_exists:
-            _y_split_artifact_issue(
+            _final_piece_artifact_issue(
                 issues,
                 split_part=row.split_part,
                 field="stl_path",
                 message=f"split STL does not exist: {row.stl_path}",
             )
         if not row.step_exists:
-            _y_split_artifact_issue(
+            _final_piece_artifact_issue(
                 issues,
                 split_part=row.split_part,
                 field="step_path",
                 message=f"split STEP does not exist: {row.step_path}",
             )
-        if keyed_audit:
-            # D8 additive feature-aware checks (flag-ON only). Each asserts a
-            # printed keyed-seam feature the D4 dovetail/witness must provide.
-            # No-hidden-authority: only printed dovetail / wedge / witness pip are
-            # accepted -- never a metal pin/screw/insert descriptor.
-            if not row.interface_non_planar:
-                _y_split_artifact_issue(
-                    issues,
-                    split_part=row.split_part,
-                    field="mating_feature",
-                    message=(
-                        "keyed split seam has no non-PLANE mating feature "
-                        "(bare butt cut); a printed dovetail/scarf interface is "
-                        "required straddling the split"
-                    ),
-                )
-            if not (
-                clearance_min <= row.y_fit_class_clearance_mm <= clearance_max
-            ):
-                _y_split_artifact_issue(
-                    issues,
-                    split_part=row.split_part,
-                    field="y_fit_class_clearance_mm",
-                    message=(
-                        f"keyed split Y fit-class clearance "
-                        f"{row.y_fit_class_clearance_mm:.3f} mm is outside the "
-                        f"in-range bound [{clearance_min:.3f}, {clearance_max:.3f}] mm"
-                    ),
-                )
-            if not row.anti_shear_key_present:
-                _y_split_artifact_issue(
-                    issues,
-                    split_part=row.split_part,
-                    field="anti_shear_key",
-                    message=(
-                        "keyed split seam has no printed anti-shear key "
-                        "(tapered dovetail/wedge); the butt cut would shear under "
-                        "in-plane load"
-                    ),
-                )
-            if not row.witness_mark_present:
-                _y_split_artifact_issue(
-                    issues,
-                    split_part=row.split_part,
-                    field="witness_mark",
-                    message=(
-                        "keyed split seam has no printed witness mark for "
-                        "Gate dry/wet seam evidence"
-                    ),
-                )
-
-    covered_oversized = tuple(part for part in oversized_sources if part in split_sources)
-    return FirstPrintYSplitArtifactAudit(
-        split_dir=Path(split_dir),
+    covered_oversized = tuple(part for part in oversized_sources if part in covered_sources)
+    return FirstPrintFinalPieceArtifactAudit(
+        piece_dir=Path(piece_dir),
         selected_setup_summary=bed_audit.selected_setup_summary,
         bed_x_mm=bed_audit.bed_x_mm,
         bed_y_mm=bed_audit.bed_y_mm,
-        expected_row_count=len(row_coupon_production_y_split_plan(params)),
+        # Do not invoke geometry realization with unresolved sentinel bed
+        # dimensions.  A resolved setup retains the exact existing count.
+        expected_row_count=(
+            len(
+                row_coupon_final_print_piece_plan(
+                    params,
+                    bed_x_mm=bed_audit.bed_x_mm,
+                    bed_y_mm=bed_audit.bed_y_mm,
+                )
+            )
+            if bed_audit.bed_resolved
+            else 0
+        ),
         rows=rows,
         split_source_parts=split_sources,
         covered_oversized_parts=covered_oversized,

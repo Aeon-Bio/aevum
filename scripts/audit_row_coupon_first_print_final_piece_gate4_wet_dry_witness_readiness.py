@@ -4,7 +4,7 @@ import argparse
 
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon_first_print import (
-    audit_first_print_y_split_gate3_placement_readiness,
+    audit_first_print_final_piece_gate4_wet_dry_witness_readiness,
     first_print_record_table_value,
 )
 
@@ -23,14 +23,14 @@ def main() -> None:
         help="CAD output directory containing generated production STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -45,24 +45,24 @@ def main() -> None:
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_gate1_qc.csv",
-        help="Split Gate 1 QC worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_gate1_qc.csv",
+        help="Final Gate 1 QC worksheet.",
     )
     parser.add_argument(
         "--print-batch-traveler",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_print_batch_traveler.csv",
-        help="Split print batch traveler worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_print_batch_traveler.csv",
+        help="Final print batch traveler worksheet.",
     )
     parser.add_argument(
         "--sliced-outputs",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_sliced_outputs.csv",
-        help="Ready split sliced-output worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_sliced_outputs.csv",
+        help="Ready final-piece sliced-output worksheet.",
     )
     parser.add_argument(
         "--gate2-dry-assembly",
@@ -97,6 +97,14 @@ def main() -> None:
         help="Gate 3 OT-2 placement worksheet.",
     )
     parser.add_argument(
+        "--gate4-wet-dry-witness",
+        default=ROOT
+        / "data"
+        / "measurements"
+        / "2026-06-02_one_row_coupon_gate4_wet_dry_witness.csv",
+        help="Gate 4 wet/dry witness worksheet.",
+    )
+    parser.add_argument(
         "--record",
         default=ROOT
         / "data"
@@ -105,9 +113,9 @@ def main() -> None:
         help="Measurement record to read selected setup from, if present.",
     )
     parser.add_argument(
-        "--require-placement-ready",
+        "--require-wet-dry-witness-ready",
         action="store_true",
-        help="Exit nonzero unless Gate 3 placement and upstream dry assembly are ready.",
+        help="Exit nonzero unless Gate 4 wet/dry witness and upstream placement are ready.",
     )
     args = parser.parse_args()
 
@@ -116,10 +124,10 @@ def main() -> None:
         args.record,
         "Printer / material / profile",
     )
-    audit = audit_first_print_y_split_gate3_placement_readiness(
+    audit = audit_first_print_final_piece_gate4_wet_dry_witness_readiness(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
         slicer_setup_path=args.slicer_setup,
         gate1_qc_path=args.gate1_qc,
@@ -129,9 +137,14 @@ def main() -> None:
         install_inventory_path=args.install_inventory,
         service_state_review_path=args.service_state_review,
         gate3_placement_path=args.gate3_placement,
+        gate4_wet_dry_witness_path=args.gate4_wet_dry_witness,
         expected_setup_summary=expected_setup,
     )
 
+    print(
+        "gate4_wet_dry_witness_worksheet: "
+        f"{audit.gate4_wet_dry_witness_worksheet_path}"
+    )
     print(f"gate3_placement_worksheet: {audit.gate3_placement_worksheet_path}")
     print(
         "gate2_dry_assembly_worksheet: "
@@ -140,7 +153,23 @@ def main() -> None:
     print(f"split_gate1_qc_worksheet: {audit.gate1_qc_worksheet_path}")
     print(f"split_print_batch_traveler: {audit.print_batch_traveler_path}")
     print(f"install_inventory: {audit.install_inventory_path}")
-    print(f"placement_ready: {'true' if audit.placement_ready else 'false'}")
+    print(
+        "wet_dry_witness_ready: "
+        f"{'true' if audit.wet_dry_witness_ready else 'false'}"
+    )
+    print(
+        "gate4_wet_dry_witness_worksheet_valid: "
+        f"{'true' if audit.gate4_wet_dry_witness_worksheet_valid else 'false'}"
+    )
+    print(
+        "gate4_wet_dry_witness_pass_ready: "
+        f"{'true' if audit.gate4_wet_dry_witness_pass_ready else 'false'}"
+    )
+    print(f"gate4_pass_rows: {audit.gate4_pass_row_count}")
+    print(
+        "gate3_placement_ready: "
+        f"{'true' if audit.gate3_placement_ready else 'false'}"
+    )
     print(
         "gate3_placement_worksheet_valid: "
         f"{'true' if audit.gate3_placement_worksheet_valid else 'false'}"
@@ -149,26 +178,13 @@ def main() -> None:
         "gate3_placement_pass_ready: "
         f"{'true' if audit.gate3_placement_pass_ready else 'false'}"
     )
-    print(f"gate3_pass_rows: {audit.gate3_pass_row_count}")
-    print(
-        "gate2_dry_assembly_ready: "
-        f"{'true' if audit.gate2_dry_assembly_ready else 'false'}"
-    )
-    print(
-        "gate2_dry_assembly_worksheet_valid: "
-        f"{'true' if audit.gate2_dry_assembly_worksheet_valid else 'false'}"
-    )
-    print(
-        "gate2_dry_assembly_pass_ready: "
-        f"{'true' if audit.gate2_dry_assembly_pass_ready else 'false'}"
-    )
     print(f"issues: {len(audit.issues)}")
     for issue in audit.issues:
         print(f"issue: {issue.target} | {issue.field} | {issue.message}")
 
     if audit.issues:
         raise SystemExit(1)
-    if args.require_placement_ready and not audit.placement_ready:
+    if args.require_wet_dry_witness_ready and not audit.wet_dry_witness_ready:
         raise SystemExit(1)
 
 

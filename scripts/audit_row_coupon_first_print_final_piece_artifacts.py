@@ -3,7 +3,7 @@ from __future__ import annotations
 import argparse
 
 from aevum_cad.params import ROOT, load_params
-from aevum_cad.row_coupon_first_print import audit_first_print_y_split_artifacts
+from aevum_cad.row_coupon_first_print import audit_first_print_final_piece_artifacts
 
 
 def main() -> None:
@@ -19,9 +19,9 @@ def main() -> None:
         help="CAD output directory containing generated monolithic STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -34,23 +34,23 @@ def main() -> None:
     parser.add_argument(
         "--require-ready",
         action="store_true",
-        help="Exit nonzero unless every split artifact exists and fits the selected bed.",
+        help="Exit nonzero unless every final-piece artifact exists and fits the selected bed.",
     )
     args = parser.parse_args()
 
     params = load_params(args.params)
-    audit = audit_first_print_y_split_artifacts(
+    audit = audit_first_print_final_piece_artifacts(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         slicer_setup_path=args.slicer_setup,
     )
 
-    print(f"split_dir: {audit.split_dir}")
+    print(f"piece_dir: {audit.piece_dir}")
     print(f"selected_setup: {audit.selected_setup_summary}")
     print(f"selected_bed_x_mm: {audit.bed_x_mm:.2f}")
     print(f"selected_bed_y_mm: {audit.bed_y_mm:.2f}")
-    print(f"split_artifacts_ready: {str(audit.split_artifacts_ready).lower()}")
+    print(f"final_piece_artifacts_ready: {str(audit.final_piece_artifacts_ready).lower()}")
     print(f"expected_rows: {audit.expected_row_count}")
     print(f"actual_rows: {len(audit.rows)}")
     print(f"split_source_parts: {len(audit.split_source_parts)}")
@@ -64,7 +64,7 @@ def main() -> None:
     for issue in audit.issues:
         print(f"issue: {issue.split_part} | {issue.field} | {issue.message}")
 
-    if args.require_ready and not audit.split_artifacts_ready:
+    if args.require_ready and not audit.final_piece_artifacts_ready:
         raise SystemExit(1)
 
 

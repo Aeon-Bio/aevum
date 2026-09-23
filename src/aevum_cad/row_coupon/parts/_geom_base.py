@@ -1,6 +1,43 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
+
+
+def _integral_feature_fusion_overlap_z(params: dict[str, Any]) -> float:
+    return max(
+        0.0,
+        float(
+            params.get("production_assembly", {}).get(
+                "integral_feature_fusion_overlap_z",
+                0.10,
+            )
+        ),
+    )
+
+
+def _fused_z_box(
+    *,
+    length: float,
+    width: float,
+    height: float,
+    x: float,
+    y: float,
+    z: float,
+    overlap_z: float,
+    into: str,
+) -> cq.Workplane:
+    if into not in {"down", "up"}:
+        raise ValueError("fused z box must overlap 'down' or 'up'")
+    if overlap_z < 0:
+        raise ValueError("fused z box overlap must be non-negative")
+    fused_z = z - overlap_z if into == "down" else z
+    return (
+        cq.Workplane("XY")
+        .box(length, width, height + overlap_z, centered=(False, False, False))
+        .translate((x, y, fused_z))
+    )
 
 
 def _rounded_box(length: float, width: float, height: float, radius: float) -> cq.Workplane:

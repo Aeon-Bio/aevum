@@ -2,7 +2,7 @@
 
 A strict inductive chain: each readiness step pulls its gate WORKSHEET audit (gates) + install /
 service (install_service) + traveler (traveler) audits and the previous readiness step (same
-module). ``audit_first_print_y_split_operating_prototype_acceptance`` additionally calls
+module). ``audit_first_print_final_piece_operating_prototype_acceptance`` additionally calls
 ``audit_first_print_preflight``; preflight is its sibling apex (extracted alongside this module) and
 importing it at module top would form a partially-initialized-module cycle, so it is late-bound by
 the facade via ``_bind_facade_deferred``. Function bodies stay byte-identical.
@@ -16,7 +16,7 @@ from typing import Any
 from .common import _csv_rows_from_path
 from .constants import FIRST_PRINT_PHYSICAL_GATES
 from .gates import (
-    audit_first_print_y_split_gate1_qc_worksheet,
+    audit_first_print_final_piece_gate1_qc_worksheet,
     audit_first_print_gate2_dry_assembly_worksheet,
     audit_first_print_gate3_placement_worksheet,
     audit_first_print_gate4_wet_dry_witness_worksheet,
@@ -27,7 +27,7 @@ from .install_service import (
     audit_first_print_install_inventory,
     audit_first_print_service_state_review,
 )
-from .traveler import audit_first_print_y_split_print_batch_traveler
+from .traveler import audit_first_print_final_piece_print_batch_traveler
 from .models import (
     FirstPrintGate1PrintQCIssue,
     FirstPrintGate1PrintQCAudit,
@@ -75,11 +75,11 @@ def _gate1_print_qc_issue(
     )
 
 
-def audit_first_print_y_split_gate1_print_qc(
+def audit_first_print_final_piece_gate1_print_qc(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -87,18 +87,18 @@ def audit_first_print_y_split_gate1_print_qc(
     sliced_output_path: str | Path,
     expected_setup_summary: str = "",
 ) -> FirstPrintGate1PrintQCAudit:
-    gate1_audit = audit_first_print_y_split_gate1_qc_worksheet(
+    gate1_audit = audit_first_print_final_piece_gate1_qc_worksheet(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         worksheet_path=gate1_qc_path,
     )
-    traveler_audit = audit_first_print_y_split_print_batch_traveler(
+    traveler_audit = audit_first_print_final_piece_print_batch_traveler(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         sliced_output_path=sliced_output_path,
@@ -176,11 +176,11 @@ def _gate2_dry_assembly_readiness_issue(
     )
 
 
-def audit_first_print_y_split_gate2_dry_assembly_readiness(
+def audit_first_print_final_piece_gate2_dry_assembly_readiness(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -195,10 +195,10 @@ def audit_first_print_y_split_gate2_dry_assembly_readiness(
         params=params,
         worksheet_path=gate2_dry_assembly_path,
     )
-    gate1_print_qc_audit = audit_first_print_y_split_gate1_print_qc(
+    gate1_print_qc_audit = audit_first_print_final_piece_gate1_print_qc(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
@@ -286,11 +286,11 @@ def _gate3_placement_readiness_issue(
     )
 
 
-def audit_first_print_y_split_gate3_placement_readiness(
+def audit_first_print_final_piece_gate3_placement_readiness(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -306,10 +306,10 @@ def audit_first_print_y_split_gate3_placement_readiness(
         params=params,
         worksheet_path=gate3_placement_path,
     )
-    gate2_readiness_audit = audit_first_print_y_split_gate2_dry_assembly_readiness(
+    gate2_readiness_audit = audit_first_print_final_piece_gate2_dry_assembly_readiness(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
@@ -378,11 +378,11 @@ def _gate4_wet_dry_witness_readiness_issue(
     )
 
 
-def audit_first_print_y_split_gate4_wet_dry_witness_readiness(
+def audit_first_print_final_piece_gate4_wet_dry_witness_readiness(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -399,10 +399,10 @@ def audit_first_print_y_split_gate4_wet_dry_witness_readiness(
         params=params,
         worksheet_path=gate4_wet_dry_witness_path,
     )
-    gate3_readiness_audit = audit_first_print_y_split_gate3_placement_readiness(
+    gate3_readiness_audit = audit_first_print_final_piece_gate3_placement_readiness(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
@@ -475,11 +475,11 @@ def _gate5_consumable_puncture_readiness_issue(
     )
 
 
-def audit_first_print_y_split_gate5_consumable_puncture_readiness(
+def audit_first_print_final_piece_gate5_consumable_puncture_readiness(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -497,10 +497,10 @@ def audit_first_print_y_split_gate5_consumable_puncture_readiness(
         params=params,
         worksheet_path=gate5_consumable_puncture_path,
     )
-    gate4_readiness_audit = audit_first_print_y_split_gate4_wet_dry_witness_readiness(
+    gate4_readiness_audit = audit_first_print_final_piece_gate4_wet_dry_witness_readiness(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
@@ -579,11 +579,11 @@ def _gate6_sensor_thermal_readiness_issue(
     )
 
 
-def audit_first_print_y_split_gate6_sensor_thermal_readiness(
+def audit_first_print_final_piece_gate6_sensor_thermal_readiness(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     gate1_qc_path: str | Path,
@@ -602,10 +602,10 @@ def audit_first_print_y_split_gate6_sensor_thermal_readiness(
         params=params,
         worksheet_path=gate6_sensor_thermal_path,
     )
-    gate5_readiness_audit = audit_first_print_y_split_gate5_consumable_puncture_readiness(
+    gate5_readiness_audit = audit_first_print_final_piece_gate5_consumable_puncture_readiness(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
@@ -702,13 +702,13 @@ def _operating_prototype_acceptance_issue(
     issues.append(FirstPrintOperatingPrototypeAcceptanceIssue(field=field, message=message))
 
 
-def audit_first_print_y_split_operating_prototype_acceptance(
+def audit_first_print_final_piece_operating_prototype_acceptance(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
     queue_dir: str | Path,
-    split_dir: str | Path,
-    split_queue_dir: str | Path,
+    piece_dir: str | Path,
+    piece_queue_dir: str | Path,
     record_path: str | Path,
     root: str | Path,
     slicer_setup_path: str | Path,
@@ -728,15 +728,15 @@ def audit_first_print_y_split_operating_prototype_acceptance(
         params=params,
         out_dir=out_dir,
         queue_dir=queue_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         record_path=record_path,
         root=root,
     )
-    gate6_readiness_audit = audit_first_print_y_split_gate6_sensor_thermal_readiness(
+    gate6_readiness_audit = audit_first_print_final_piece_gate6_sensor_thermal_readiness(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
-        queue_dir=split_queue_dir,
+        piece_dir=piece_dir,
+        queue_dir=piece_queue_dir,
         slicer_setup_path=slicer_setup_path,
         gate1_qc_path=gate1_qc_path,
         print_batch_traveler_path=print_batch_traveler_path,

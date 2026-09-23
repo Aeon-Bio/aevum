@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from typing import Any
-from .parts._shared_tile import (_lid_port_positions, _well_centers_for_tile)
+
+from .parts._shared_tile import _lid_port_positions, _well_centers_for_tile
 
 
 def _compression_stop_positions(params: dict[str, Any]) -> list[tuple[float, float]]:
@@ -14,6 +16,7 @@ def _compression_stop_positions_for_layout(
 ) -> list[tuple[float, float]]:
     row = params["row"]
     seal = params["seal_interface"]
+    production = params.get("production_assembly", {})
     half_stop = seal["compression_stop_size"] / 2
     if layout["row_axis"] == "x":
         gap = row["inter_tile_gap_x"]
@@ -28,15 +31,34 @@ def _compression_stop_positions_for_layout(
         ]
     else:
         gap = row["inter_tile_gap_y"]
+        latch_x_inset = float(
+            production.get("latch_station_inset_x", row["end_margin_x"] / 2)
+        )
+        latch_y_inset = float(
+            production.get("latch_station_end_inset_y", row["side_margin_y"] / 2)
+        )
         x_values = [
-            row["end_margin_x"] / 2,
-            layout["length_x"] - row["end_margin_x"] / 2,
+            latch_x_inset,
+            layout["length_x"] - latch_x_inset,
         ]
         y_values = [
-            row["side_margin_y"] / 2,
-            layout["width_y"] - row["side_margin_y"] / 2,
+            latch_y_inset,
+            layout["width_y"] - latch_y_inset,
         ]
         y_values.extend(tile["y"] - gap / 2 for tile in layout["tile_origins"][1:])
+
+        # The central station crowds the lid-piece joint and, on the port side,
+        # intersects the sample/relief boss. Replace it on both sides with a
+        # symmetric pair so the hard stops, posts, wedges, and receivers remain
+        # one coherent, assembly-derived pattern rather than filtering a
+        # colliding wedge later.
+        center_bypass = float(
+            production.get("latch_center_station_bypass_offset_y", 0.0)
+        )
+        if center_bypass > 0:
+            center_y = float(layout["width_y"]) / 2
+            y_values = [y for y in y_values if abs(float(y) - center_y) > 1e-6]
+            y_values.extend([center_y - center_bypass, center_y + center_bypass])
 
     positions = {
         (round(x, 3), round(y, 3))
@@ -88,7 +110,6 @@ def row_coupon_layout(params: dict[str, Any]) -> dict[str, Any]:
         _gasket_squeeze_out_of_range_review_rectangles,
         _gasket_tab_leak_witness_check,
         _gasket_tab_leak_witnesses_for_layout,
-        _harness_seam_routing_check,
         _headspace_barrier_check,
         _headspace_sht41_mounts_for_layout,
         _headspace_volume_check,
@@ -134,10 +155,8 @@ def row_coupon_layout(params: dict[str, Any]) -> dict[str, Any]:
         _side_gas_service_interfaces,
         _side_gas_tube_envelope_check,
         _side_gas_tube_envelopes,
-        _split_segment_swept_removal_check,
         _thermal_condensation_proxy_check,
         _thermal_condensation_proxy_targets_for_layout,
-        _trapped_plate_lift_check,
         _unmated_sensor_service_connector_review_rectangles,
         _unseated_gas_pcb_cartridge_review_rectangles,
         _unseated_side_gas_tube_review_specs,
@@ -1016,57 +1035,7 @@ def row_coupon_layout(params: dict[str, Any]) -> dict[str, Any]:
         ),
     }
 
-    # D9 sequenced assembly/disassembly motion checks (flag-on validation tools).
-    # Gated behind production_assembly.keyed_joints_enabled (default False): when
-    # OFF these keys are NOT added, so the layout dict stays byte-identical to
-    # pre-D9 (the production export tree + first_print snapshots are zero-diff).
-    # These checks only READ existing geometry and add NO production body, NO
-    # metal, and NOTHING that grips/lands on the CellVis plate.
-    d9_motion_checks: dict[str, Any] = {}
-    if bool(production.get("keyed_joints_enabled", False)):
-        # NOTE: derive the split segments INLINE from tile_origins — do NOT call
-        # row_coupon_production_y_split_plan() here, since that re-enters
-        # row_coupon_layout() and would recurse infinitely through this gated
-        # branch. _split_y_from_tile_origins is a pure function of tile_origins +
-        # plate width, so it is safe to call.
-        from aevum_cad.row_coupon import (
-            _production_y_split_parts,
-            _split_y_from_tile_origins,
-        )
-
-        d9_split_y = _split_y_from_tile_origins(tile_origins, params)
-        d9_split_rows = tuple(
-            {
-                "source_part": part,
-                "y_min": y_min,
-                "y_max": y_max,
-            }
-            for part in _production_y_split_parts(params)
-            for (y_min, y_max) in (
-                (0.0, d9_split_y),
-                (d9_split_y, round(width, 3)),
-            )
-        )
-        d9_motion_checks = {
-            "split_segment_swept_removal_check": _split_segment_swept_removal_check(
-                d9_split_rows,
-                split_y=d9_split_y,
-            ),
-            "trapped_plate_lift_check": _trapped_plate_lift_check(
-                plate_locator_rails,
-                tile_origins=tile_origins,
-                plate_len=plate_len,
-                plate_wid=plate_wid,
-                plate_bottom_z=plate_bottom_z,
-            ),
-            "harness_seam_routing_check": _harness_seam_routing_check(
-                sensor_harness_layout.get("sensor_service_cable_envelopes", []),
-                split_y=d9_split_y,
-            ),
-        }
-
     return {
-        **d9_motion_checks,
         "row_axis": row_axis,
         "length_x": round(length, 3),
         "width_y": round(width, 3),
@@ -1139,6 +1108,11 @@ def row_coupon_layout(params: dict[str, Any]) -> dict[str, Any]:
                     float(port["cap_seal_lip_nominal_compression_z"]),
                     3,
                 ),
+                "cap_install_axis": port["cap_install_axis"],
+                "cap_removal_axis": port["cap_removal_axis"],
+                "cap_retention_target": port["cap_retention_target"],
+                "cap_physical_gate": port["cap_physical_gate"],
+                "cap_critical_surface_printing": port["cap_critical_surface_printing"],
                 "cap_seal_lip_role": port["cap_seal_lip_role"],
             }
             for port in lid_port_positions

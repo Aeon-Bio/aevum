@@ -84,6 +84,11 @@ def _lid_port_spec(
         "cap_seal_lip_height_z": round(lip_h, 3),
         "cap_seal_lip_seat_depth_z": round(lip_seat_depth, 3),
         "cap_seal_lip_nominal_compression_z": round(lip_compression, 3),
+        "cap_install_axis": "-Z",
+        "cap_removal_axis": "+Z",
+        "cap_retention_target": "elastic_seal_lip_friction_with_positive_grip_tab",
+        "cap_physical_gate": "leak_and_repeated_removal_cycle",
+        "cap_critical_surface_printing": "seal_lip_and_plug_require_no_destructive_cleanup",
         "cap_seal_lip_role": "integrated_compliant_lip_on_sample_relief_boss_top",
     }
 def _lid_port_positions(

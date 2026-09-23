@@ -4,7 +4,7 @@ import argparse
 
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon_first_print import (
-    audit_first_print_y_split_gate4_wet_dry_witness_readiness,
+    audit_first_print_final_piece_gate5_consumable_puncture_readiness,
     first_print_record_table_value,
 )
 
@@ -23,14 +23,14 @@ def main() -> None:
         help="CAD output directory containing generated production STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -45,24 +45,24 @@ def main() -> None:
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_gate1_qc.csv",
-        help="Split Gate 1 QC worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_gate1_qc.csv",
+        help="Final Gate 1 QC worksheet.",
     )
     parser.add_argument(
         "--print-batch-traveler",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_print_batch_traveler.csv",
-        help="Split print batch traveler worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_print_batch_traveler.csv",
+        help="Final print batch traveler worksheet.",
     )
     parser.add_argument(
         "--sliced-outputs",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_sliced_outputs.csv",
-        help="Ready split sliced-output worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_sliced_outputs.csv",
+        help="Ready final-piece sliced-output worksheet.",
     )
     parser.add_argument(
         "--gate2-dry-assembly",
@@ -105,6 +105,14 @@ def main() -> None:
         help="Gate 4 wet/dry witness worksheet.",
     )
     parser.add_argument(
+        "--gate5-consumable-puncture",
+        default=ROOT
+        / "data"
+        / "measurements"
+        / "2026-06-02_one_row_coupon_gate5_consumable_puncture.csv",
+        help="Gate 5 consumable/puncture worksheet.",
+    )
+    parser.add_argument(
         "--record",
         default=ROOT
         / "data"
@@ -113,9 +121,12 @@ def main() -> None:
         help="Measurement record to read selected setup from, if present.",
     )
     parser.add_argument(
-        "--require-wet-dry-witness-ready",
+        "--require-consumable-puncture-ready",
         action="store_true",
-        help="Exit nonzero unless Gate 4 wet/dry witness and upstream placement are ready.",
+        help=(
+            "Exit nonzero unless Gate 5 consumable/puncture and upstream "
+            "wet/dry evidence are ready."
+        ),
     )
     args = parser.parse_args()
 
@@ -124,10 +135,10 @@ def main() -> None:
         args.record,
         "Printer / material / profile",
     )
-    audit = audit_first_print_y_split_gate4_wet_dry_witness_readiness(
+    audit = audit_first_print_final_piece_gate5_consumable_puncture_readiness(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
         slicer_setup_path=args.slicer_setup,
         gate1_qc_path=args.gate1_qc,
@@ -138,9 +149,14 @@ def main() -> None:
         service_state_review_path=args.service_state_review,
         gate3_placement_path=args.gate3_placement,
         gate4_wet_dry_witness_path=args.gate4_wet_dry_witness,
+        gate5_consumable_puncture_path=args.gate5_consumable_puncture,
         expected_setup_summary=expected_setup,
     )
 
+    print(
+        "gate5_consumable_puncture_worksheet: "
+        f"{audit.gate5_consumable_puncture_worksheet_path}"
+    )
     print(
         "gate4_wet_dry_witness_worksheet: "
         f"{audit.gate4_wet_dry_witness_worksheet_path}"
@@ -154,8 +170,21 @@ def main() -> None:
     print(f"split_print_batch_traveler: {audit.print_batch_traveler_path}")
     print(f"install_inventory: {audit.install_inventory_path}")
     print(
-        "wet_dry_witness_ready: "
-        f"{'true' if audit.wet_dry_witness_ready else 'false'}"
+        "consumable_puncture_ready: "
+        f"{'true' if audit.consumable_puncture_ready else 'false'}"
+    )
+    print(
+        "gate5_consumable_puncture_worksheet_valid: "
+        f"{'true' if audit.gate5_consumable_puncture_worksheet_valid else 'false'}"
+    )
+    print(
+        "gate5_consumable_puncture_pass_ready: "
+        f"{'true' if audit.gate5_consumable_puncture_pass_ready else 'false'}"
+    )
+    print(f"gate5_pass_rows: {audit.gate5_pass_row_count}")
+    print(
+        "gate4_wet_dry_witness_ready: "
+        f"{'true' if audit.gate4_wet_dry_witness_ready else 'false'}"
     )
     print(
         "gate4_wet_dry_witness_worksheet_valid: "
@@ -165,26 +194,13 @@ def main() -> None:
         "gate4_wet_dry_witness_pass_ready: "
         f"{'true' if audit.gate4_wet_dry_witness_pass_ready else 'false'}"
     )
-    print(f"gate4_pass_rows: {audit.gate4_pass_row_count}")
-    print(
-        "gate3_placement_ready: "
-        f"{'true' if audit.gate3_placement_ready else 'false'}"
-    )
-    print(
-        "gate3_placement_worksheet_valid: "
-        f"{'true' if audit.gate3_placement_worksheet_valid else 'false'}"
-    )
-    print(
-        "gate3_placement_pass_ready: "
-        f"{'true' if audit.gate3_placement_pass_ready else 'false'}"
-    )
     print(f"issues: {len(audit.issues)}")
     for issue in audit.issues:
         print(f"issue: {issue.target} | {issue.field} | {issue.message}")
 
     if audit.issues:
         raise SystemExit(1)
-    if args.require_wet_dry_witness_ready and not audit.wet_dry_witness_ready:
+    if args.require_consumable_puncture_ready and not audit.consumable_puncture_ready:
         raise SystemExit(1)
 
 

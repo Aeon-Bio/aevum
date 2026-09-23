@@ -1,0 +1,1890 @@
+{
+  "schema_version": 2,
+  "registry_id": "aevum_one_row_coupon_artifact_authority",
+  "identity_authority": {
+    "canonical_source": "source_artifact_id",
+    "release_body": "release_body_id",
+    "forbidden_inference": "family name or slicer plate position",
+    "migration_rule": "any identifier change requires an explicit registry migration"
+  },
+  "source_authorities": {
+    "physical_specs": "src/aevum_cad/row_coupon/artifacts.py::row_coupon_physical_artifact_specs",
+    "installed_manifest": "src/aevum_cad/row_coupon/manifest.py::row_coupon_part_manifest",
+    "rigid_body_plan": "src/aevum_cad/row_coupon/final_print_pieces.py::row_coupon_final_print_piece_plan",
+    "parameters": "cad/one_row_coupon.params.json"
+  },
+  "counts": {
+    "canonical_sources": 38,
+    "rigid_sources": 30,
+    "compliant_sources": 8,
+    "release_bodies": 46,
+    "rigid_print_pieces": 38,
+    "compliant_bodies": 8
+  },
+  "known_defects": [
+    {
+      "defect_id": "lid_cover_shell_installed_overlap",
+      "status": "digitally_resolved_physical_gate_pending",
+      "affected_sources": [
+        "lid_cover",
+        "lid_manifold_shell"
+      ],
+      "reason": "nominal installed interference is eliminated digitally; Gate 2 dry fit remains required"
+    },
+    {
+      "defect_id": "lid_tongue_support_dependency",
+      "status": "blocked",
+      "affected_sources": [
+        "lid_cover"
+      ],
+      "reason": "functional tongue currently depends on support and cleanup evidence is absent"
+    },
+    {
+      "defect_id": "unretained_plain_butt_splits",
+      "status": "digitally_corrected_physical_gate_pending",
+      "affected_sources": [
+        "lid_cover",
+        "lid_harness_cover_lid_cover_left_gas_bus",
+        "lid_harness_cover_lid_cover_right_gas_bus",
+        "lid_harness_cover_lid_shell_right_sht41_bus",
+        "lid_manifold_shell",
+        "lower_harness_cover",
+        "wet_chamber_frame"
+      ],
+      "reason": "all seven former fallbacks now have source-local printed joints; dry-fit, load, cycle, and wet evidence remains required"
+    },
+    {
+      "defect_id": "service_install_removal_clearance",
+      "status": "pending",
+      "affected_sources": [
+        "lid_cover",
+        "lid_harness_cover_lid_cover_left_gas_bus",
+        "lid_harness_cover_lid_cover_right_gas_bus",
+        "lid_harness_cover_lid_shell_right_sht41_bus",
+        "lower_harness_cover",
+        "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+        "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+        "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+        "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+        "printed_lower_sensor_connector_shroud",
+        "printed_sample_relief_cap"
+      ],
+      "reason": "connector, harness, cap, and keeper installation/removal motion is not yet proved"
+    },
+    {
+      "defect_id": "wedge_pla_operating_material",
+      "status": "blocked",
+      "affected_sources": [
+        "printed_wedge_lock_station_01_x_min",
+        "printed_wedge_lock_station_02_x_min",
+        "printed_wedge_lock_station_03_x_min",
+        "printed_wedge_lock_station_04_x_min",
+        "printed_wedge_lock_station_05_x_min",
+        "printed_wedge_lock_station_06_x_min",
+        "printed_wedge_lock_station_07_x_max",
+        "printed_wedge_lock_station_08_x_max",
+        "printed_wedge_lock_station_09_x_max",
+        "printed_wedge_lock_station_10_x_max",
+        "printed_wedge_lock_station_11_x_max",
+        "printed_wedge_lock_station_12_x_max"
+      ],
+      "reason": "wedge locks are in the current PLA queue but PLA has no operating material approval"
+    },
+    {
+      "defect_id": "compliant_material_specification",
+      "status": "pending",
+      "affected_sources": [
+        "ir_thermopile_face_gasket_tile_1",
+        "ir_thermopile_face_gasket_tile_2",
+        "ir_thermopile_face_gasket_tile_3",
+        "ir_thermopile_face_gasket_tile_4",
+        "lower_gasket",
+        "upper_gasket",
+        "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+        "gas_pcb_interface_gasket_return_gas_sensor_pcb"
+      ],
+      "reason": "compliant material remains elastomer-or-TPU and has no approved operating specification"
+    }
+  ],
+  "canonical_sources": [
+    {
+      "source_artifact_id": "deck_pod_tile_1",
+      "source_class": "rigid_source",
+      "installed_part": "deck_pods",
+      "role": "OT-2 deck engagement, row standoff, and dry-bay Z envelope",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "external:ot2_deck",
+        "plate_support_frame"
+      ],
+      "evidence": {
+        "gate": "gate_1_print_qc",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc"
+        ]
+      },
+      "release_body_ids": [
+        "deck_pod_tile_1"
+      ]
+    },
+    {
+      "source_artifact_id": "deck_pod_tile_2",
+      "source_class": "rigid_source",
+      "installed_part": "deck_pods",
+      "role": "OT-2 deck engagement, row standoff, and dry-bay Z envelope",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "external:ot2_deck",
+        "plate_support_frame"
+      ],
+      "evidence": {
+        "gate": "gate_1_print_qc",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc"
+        ]
+      },
+      "release_body_ids": [
+        "deck_pod_tile_2"
+      ]
+    },
+    {
+      "source_artifact_id": "deck_pod_tile_3",
+      "source_class": "rigid_source",
+      "installed_part": "deck_pods",
+      "role": "OT-2 deck engagement, row standoff, and dry-bay Z envelope",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "external:ot2_deck",
+        "plate_support_frame"
+      ],
+      "evidence": {
+        "gate": "gate_1_print_qc",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc"
+        ]
+      },
+      "release_body_ids": [
+        "deck_pod_tile_3"
+      ]
+    },
+    {
+      "source_artifact_id": "deck_pod_tile_4",
+      "source_class": "rigid_source",
+      "installed_part": "deck_pods",
+      "role": "OT-2 deck engagement, row standoff, and dry-bay Z envelope",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "external:ot2_deck",
+        "plate_support_frame"
+      ],
+      "evidence": {
+        "gate": "gate_1_print_qc",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc"
+        ]
+      },
+      "release_body_ids": [
+        "deck_pod_tile_4"
+      ]
+    },
+    {
+      "source_artifact_id": "lid_cover",
+      "source_class": "rigid_source",
+      "installed_part": "lid_cover",
+      "role": "side gas ducts, service fittings, leak routing, and latch receivers",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "digitally_resolved_physical_gate_pending",
+      "mates": [
+        "wet_chamber_frame",
+        "lid_manifold_shell",
+        "lid_harness_cover",
+        "printed_lid_sensor_connector_shrouds",
+        "cots_gas_service_tubes",
+        "gas_pcb_interface_gaskets",
+        "printed_gas_pcb_keeper_doors",
+        "printed_sample_relief_cap",
+        "printed_wedge_locks"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_4_wet_dry_witness",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lid_cover_piece_01_of_02_y_000p000_to_188p625",
+        "lid_cover_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "source_class": "rigid_source",
+      "installed_part": "lid_harness_cover",
+      "role": "lid sensor harness protection and service retention",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+      "mates": [
+        "lid_cover",
+        "lid_manifold_shell",
+        "lid_sensor_harness"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "source_class": "rigid_source",
+      "installed_part": "lid_harness_cover",
+      "role": "lid sensor harness protection and service retention",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+      "mates": [
+        "lid_cover",
+        "lid_manifold_shell",
+        "lid_sensor_harness"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "source_class": "rigid_source",
+      "installed_part": "lid_harness_cover",
+      "role": "lid sensor harness protection and service retention",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+      "mates": [
+        "lid_cover",
+        "lid_manifold_shell",
+        "lid_sensor_harness"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "lid_manifold_shell",
+      "source_class": "rigid_source",
+      "installed_part": "lid_manifold_shell",
+      "role": "wet headspace roof, shared plenum relief, and headspace sensor sockets",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "digitally_resolved_physical_gate_pending",
+      "mates": [
+        "wet_chamber_frame",
+        "upper_gasket",
+        "cots_septum_mats",
+        "headspace_sht41_microcarriers",
+        "lid_cover"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_4_wet_dry_witness",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+        "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "lower_harness_cover",
+      "source_class": "rigid_source",
+      "installed_part": "lower_harness_cover",
+      "role": "lower sensor harness protection and service retention",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+      "mates": [
+        "plate_support_frame",
+        "lower_sensor_harness"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+        "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "plate_support_frame",
+      "source_class": "rigid_source",
+      "installed_part": "plate_support_frame",
+      "role": "plate datum, dry-bay apertures, lower sensor pockets, and lower seal land",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_keyed_split_physical_evidence",
+      "mates": [
+        "deck_pods",
+        "ir_thermopiles",
+        "ir_thermopile_face_gaskets",
+        "lower_sensor_harness",
+        "lower_harness_cover",
+        "printed_lower_sensor_connector_shroud",
+        "lower_gasket",
+        "wet_chamber_frame",
+        "cots_microplates"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_4_wet_dry_witness"
+        ]
+      },
+      "release_body_ids": [
+        "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+        "plate_support_frame_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "source_class": "rigid_source",
+      "installed_part": "printed_gas_pcb_keeper_doors",
+      "role": "screwless gas sensor PCB cartridge retention and compression",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "lid_cover",
+        "gas_pcb_interface_gaskets",
+        "gas_sensor_pcbs"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "printed_gas_pcb_keeper_door_return_gas_sensor_pcb"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "source_class": "rigid_source",
+      "installed_part": "printed_gas_pcb_keeper_doors",
+      "role": "screwless gas sensor PCB cartridge retention and compression",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "lid_cover",
+        "gas_pcb_interface_gaskets",
+        "gas_sensor_pcbs"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "source_class": "rigid_source",
+      "installed_part": "printed_lid_sensor_connector_shrouds",
+      "role": "lid connector keying, strain relief, and service protection",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "lid_cover",
+        "lid_sensor_service_connectors",
+        "lid_sensor_service_cable_pigtails"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "source_class": "rigid_source",
+      "installed_part": "printed_lid_sensor_connector_shrouds",
+      "role": "lid connector keying, strain relief, and service protection",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "lid_cover",
+        "lid_sensor_service_connectors",
+        "lid_sensor_service_cable_pigtails"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_lower_sensor_connector_shroud",
+      "source_class": "rigid_source",
+      "installed_part": "printed_lower_sensor_connector_shroud",
+      "role": "lower connector keying, strain relief, and service protection",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "plate_support_frame",
+        "lower_sensor_service_connector",
+        "lower_sensor_service_cable_pigtail"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "printed_lower_sensor_connector_shroud"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_sample_relief_cap",
+      "source_class": "rigid_source",
+      "installed_part": "printed_sample_relief_cap",
+      "role": "normally installed sample/relief port closure",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "pending_service_clearance_evidence",
+      "mates": [
+        "lid_cover"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_4_wet_dry_witness"
+        ]
+      },
+      "release_body_ids": [
+        "printed_sample_relief_cap"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_01_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_01_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_02_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_02_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_03_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_03_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_04_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_04_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_05_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_05_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_06_x_min",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_06_x_min"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_07_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_07_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_08_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_08_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_09_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_09_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_10_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_10_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_11_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_11_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "printed_wedge_lock_station_12_x_max",
+      "source_class": "rigid_source",
+      "installed_part": "printed_wedge_locks",
+      "role": "fastener-free lid/wet-frame/gasket compression locks",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "blocked_pla_not_operating_approved",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_2_dry_assembly",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly"
+        ]
+      },
+      "release_body_ids": [
+        "printed_wedge_lock_station_12_x_max"
+      ]
+    },
+    {
+      "source_artifact_id": "wet_chamber_frame",
+      "source_class": "rigid_source",
+      "installed_part": "wet_chamber_frame",
+      "role": "shared wet headspace skirt, plate enclosure, and lower latch authority",
+      "current_slice_material": "elegoo_pla",
+      "approved_operating_material": null,
+      "material_status": "pending_operating_material_validation",
+      "geometry_state": "modeled_labyrinth_lap_load_and_leak_pending",
+      "mates": [
+        "plate_support_frame",
+        "lower_gasket",
+        "cots_microplates",
+        "cots_septum_mats",
+        "upper_gasket",
+        "lid_manifold_shell",
+        "lid_cover",
+        "printed_wedge_locks"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_4_wet_dry_witness"
+        ]
+      },
+      "release_body_ids": [
+        "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+        "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250"
+      ]
+    },
+    {
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_1",
+      "source_class": "compliant_source",
+      "installed_part": "ir_thermopile_face_gaskets",
+      "role": "dry-side seal around each IR thermopile aperture",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "plate_support_frame",
+        "ir_thermopiles"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "ir_thermopile_face_gasket_tile_1"
+      ]
+    },
+    {
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_2",
+      "source_class": "compliant_source",
+      "installed_part": "ir_thermopile_face_gaskets",
+      "role": "dry-side seal around each IR thermopile aperture",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "plate_support_frame",
+        "ir_thermopiles"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "ir_thermopile_face_gasket_tile_2"
+      ]
+    },
+    {
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_3",
+      "source_class": "compliant_source",
+      "installed_part": "ir_thermopile_face_gaskets",
+      "role": "dry-side seal around each IR thermopile aperture",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "plate_support_frame",
+        "ir_thermopiles"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "ir_thermopile_face_gasket_tile_3"
+      ]
+    },
+    {
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_4",
+      "source_class": "compliant_source",
+      "installed_part": "ir_thermopile_face_gaskets",
+      "role": "dry-side seal around each IR thermopile aperture",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "plate_support_frame",
+        "ir_thermopiles"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "ir_thermopile_face_gasket_tile_4"
+      ]
+    },
+    {
+      "source_artifact_id": "lower_gasket",
+      "source_class": "compliant_source",
+      "installed_part": "lower_gasket",
+      "role": "lower wet-chamber perimeter seal between support frame and wet frame",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "plate_support_frame",
+        "wet_chamber_frame"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_4_wet_dry_witness"
+        ]
+      },
+      "release_body_ids": [
+        "lower_gasket"
+      ]
+    },
+    {
+      "source_artifact_id": "upper_gasket",
+      "source_class": "compliant_source",
+      "installed_part": "upper_gasket",
+      "role": "upper wet-chamber perimeter seal between wet frame and lid shell",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "wet_chamber_frame",
+        "lid_manifold_shell"
+      ],
+      "evidence": {
+        "gate": "gate_4_wet_dry_witness",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_4_wet_dry_witness"
+        ]
+      },
+      "release_body_ids": [
+        "upper_gasket"
+      ]
+    },
+    {
+      "source_artifact_id": "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+      "source_class": "compliant_source",
+      "installed_part": "gas_pcb_interface_gaskets",
+      "role": "sealed low-dead-volume gas PCB duct sampling interface",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "printed_gas_pcb_keeper_doors",
+        "gas_sensor_pcbs"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "gas_pcb_interface_gasket_supply_gas_sensor_pcb"
+      ]
+    },
+    {
+      "source_artifact_id": "gas_pcb_interface_gasket_return_gas_sensor_pcb",
+      "source_class": "compliant_source",
+      "installed_part": "gas_pcb_interface_gaskets",
+      "role": "sealed low-dead-volume gas PCB duct sampling interface",
+      "current_slice_material": "not_in_current_pla_slice_queue",
+      "approved_operating_material": null,
+      "material_status": "pending_compliant_material_specification",
+      "geometry_state": "pending_interface_evidence",
+      "mates": [
+        "lid_cover",
+        "printed_gas_pcb_keeper_doors",
+        "gas_sensor_pcbs"
+      ],
+      "evidence": {
+        "gate": "gate_6_sensor_thermal",
+        "owner": "human_operator",
+        "status": "pending",
+        "required_gates": [
+          "gate_1_print_qc",
+          "gate_2_dry_assembly",
+          "gate_6_sensor_thermal"
+        ]
+      },
+      "release_body_ids": [
+        "gas_pcb_interface_gasket_return_gas_sensor_pcb"
+      ]
+    }
+  ],
+  "release_bodies": [
+    {
+      "release_body_id": "deck_pod_tile_1",
+      "source_artifact_id": "deck_pod_tile_1",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "deck_pod_tile_1",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_1.stl",
+          "sha256": "7e3c8dcd81e62373f39f25f50242ea05e8258f2e70283075b54a747c72dac722"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_1.step",
+          "sha256": "1b63e217ffe44421fa10e99a30a7787c6a82d81e6632efabfd8f6a957666a60d"
+        }
+      }
+    },
+    {
+      "release_body_id": "deck_pod_tile_2",
+      "source_artifact_id": "deck_pod_tile_2",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "deck_pod_tile_2",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_2.stl",
+          "sha256": "94ebc2729d96818d4651a5b19f60c7832d49752ab90431847b44b8bcfa4c8fc3"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_2.step",
+          "sha256": "f54e44e4bd9cdab74511bc46d29e9e468c70a8f42ae491c4f1ed8498c3bd87c3"
+        }
+      }
+    },
+    {
+      "release_body_id": "deck_pod_tile_3",
+      "source_artifact_id": "deck_pod_tile_3",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "deck_pod_tile_3",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_3.stl",
+          "sha256": "8d7f96460763653f2b0f0625c89c883cee307b0314726223b6fe3d542f195411"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_3.step",
+          "sha256": "03f336727f3791bd1daa8de1fb163ce673ae40558d4930568fddffdc29f9ed1e"
+        }
+      }
+    },
+    {
+      "release_body_id": "deck_pod_tile_4",
+      "source_artifact_id": "deck_pod_tile_4",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "deck_pod_tile_4",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_4.stl",
+          "sha256": "1c3e16ba816636e092d647bc475865ee9913c26c26a1e24e98da82eb22d8adab"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_4.step",
+          "sha256": "d5c015137dfcb513c808dd1e6381748a3ed923f56309c3c9860dea4b8dbb7953"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_cover_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_cover",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_cover",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "733804775674d98f3fcbef91d835f9b878ad809f88af5abc89f3554f28baa55e"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "c621ccbf81a79c57e069c085e18e9e05b906bc93744d43f95ba57045f69ed8e9"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_cover_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_cover",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_cover",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "dbd0aab13010a27d2b5e79e3a84ac4e961f96eb114e9c7f57c4fb4022a61a2af"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "a9551cdbb8f7eee3a8d5dee59918ccc109e9033505eb8a2ebe90f6d04270dd16"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_cover_left_gas_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "1818a0d4a7b35d0f70da8551bc8d7b9dcb2cdfee4c6faf634f766f6f78bd6184"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "cbf936b96393f9dea0eb54aa4e45f0dd79646814fba6d6c341f346a79c9e0b87"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_cover_left_gas_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "26f56988a3cf7640df1cf5211bcd283543cf4c447ef647ddb1a1ef9d7794fe80"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "19148ba720c459879d0a75203faa0dbbb50a334192bb7c3d6deada0480b58cf7"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_cover_right_gas_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "7ce67c3b4c97b77940b3220deafe8482895f67127c7a24f7530bbe7c64e94cbf"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "bdcce6f1123e335e05550965317ae894e750f3f1641548f248e214ae52d6f574"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_cover_right_gas_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "99d84aa46f073755fd648d089cb281f5ed3a6c36ccad6594dfb5276d94d21bc3"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "3d5eef279407581b111dc769206a13bb5af01ca82fbaad89d5d3f8a9493005b8"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "54438b06935323cc5d35e534694e212bcd4f0db99793eda9ff9f42f309b65a3e"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "fec9639f9ad690c6e19ffe914ae3ac785ef3b03c5bf66951c13a599142e53ca0"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "a9cc802171eb36b6e76dc7b87b580fd91ba6517a9648ef68e08508c07d3a0b06"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "d29ed872510b57b6a98cc00f55cdb827b5a75e2eb6adb4de20f3fcc5161dd2fb"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_manifold_shell",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_manifold_shell",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "b2692a47560bab39f4d46bcceec291e2c6bc40f333bd46f589ac7c0d5cb263c1"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "75c8be48e559c9d8ac5238f9ad1e35f8429945ebc9c266bd24512352ff7592bf"
+        }
+      }
+    },
+    {
+      "release_body_id": "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_manifold_shell",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lid_manifold_shell",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "e9abe677abbeaef6ddabe247e77b6b071042f6245e6861488517b00d406dbdad"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "4cbf386dc48fe14c636e0c3083b3b135c21c2c48ad955fd6a942fe360371a806"
+        }
+      }
+    },
+    {
+      "release_body_id": "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lower_harness_cover",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lower_harness_cover",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "f88dd2c962fce1085a23099a484991d0b8b7151d3d9cc26bb30f67aef544a4e6"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "643b5bd8a8083f7791f175c299a093568061a670f8c69a5fb55c339d74313ed1"
+        }
+      }
+    },
+    {
+      "release_body_id": "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lower_harness_cover",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "lower_harness_cover",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "ddded51e397d6a214a9c027354c65cad0eaef14c09717facc6568439962fd5ff"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "4bdcb6485bfbbc17293084c9eb015f80e5124fa2eb10fcdfadec21535d27f885"
+        }
+      }
+    },
+    {
+      "release_body_id": "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "plate_support_frame",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "plate_support_frame",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "f1f48e81b74dced8bdd1248542c2d7d2493b1b82085acc6e4eae469196eec07b"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "6af5da367c0b2abfbaa4043fe4f676660f9868884e9ad7a93ebb3b63912f405d"
+        }
+      }
+    },
+    {
+      "release_body_id": "plate_support_frame_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "plate_support_frame",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "plate_support_frame",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "c7ae2e0844121de99a9e091ce7a5c590742fc437bac27823f0bbed6da4dcb0c2"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "a88c4f8929d26d1513f808027ba37e54d7ee4b938c6c2bfe8bf49fb6b7f601a8"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "source_artifact_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_return_gas_sensor_pcb.stl",
+          "sha256": "eb331dc74ee9a6d65624949d16338dd3dbf975b699ee9ac274ecb754fbe3cd31"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_return_gas_sensor_pcb.step",
+          "sha256": "64785477e35a4b4ed4dfb348fad97001c88a3520acf319a98c3f29583f94b991"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "source_artifact_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_supply_gas_sensor_pcb.stl",
+          "sha256": "fc2261731f346a7c2f47ac2afa0d7b306dec95d6107dc241c3b051f0bb48ede4"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_supply_gas_sensor_pcb.step",
+          "sha256": "e2b449ca576592335c2eb5ecad26d270d83be5e4a971434b9d848426911c8f7d"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_left_gas_service_connector.stl",
+          "sha256": "b1dc472c2da56255fa5d2bd7c8da06f96b924968804a5476383d56602af6be31"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_left_gas_service_connector.step",
+          "sha256": "cfe2886d7242e60a53df0042cf4e06178beebf5bbed9471738e508fd1fa1c32a"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector.stl",
+          "sha256": "5939b5d8eabe8fc725c277949403dd54bb150b86e8a5ea5cadb09a608a139434"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector.step",
+          "sha256": "b38eddf915c54929dd8e857f31a8497985e869e60e2c95a573d7d1b2ca928153"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_lower_sensor_connector_shroud",
+      "source_artifact_id": "printed_lower_sensor_connector_shroud",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_lower_sensor_connector_shroud",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lower_sensor_connector_shroud.stl",
+          "sha256": "809d372f432648f09a6da3835658477a1b3a754e41ee60133ff8fc7f096d74b5"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lower_sensor_connector_shroud.step",
+          "sha256": "8d944263e680d5487846f6e0f4f9275e2a6e23da558d38d80d3f371152268fc6"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_sample_relief_cap",
+      "source_artifact_id": "printed_sample_relief_cap",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_sample_relief_cap",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_sample_relief_cap.stl",
+          "sha256": "ccaf5be4b9015b6fd195f7c41bdc58b3ffa7a4d9216f510e046c4e54fbf8bee5"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_sample_relief_cap.step",
+          "sha256": "fe8a75f74456f31c7c5d41b930e08774a931b0207f0876212c5846a7824368c1"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_01_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_01_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_01_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_01_x_min.stl",
+          "sha256": "adb0e2e6883af9d93b443f163db04dded9866b491ddffd352903eb5eccc4e2c1"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_01_x_min.step",
+          "sha256": "0157628b8886f5e1ca513fe7d82d245fbf4ef41dd13443b6a3a7265521142afb"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_02_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_02_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_02_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_02_x_min.stl",
+          "sha256": "ac47dd648a3f36f26d8366ec7f19879d34bf92bd9543c369d87e639d34d2afdb"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_02_x_min.step",
+          "sha256": "3cf7229cf42f8984c71735f70720d813b79be91aac64b3999c447a84c15f51b8"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_03_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_03_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_03_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_03_x_min.stl",
+          "sha256": "d35a93909dfb9a6e921b4bcbdb84e9c072aada0c4c904f36aecb887623b4a492"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_03_x_min.step",
+          "sha256": "ba1851f565b7de3d0cf53377466aa4c04cd1ec9bc7dc38c15c0e00876ef79e57"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_04_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_04_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_04_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_04_x_min.stl",
+          "sha256": "f1b7ebfabc8ead27f2bae3dfa9d163a022c878c45ad547aa72a65857e636d8e0"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_04_x_min.step",
+          "sha256": "8ede10f28b1f078adf08bdf82b47905f666bc7a2b3d5c64d835f987ab2a66766"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_05_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_05_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_05_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_05_x_min.stl",
+          "sha256": "17ef05a58b6135bf1fecc454156a405c49a7c9307fefd30c9b1c1a65642a8681"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_05_x_min.step",
+          "sha256": "173060f4b657172400b0f2bf1a1f79777975c9cb494c342812e4be76212fb073"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_06_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_06_x_min",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_06_x_min",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_06_x_min.stl",
+          "sha256": "01f3cdf4509b6497aad36c2612d2d8d4d36798626ccf7df31dfbc2200b0c5e6c"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_06_x_min.step",
+          "sha256": "707e0f87e1d6e720f042ea303b0e77b725ae3966aa2d23c754bbfc00b072a93f"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_07_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_07_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_07_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_07_x_max.stl",
+          "sha256": "020b5345814df5f916bfdd261fd4de6bbb25e0851b7b62292d7425a99b77fc59"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_07_x_max.step",
+          "sha256": "a7752ae62b02dcca9918d0e49c257422dfafafba9ddab2111d999b5cb3802285"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_08_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_08_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_08_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_08_x_max.stl",
+          "sha256": "b62569f3eb65980e0f242c4605d314918db23a06383e3d4483847683f75a0338"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_08_x_max.step",
+          "sha256": "47d2825c41bfe227d1d0fa6169dc0d434736241ecee85ce426764092f2bfe3a9"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_09_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_09_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_09_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_09_x_max.stl",
+          "sha256": "5003e2624369b41f61424069dc95065629cff44e7eac3c3ef6c7ed71f2290570"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_09_x_max.step",
+          "sha256": "204a5646a389fa43571d981012c2ca6e947042e83922fef2edf0a6e1135295b9"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_10_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_10_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_10_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_10_x_max.stl",
+          "sha256": "fe87f22f3e63573e6281967ead2a85b3d3af8f2c96effd91b44a22dbff33e40e"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_10_x_max.step",
+          "sha256": "23a463c16f0857e68b66b2f4f9cb82d71e44f238d0cd9ed5f46d83203a19e1c2"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_11_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_11_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_11_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_11_x_max.stl",
+          "sha256": "89a7c9741827e6f17272cbee514ee435d70bf92221f56113a2d4fa6a88c75788"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_11_x_max.step",
+          "sha256": "1cf7b89fde457762d6febc6ad0402f115ec62de9895cda8af71723114e61cdef"
+        }
+      }
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_12_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_12_x_max",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "printed_wedge_lock_station_12_x_max",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_12_x_max.stl",
+          "sha256": "c8a11596b7b0d775727b3d42dbdb950f6511081aa4626156a7a2b0da8e63e5f7"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_12_x_max.step",
+          "sha256": "bf0573a756a4ad85023c633d8d55c3bc9a8b44a913c641f57310121b595a613f"
+        }
+      }
+    },
+    {
+      "release_body_id": "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "wet_chamber_frame",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "wet_chamber_frame",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625.stl",
+          "sha256": "0671b66cf34a0fa1d9df6ee3805432884a556c3d788d48df24a8ae774add0de0"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625.step",
+          "sha256": "ccea18bdcb3fa4255b5cd3a30d04f1daf389d3f7717309b073ca94183bea1971"
+        }
+      }
+    },
+    {
+      "release_body_id": "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "wet_chamber_frame",
+      "body_class": "rigid_print_piece",
+      "authority_inherited_from_source": "wet_chamber_frame",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250.stl",
+          "sha256": "84fd06a07f2e8cfc44383a7d352e9269e5e28032bc4c94de1df88105d40064ff"
+        },
+        "step": {
+          "path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250.step",
+          "sha256": "4939ff18cfa7470ab4a90f15c73bbb84ae9fdfb3833e63d6f14dcc0bb0dc9294"
+        }
+      }
+    },
+    {
+      "release_body_id": "ir_thermopile_face_gasket_tile_1",
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_1",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "ir_thermopile_face_gasket_tile_1",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_1.stl",
+          "sha256": "1fd6ff451b1a433617f596cd24f63591adf3187eaff67f0df7383e72790505c4"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_1.step",
+          "sha256": "cc9c45d4e6065ea21de29b8770ab9d34aa33905cb9f3e88ad3a0221c9c44d2dd"
+        }
+      }
+    },
+    {
+      "release_body_id": "ir_thermopile_face_gasket_tile_2",
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_2",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "ir_thermopile_face_gasket_tile_2",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_2.stl",
+          "sha256": "2108babeb8a68798e4b75f37ca04c5e54b58e33de0907d7f7cd73e5500324028"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_2.step",
+          "sha256": "8dccfc8bce4a13cebd03724913ad0648c587d66f638b6a583aa93d978de2be08"
+        }
+      }
+    },
+    {
+      "release_body_id": "ir_thermopile_face_gasket_tile_3",
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_3",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "ir_thermopile_face_gasket_tile_3",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_3.stl",
+          "sha256": "0f4763cb1dd722b2c47c29839d9929c239d87b2bcbb723ae93b6353771fd9850"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_3.step",
+          "sha256": "3cba1e0e37bbad185e6c60d5e60c959de77c40f08e7a2ab36c1c12ec43dfd1ce"
+        }
+      }
+    },
+    {
+      "release_body_id": "ir_thermopile_face_gasket_tile_4",
+      "source_artifact_id": "ir_thermopile_face_gasket_tile_4",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "ir_thermopile_face_gasket_tile_4",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_4.stl",
+          "sha256": "e3632698a33ff0eeb0b00dd59595637209cdb6cc1d227bce108930e002762564"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_ir_thermopile_face_gasket_tile_4.step",
+          "sha256": "69ba5fa83e50a065f0cdaac4b37aaf5aaac93e7af99daeb4fdc836b7a3d8cb5b"
+        }
+      }
+    },
+    {
+      "release_body_id": "lower_gasket",
+      "source_artifact_id": "lower_gasket",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "lower_gasket",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_lower_gasket.stl",
+          "sha256": "27edde627e8a5795c25b9b2b0b6326645f7cffa74eeb44459c94c76d3883b884"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_lower_gasket.step",
+          "sha256": "f154fee42c5016aec7c02d9595424c781d2e9e03ee1b006204e1d72c1b642f4b"
+        }
+      }
+    },
+    {
+      "release_body_id": "upper_gasket",
+      "source_artifact_id": "upper_gasket",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "upper_gasket",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_upper_gasket.stl",
+          "sha256": "27edde627e8a5795c25b9b2b0b6326645f7cffa74eeb44459c94c76d3883b884"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_upper_gasket.step",
+          "sha256": "050cc14c4aa71b23efe5ee993c2e8ae021b285b0e2a09330441714e5569adf6a"
+        }
+      }
+    },
+    {
+      "release_body_id": "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+      "source_artifact_id": "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_gas_pcb_interface_gasket_supply_gas_sensor_pcb.stl",
+          "sha256": "6fe8b2066e6cfcc1d8cff4991506d8a29fbe7975732ebeb50fdb09e211ef94ce"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_gas_pcb_interface_gasket_supply_gas_sensor_pcb.step",
+          "sha256": "a85b0b537ca7b804c8d63d75e8563b2ca6f4e81e33c583431690aa429a207a97"
+        }
+      }
+    },
+    {
+      "release_body_id": "gas_pcb_interface_gasket_return_gas_sensor_pcb",
+      "source_artifact_id": "gas_pcb_interface_gasket_return_gas_sensor_pcb",
+      "body_class": "compliant_body",
+      "authority_inherited_from_source": "gas_pcb_interface_gasket_return_gas_sensor_pcb",
+      "outputs": {
+        "stl": {
+          "path": "outputs/cad/aevum_one_row_coupon_gas_pcb_interface_gasket_return_gas_sensor_pcb.stl",
+          "sha256": "3cc1e588b38234270c68f68a2e6d1b86512b3c7e9c0ec185d74b2478b14c3ae9"
+        },
+        "step": {
+          "path": "outputs/cad/aevum_one_row_coupon_gas_pcb_interface_gasket_return_gas_sensor_pcb.step",
+          "sha256": "5db6bb85d4ba425cba8e731c3ab592c6da54b59cd0156d34d229acbc6a6eccfe"
+        }
+      }
+    }
+  ]
+}

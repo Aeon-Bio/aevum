@@ -10,40 +10,66 @@ from __future__ import annotations
 from typing import Any
 
 from aevum_cad.row_coupon import (
-    build_row_coupon_service_parts,
+    build_row_coupon_physical_artifacts,
+    row_coupon_final_print_piece_plan,
     row_coupon_layout,
-    row_coupon_part_manifest,
+    row_coupon_physical_artifact_manifest,
+    row_coupon_physical_artifact_print_policies,
 )
 
 from .constants import FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM
 from .models import (
-    FirstPrintQCTarget,
     FirstPrintGate2DryAssemblyTarget,
     FirstPrintGate3PlacementTarget,
     FirstPrintGate4WetDryWitnessTarget,
     FirstPrintGate5ConsumablePunctureTarget,
     FirstPrintGate6SensorThermalTarget,
+    FirstPrintQCTarget,
 )
 from .package import artifact_category
-
 
 FIRST_PRINT_PUNCTURE_PLATE_SHIFT_LIMIT_MM = 0.25
 FIRST_PRINT_DRY_ASSEMBLY_SERVICE_CYCLES = 5
 
 
 def first_print_qc_targets(params: dict[str, Any]) -> tuple[FirstPrintQCTarget, ...]:
-    manifest = row_coupon_part_manifest()["installed"]
-    parts = build_row_coupon_service_parts(params, mode="installed")
+    manifest = row_coupon_physical_artifact_manifest(params)
+    parts = build_row_coupon_physical_artifacts(params, assembly_position=True)
     targets: list[FirstPrintQCTarget] = []
-    for name, entry in manifest.items():
-        category = artifact_category(entry["fabrication_source"])
-        if category not in {"printed", "compressible_or_flexible"}:
-            continue
-        bb = parts[name].val().BoundingBox()
+    for row in row_coupon_final_print_piece_plan(params):
+        source = str(row["source_artifact"])
+        entry = manifest[source]
         targets.append(
             FirstPrintQCTarget(
-                name=name,
-                category=category,
+                name=str(row["name"]),
+                category="printed",
+                target_x_mm=float(row["target_x_mm"]),
+                target_y_mm=float(row["target_y_mm"]),
+                target_z_mm=float(row["target_z_mm"]),
+                role=entry["role"],
+            )
+        )
+    for policy in row_coupon_physical_artifact_print_policies(
+        params,
+        bed_x_mm=250.0,
+        bed_y_mm=210.0,
+        fits_rectangular_bed=lambda target_x, target_y, bed_x, bed_y: (
+            target_x <= bed_x
+            and target_y <= bed_y
+            or target_x <= bed_y
+            and target_y <= bed_x
+        ),
+    ):
+        if policy.policy != "nonprinted_or_flexible":
+            continue
+        entry = manifest[policy.name]
+        if artifact_category(entry["fabrication_source"]) != "compressible_or_flexible":
+            continue
+        bb = parts[policy.name].val().BoundingBox()
+        targets.append(
+            FirstPrintQCTarget(
+                name=policy.name,
+                category="compressible_or_flexible",
                 target_x_mm=round(bb.xlen, 2),
                 target_y_mm=round(bb.ylen, 2),
                 target_z_mm=round(bb.zlen, 2),
@@ -283,14 +309,14 @@ def first_print_gate2_dry_assembly_targets(
             ),
         ),
         FirstPrintGate2DryAssemblyTarget(
-            target="Latch asymmetry watch",
+            target="Latch station coverage",
             cad_value=(
                 f"{int(latch_asymmetry['omitted_station_count'])} omitted / "
                 f"{float(latch_asymmetry['max_active_station_span_mm']):.2f} mm "
                 "max span"
             ),
             physical_check=(
-                "inspect wet-frame/lid bow near omitted station before wet tests"
+                "confirm uniform wet-frame/lid seating and clear split/port access"
             ),
         ),
         FirstPrintGate2DryAssemblyTarget(
@@ -307,7 +333,7 @@ def first_print_gate2_dry_assembly_targets(
             target="Latch retention/span evidence",
             cad_value=str(latch_retention["cad_value"]),
             physical_check=(
-                "dry-cycle detent hold, omitted-station bow, post bearing, and "
+                "dry-cycle detent hold, uniform seating, post bearing, and "
                 "gasket squeeze evidence required before wet tests"
             ),
         ),

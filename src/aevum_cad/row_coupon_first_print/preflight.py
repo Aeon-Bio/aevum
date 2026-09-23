@@ -26,12 +26,7 @@ from .common import (
 from .constants import (
     FIRST_PRINT_PHYSICAL_GATES,
     FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_MONOLITHIC,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES,
     FIRST_PRINT_PREFLIGHT_LINK_FIELDS,
-    FIRST_PRINT_SPLIT_PREFLIGHT_LINK_FIELDS,
     FIRST_PRINT_PREFLIGHT_REQUIRED_SESSION_FIELDS,
 )
 from .models import (
@@ -61,7 +56,7 @@ from .gates import (
     audit_first_print_gate5_consumable_puncture_worksheet,
     audit_first_print_gate6_sensor_thermal_worksheet,
     first_print_gate1_qc_worksheet_csv,
-    first_print_y_split_gate1_qc_worksheet_csv,
+    first_print_final_piece_gate1_qc_worksheet_csv,
     first_print_gate2_dry_assembly_worksheet_csv,
     first_print_gate3_placement_worksheet_csv,
     first_print_gate4_wet_dry_witness_worksheet_csv,
@@ -74,18 +69,15 @@ from .install_service import (
 )
 from .slicer_setup import audit_first_print_slicer_setup
 from .bed_fit import (
-    audit_first_print_slicer_bed_fit,
-    audit_first_print_y_split_artifacts,
+    audit_first_print_final_piece_artifacts,
 )
 from .slicer_queue import (
-    audit_first_print_slicer_queue,
     audit_first_print_slicer_queue_manifest,
     first_print_gate1_qc_rows_from_slicer_queue_manifest,
     first_print_package_manifest_markdown,
 )
 from .slicer import (
-    audit_first_print_sliced_outputs,
-    audit_first_print_y_split_sliced_outputs,
+    audit_first_print_final_piece_sliced_outputs,
 )
 
 
@@ -113,13 +105,13 @@ def audit_first_print_preflight(
     queue_dir: str | Path,
     record_path: str | Path,
     root: str | Path,
-    split_dir: str | Path | None = None,
+    piece_dir: str | Path | None = None,
 ) -> FirstPrintPreflightAudit:
     record = Path(record_path)
     root_path = Path(root)
     out_path = Path(out_dir)
-    split_dir_path = (
-        Path(split_dir) if split_dir is not None else out_path / "first_print_y_split_parts"
+    piece_dir_path = (
+        Path(piece_dir) if piece_dir is not None else out_path / "final_print_pieces"
     )
     issues: list[FirstPrintPreflightIssue] = []
 
@@ -148,7 +140,7 @@ def audit_first_print_preflight(
     generated_output_timestamp_matches = not package_audit.ready
     stale_cad_target_sections: tuple[str, ...] = ()
     cad_target_sections_match = False
-    active_queue_mode = ""
+    active_queue_mode = "final_print_pieces"
     if record_text:
         stale_cad_target_sections = tuple(
             section_name
@@ -173,19 +165,6 @@ def audit_first_print_preflight(
                     field=field,
                     message="required session field is blank or missing",
                 )
-        active_queue_mode = _record_table_value(
-            record_text,
-            FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
-        )
-        if active_queue_mode and active_queue_mode not in FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES:
-            _preflight_issue(
-                issues,
-                field=FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
-                message=(
-                    "expected one of "
-                    f"{', '.join(FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES)}"
-                ),
-            )
         for field in FIRST_PRINT_PREFLIGHT_LINK_FIELDS:
             raw_value = _record_table_value(record_text, field)
             if not raw_value:
@@ -225,27 +204,6 @@ def audit_first_print_preflight(
                         f"{expected_params_sha256}"
                     ),
                 )
-
-        if active_queue_mode == FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y:
-            for field in FIRST_PRINT_SPLIT_PREFLIGHT_LINK_FIELDS:
-                raw_value = _record_table_value(record_text, field)
-                if not raw_value:
-                    missing_record_links.append(field)
-                    _preflight_issue(
-                        issues,
-                        field=field,
-                        message="record link is blank or missing",
-                    )
-                    continue
-                linked_path = _markdown_path_value(raw_value, root_path)
-                linked_paths[field] = linked_path
-                if not linked_path.exists():
-                    missing_record_links.append(field)
-                    _preflight_issue(
-                        issues,
-                        field=field,
-                        message=f"linked path does not exist: {linked_path}",
-                    )
 
         record_generated_output_timestamp = _record_table_value(
             record_text,
@@ -303,18 +261,6 @@ def audit_first_print_preflight(
         "Sliced output worksheet",
         root_path / "missing_sliced_outputs.csv",
     )
-    split_slicer_queue_path = linked_paths.get(
-        "Split slicer queue",
-        root_path / "missing_split_slicer_queue",
-    )
-    split_sliced_outputs_path = linked_paths.get(
-        "Split sliced output worksheet",
-        root_path / "missing_split_sliced_outputs.csv",
-    )
-    split_gate1_path = linked_paths.get(
-        "Split Gate 1 QC worksheet",
-        root_path / "missing_split_gate1_qc_worksheet.csv",
-    )
     install_inventory_path = linked_paths.get(
         "Install inventory worksheet",
         root_path / "missing_install_inventory.csv",
@@ -326,71 +272,37 @@ def audit_first_print_preflight(
     slicer_setup_audit = audit_first_print_slicer_setup(
         worksheet_path=slicer_setup_path,
     )
-    use_split_queue = active_queue_mode == FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y
-    if use_split_queue:
-        slicer_queue_audit = audit_first_print_slicer_queue_manifest(
-            split_slicer_queue_path
-        )
-        split_artifact_audit = audit_first_print_y_split_artifacts(
-            params=params,
-            out_dir=out_path,
-            split_dir=split_dir_path,
-            slicer_setup_path=slicer_setup_path,
-        )
-        split_oversized_parts = tuple(
-            row.split_part for row in split_artifact_audit.rows if not row.fits_selected_bed
-        )
-        slicer_bed_fit_ready = split_artifact_audit.split_artifacts_ready
-        slicer_bed_x_mm = split_artifact_audit.bed_x_mm
-        slicer_bed_y_mm = split_artifact_audit.bed_y_mm
-        slicer_bed_oversized_parts = (
-            *split_artifact_audit.missing_oversized_parts,
-            *split_oversized_parts,
-        )
-        sliced_outputs_audit = audit_first_print_y_split_sliced_outputs(
-            params=params,
-            out_dir=out_path,
-            split_dir=split_dir_path,
-            queue_dir=split_slicer_queue_path,
-            slicer_setup_path=slicer_setup_path,
-            worksheet_path=split_sliced_outputs_path,
-            expected_setup_summary=slicer_setup_audit.selected_setup_summary,
-        )
-        gate1_audit = _audit_first_print_gate1_qc_worksheet_from_expected_rows(
-            worksheet_path=split_gate1_path,
-            expected_rows=first_print_gate1_qc_rows_from_slicer_queue_manifest(
-                split_slicer_queue_path
-            ),
-            tolerance_mm=FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM,
-        )
-    else:
-        slicer_queue_audit = audit_first_print_slicer_queue(
-            params=params,
-            out_dir=out_path,
-            queue_dir=queue_dir,
-        )
-        slicer_bed_fit_audit = audit_first_print_slicer_bed_fit(
-            params=params,
-            out_dir=out_path,
-            worksheet_path=slicer_setup_path,
-        )
-        slicer_bed_fit_ready = slicer_bed_fit_audit.bed_fit_ready
-        slicer_bed_x_mm = slicer_bed_fit_audit.bed_x_mm
-        slicer_bed_y_mm = slicer_bed_fit_audit.bed_y_mm
-        slicer_bed_oversized_parts = tuple(
-            item.part for item in slicer_bed_fit_audit.oversized_parts
-        )
-        sliced_outputs_audit = audit_first_print_sliced_outputs(
-            params=params,
-            out_dir=out_path,
-            queue_dir=queue_dir,
-            worksheet_path=sliced_outputs_path,
-            expected_setup_summary=slicer_setup_audit.selected_setup_summary,
-        )
-        gate1_audit = audit_first_print_gate1_qc_worksheet(
-            params=params,
-            worksheet_path=gate1_path,
-        )
+    slicer_queue_audit = audit_first_print_slicer_queue_manifest(queue_dir)
+    final_artifact_audit = audit_first_print_final_piece_artifacts(
+        params=params,
+        out_dir=out_path,
+        piece_dir=piece_dir_path,
+        slicer_setup_path=slicer_setup_path,
+    )
+    final_oversized_parts = tuple(
+        row.split_part for row in final_artifact_audit.rows if not row.fits_selected_bed
+    )
+    slicer_bed_fit_ready = final_artifact_audit.final_piece_artifacts_ready
+    slicer_bed_x_mm = final_artifact_audit.bed_x_mm
+    slicer_bed_y_mm = final_artifact_audit.bed_y_mm
+    slicer_bed_oversized_parts = (
+        *final_artifact_audit.missing_oversized_parts,
+        *final_oversized_parts,
+    )
+    sliced_outputs_audit = audit_first_print_final_piece_sliced_outputs(
+        params=params,
+        out_dir=out_path,
+        piece_dir=piece_dir_path,
+        queue_dir=queue_dir,
+        slicer_setup_path=slicer_setup_path,
+        worksheet_path=sliced_outputs_path,
+        expected_setup_summary=slicer_setup_audit.selected_setup_summary,
+    )
+    gate1_audit = _audit_first_print_gate1_qc_worksheet_from_expected_rows(
+        worksheet_path=gate1_path,
+        expected_rows=first_print_gate1_qc_rows_from_slicer_queue_manifest(queue_dir),
+        tolerance_mm=FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM,
+    )
     gate2_dry_assembly_audit = audit_first_print_gate2_dry_assembly_worksheet(
         params=params,
         worksheet_path=gate2_dry_assembly_path,
@@ -488,10 +400,7 @@ def audit_first_print_preflight(
         _preflight_issue(
             issues,
             field="Slicer bed fit",
-            message=(
-                f"{len(slicer_bed_oversized_parts) or 1} bed-fit issues "
-                f"for active queue mode {active_queue_mode or 'missing'}"
-            ),
+            message=f"{len(slicer_bed_oversized_parts) or 1} final queue bed-fit issues",
         )
     if not sliced_outputs_audit.worksheet_valid:
         _preflight_issue(
@@ -645,11 +554,11 @@ def write_first_print_gate1_qc_worksheet(
     return output
 
 
-def write_first_print_y_split_gate1_qc_worksheet(
+def write_first_print_final_piece_gate1_qc_worksheet(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     output_path: str | Path,
@@ -660,10 +569,10 @@ def write_first_print_y_split_gate1_qc_worksheet(
         raise FileExistsError(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(
-        first_print_y_split_gate1_qc_worksheet_csv(
+        first_print_final_piece_gate1_qc_worksheet_csv(
             params=params,
             out_dir=out_dir,
-            split_dir=split_dir,
+            piece_dir=piece_dir,
             queue_dir=queue_dir,
             slicer_setup_path=slicer_setup_path,
         )
@@ -763,25 +672,14 @@ def scaffold_first_print_measurement_record(
     session_date = date or datetime.now().date().isoformat()
     generated_timestamp = latest_required_artifact_timestamp(audit)
     package_manifest_path = Path(out_dir) / f"{params['name']}_first_print_package_manifest.md"
-    slicer_queue_path = Path(out_dir) / "first_print_slicer_queue"
-    split_slicer_queue_path = Path(out_dir) / "first_print_y_split_slicer_queue"
+    final_slicer_queue_path = Path(out_dir) / "first_print_slicer_queue"
     slicer_setup_path = output.with_name(f"{session_date}_one_row_coupon_slicer_setup.csv")
-    bed_fit_split_plan_path = output.with_name(
-        f"{session_date}_one_row_coupon_bed_fit_split_plan.csv"
+    final_sliced_outputs_path = output.with_name(
+        f"{session_date}_one_row_coupon_final_piece_sliced_outputs.csv"
     )
-    sliced_outputs_path = output.with_name(
-        f"{session_date}_one_row_coupon_sliced_outputs.csv"
+    final_gate1_qc_worksheet_path = output.with_name(
+        f"{session_date}_one_row_coupon_final_piece_gate1_qc.csv"
     )
-    split_sliced_outputs_path = output.with_name(
-        f"{session_date}_one_row_coupon_y_split_sliced_outputs.csv"
-    )
-    split_print_batch_traveler_path = output.with_name(
-        f"{session_date}_one_row_coupon_y_split_print_batch_traveler.csv"
-    )
-    split_gate1_qc_worksheet_path = output.with_name(
-        f"{session_date}_one_row_coupon_y_split_gate1_qc.csv"
-    )
-    gate1_qc_worksheet_path = output.with_name(f"{session_date}_one_row_coupon_gate1_qc.csv")
     gate2_dry_assembly_worksheet_path = output.with_name(
         f"{session_date}_one_row_coupon_gate2_dry_assembly.csv"
     )
@@ -820,23 +718,13 @@ def scaffold_first_print_measurement_record(
     )
     record = _set_empty_table_value(
         record,
-        FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
-        FIRST_PRINT_ACTIVE_QUEUE_MODE_MONOLITHIC,
-    )
-    record = _set_empty_table_value(
-        record,
         "Print/procurement manifest",
         f"`{package_manifest_path}`",
     )
     record = _set_empty_table_value(
         record,
         "Slicer queue",
-        f"`{slicer_queue_path}`",
-    )
-    record = _set_empty_table_value(
-        record,
-        "Split slicer queue",
-        f"`{split_slicer_queue_path}`",
+        f"`{final_slicer_queue_path}`",
     )
     record = _set_empty_table_value(
         record,
@@ -845,33 +733,13 @@ def scaffold_first_print_measurement_record(
     )
     record = _set_empty_table_value(
         record,
-        "Bed-fit split plan",
-        f"`{bed_fit_split_plan_path}`",
-    )
-    record = _set_empty_table_value(
-        record,
         "Sliced output worksheet",
-        f"`{sliced_outputs_path}`",
-    )
-    record = _set_empty_table_value(
-        record,
-        "Split sliced output worksheet",
-        f"`{split_sliced_outputs_path}`",
-    )
-    record = _set_empty_table_value(
-        record,
-        "Split print batch traveler",
-        f"`{split_print_batch_traveler_path}`",
-    )
-    record = _set_empty_table_value(
-        record,
-        "Split Gate 1 QC worksheet",
-        f"`{split_gate1_qc_worksheet_path}`",
+        f"`{final_sliced_outputs_path}`",
     )
     record = _set_empty_table_value(
         record,
         "Gate 1 QC worksheet",
-        f"`{gate1_qc_worksheet_path}`",
+        f"`{final_gate1_qc_worksheet_path}`",
     )
     record = _set_empty_table_value(
         record,

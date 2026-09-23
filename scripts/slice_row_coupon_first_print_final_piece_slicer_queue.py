@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 from aevum_cad.params import ROOT, load_params
-from aevum_cad.row_coupon_first_print import slice_first_print_y_split_slicer_queue
+from aevum_cad.row_coupon_first_print import slice_first_print_final_piece_slicer_queue
 
 
 def _default_output_path() -> Path:
@@ -14,7 +14,7 @@ def _default_output_path() -> Path:
         ROOT
         / "data"
         / "measurements"
-        / f"{today}_one_row_coupon_y_split_sliced_outputs.csv"
+        / f"{today}_one_row_coupon_final_piece_sliced_outputs.csv"
     )
 
 
@@ -32,14 +32,14 @@ def main() -> None:
         help="CAD output directory containing generated production STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -51,13 +51,13 @@ def main() -> None:
     )
     parser.add_argument(
         "--sliced-dir",
-        default=ROOT / "outputs" / "sliced" / "first_print_y_split",
+        default=ROOT / "outputs" / "sliced" / "first_print_final_piece",
         help="Directory to receive sliced G-code files.",
     )
     parser.add_argument(
         "--output",
         default=_default_output_path(),
-        help="Split sliced-output worksheet CSV path to write with hashes.",
+        help="Final-piece sliced-output worksheet CSV path to write with hashes.",
     )
     parser.add_argument(
         "--overwrite",
@@ -67,10 +67,10 @@ def main() -> None:
     args = parser.parse_args()
 
     params = load_params(args.params)
-    rows = slice_first_print_y_split_slicer_queue(
+    rows = slice_first_print_final_piece_slicer_queue(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
         slicer_setup_path=args.slicer_setup,
         sliced_dir=args.sliced_dir,

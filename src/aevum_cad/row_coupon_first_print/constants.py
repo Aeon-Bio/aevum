@@ -54,13 +54,8 @@ FIRST_PRINT_PHYSICAL_GATES = (
     "Gate 5 Consumable And Puncture Link",
     "Gate 6 Sensor And Thermal Link",
 )
-FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD = "Active print queue mode"
-FIRST_PRINT_ACTIVE_QUEUE_MODE_MONOLITHIC = "monolithic"
-FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y = "split_y"
-FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES = (
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_MONOLITHIC,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y,
-)
+FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD = "Final print queue"
+FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES = ("final_print_pieces",)
 FIRST_PRINT_PREFLIGHT_LINK_FIELDS = (
     "Params file",
     "Print/procurement manifest",
@@ -76,12 +71,6 @@ FIRST_PRINT_PREFLIGHT_LINK_FIELDS = (
     "Install inventory worksheet",
     "Service state review worksheet",
 )
-FIRST_PRINT_SPLIT_PREFLIGHT_LINK_FIELDS = (
-    "Split slicer queue",
-    "Split sliced output worksheet",
-    "Split Gate 1 QC worksheet",
-)
 FIRST_PRINT_PREFLIGHT_REQUIRED_SESSION_FIELDS = (
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
     "Printer / material / profile",
 )

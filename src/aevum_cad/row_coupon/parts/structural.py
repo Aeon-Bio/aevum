@@ -1,9 +1,44 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from ..layout import (_compression_stop_positions, _slot_centers, row_coupon_layout)
-from ._geom_base import (_perimeter_rails, _rounded_box)
-from ._shared_tile import (_deck_slot_opening_for_tile, _lid_port_positions, _septum_access_window_for_tile, _well_centers_for_tile)
+
+from ..layout import _compression_stop_positions, _slot_centers, row_coupon_layout
+from ._geom_base import (
+    _fused_z_box,
+    _integral_feature_fusion_overlap_z,
+    _perimeter_rails,
+    _rounded_box,
+)
+from ._shared_tile import (
+    _deck_slot_opening_for_tile,
+    _lid_port_positions,
+    _septum_access_window_for_tile,
+    _well_centers_for_tile,
+)
+
+
+def _cut_rigid_service_clearance(
+    model: cq.Workplane,
+    cutter: cq.Workplane,
+    *,
+    clearance: float,
+) -> cq.Workplane:
+    """Subtract a rigid service body plus bounded Cartesian fit clearance."""
+    expanded = cq.Workplane(obj=cutter.val().copy())
+    for delta in (
+        (clearance, 0.0, 0.0),
+        (-clearance, 0.0, 0.0),
+        (0.0, clearance, 0.0),
+        (0.0, -clearance, 0.0),
+        (0.0, 0.0, clearance),
+        (0.0, 0.0, -clearance),
+    ):
+        expanded = expanded.union(
+            cq.Workplane(obj=cutter.val().copy()).translate(delta)
+        )
+    return model.cut(expanded)
 
 
 def _add_deck_engagement_feet(
@@ -28,16 +63,12 @@ def _add_deck_engagement_feet(
 
     front_left = min(feet, key=lambda foot: (foot["x"], foot["y"]))
 
-    keyed = bool(
-        params.get("production_assembly", {}).get("keyed_joints_enabled", False)
-    )
     return _cut_deck_key_notch(
         model,
         x=front_left["x"] + front_left["length_x"] / 2,
         y=front_left["y"],
         z=-foot_h,
         deck=deck,
-        two_sided=keyed,
     )
 
 
@@ -89,6 +120,12 @@ def _add_latch_tension_posts(
     root_w = production.get("latch_post_root_gusset_width_y", 0.0)
     root_h = min(production.get("latch_post_root_gusset_height_z", 0.0), height)
     wedge_h = production.get("wedge_lock_height_z", 3.0)
+    lower_capture_depth = max(
+        0.0,
+        float(production.get("gasket_capture_depth_z", 0.0)),
+    )
+    pedestal_z = z0 + lower_capture_depth
+    pedestal_h = max(0.2, height - lower_capture_depth)
     frame_bottom_z = bounds["bottom_z"]
     wedge_bottom_z = layout["lid_top_z"] + lid["duct_height_z"]
     head_bottom_z = z0 + (wedge_bottom_z + wedge_h - frame_bottom_z)
@@ -115,8 +152,8 @@ def _add_latch_tension_posts(
                 ped_x = bounds["x"] + bounds["length_x"] - ped_len_x
             pedestal = (
                 cq.Workplane("XY")
-                .box(ped_len_x, pedestal_w, height, centered=(False, False, False))
-                .translate((ped_x, ped_y, z0))
+                .box(ped_len_x, pedestal_w, pedestal_h, centered=(False, False, False))
+                .translate((ped_x, ped_y, pedestal_z))
             )
             head = _rounded_box(
                 head_len_x,
@@ -151,8 +188,8 @@ def _add_latch_tension_posts(
                 ped_y = bounds["y"] + bounds["width_y"] - ped_len_y
             pedestal = (
                 cq.Workplane("XY")
-                .box(pedestal_w, ped_len_y, height, centered=(False, False, False))
-                .translate((ped_x, ped_y, z0))
+                .box(pedestal_w, ped_len_y, pedestal_h, centered=(False, False, False))
+                .translate((ped_x, ped_y, pedestal_z))
             )
             head = _rounded_box(
                 head_w_y,
@@ -245,20 +282,26 @@ def _add_plate_lateral_locator_rails(
     params: dict[str, Any],
     z0: float,
 ) -> cq.Workplane:
+    overlap_z = (
+        float(params["plate_support"].get("land_height_z", 0.0))
+        + _integral_feature_fusion_overlap_z(params)
+    )
     for rail in _plate_lateral_locator_rectangles(
         tile_origins=[tile],
         params=params,
         z0=z0,
     ):
         model = model.union(
-            cq.Workplane("XY")
-            .box(
-                float(rail["length_x"]),
-                float(rail["width_y"]),
-                float(rail["height_z"]),
-                centered=(False, False, False),
+            _fused_z_box(
+                length=float(rail["length_x"]),
+                width=float(rail["width_y"]),
+                height=float(rail["height_z"]),
+                x=float(rail["x"]),
+                y=float(rail["y"]),
+                z=float(rail["z"]),
+                overlap_z=overlap_z,
+                into="down",
             )
-            .translate((float(rail["x"]), float(rail["y"]), float(rail["z"])))
         )
     return model
 
@@ -266,6 +309,7 @@ def _add_plate_lateral_locator_rails(
 def _add_plate_support_lands(
     model: cq.Workplane,
     *,
+    params: dict[str, Any],
     x0: float,
     y0: float,
     plate_len: float,
@@ -280,11 +324,19 @@ def _add_plate_support_lands(
         (x0, y0 + land_w, land_w, plate_wid - 2 * land_w),
         (x0 + plate_len - land_w, y0 + land_w, land_w, plate_wid - 2 * land_w),
     ]
+    overlap_z = _integral_feature_fusion_overlap_z(params)
     for x, y, length, width in lands:
         model = model.union(
-            cq.Workplane("XY")
-            .box(length, width, land_h, centered=(False, False, False))
-            .translate((x, y, z0))
+            _fused_z_box(
+                length=length,
+                width=width,
+                height=land_h,
+                x=x,
+                y=y,
+                z=z0,
+                overlap_z=overlap_z,
+                into="down",
+            )
         )
     return model
 
@@ -484,22 +536,7 @@ def _cut_deck_key_notch(
     y: float,
     z: float,
     deck: dict[str, Any],
-    two_sided: bool = False,
 ) -> cq.Workplane:
-    if two_sided:
-        # Printed two-sided datum channel: two opposing -Y/+Y PLANE walls separated by
-        # exactly key_notch_depth_y bound the pod foot in Y (locating it to the OT-2 deck
-        # slot edge). X width unchanged; Z overcut by 0.1 keeps the cut penetrating.
-        return model.cut(
-            cq.Workplane("XY")
-            .box(
-                deck["key_notch_width_x"],
-                deck["key_notch_depth_y"],
-                deck["key_notch_depth_z"] + 0.1,
-                centered=(True, False, False),
-            )
-            .translate((x, y, z - 0.05))
-        )
     return model.cut(
         cq.Workplane("XY")
         .box(
@@ -729,6 +766,16 @@ def _deck_engagement_foot_rectangles(
         ]
         for x in x_values:
             for y in y_values:
+                # Keep the lower service connector/shroud lane clear without
+                # changing the other 15 OT-2 deck datums.  The pod-frame key
+                # rectangles are derived from these same feet, so registration
+                # follows this deliberately local move.
+                if (
+                    int(tile["index"]) == int(params["row"]["plate_count"])
+                    and x == min(x_values)
+                    and y == max(y_values)
+                ):
+                    x += float(deck.get("lower_service_foot_inset_x", 0.0))
                 feet.append(
                     {
                         "tile_index": tile["index"],
@@ -1014,7 +1061,16 @@ def build_lid_cover(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_add_gas_sensor_pcb_sockets, _add_lid_cover_tongue, _add_sample_relief_leak_witness_features, _add_side_gas_service_features, _add_wedge_receiver_rails, _cut_lid_sensor_harness_channels)
+    from aevum_cad.row_coupon import (
+        _add_gas_sensor_pcb_sockets,
+        _add_sample_relief_leak_witness_features,
+        _add_side_gas_service_features,
+        _add_wedge_receiver_rails,
+        _cut_lid_cover_tongue_groove,
+        _cut_lid_sensor_harness_channels,
+    )
+
+    from .gas_pcb import _sensor_chip_marker_for_mount
     layout = row_coupon_layout(params)
     seal = params["seal_interface"]
     lid = params["lid_manifold"]
@@ -1065,8 +1121,6 @@ def build_lid_cover(
     if cover is None:
         raise ValueError("lid cover requires at least one segment")
 
-    cover = _add_lid_cover_tongue(cover, params=params, z0=z0)
-
     for port in _lid_port_positions(layout, params):
         cover = _add_lid_port_interface(cover, port, params=params, layout=layout, z0=z0)
         cover = cover.cut(
@@ -1114,7 +1168,45 @@ def build_lid_cover(
         owner_part="lid_cover",
         assembly_position=assembly_position,
     )
-    return cover
+    # The connector carrier boards seat on the manifold-shell datum while the
+    # duct cover surrounds them.  Re-cut their complete keyed envelopes after
+    # every cover-side union so the boards and plugs can actually be inserted
+    # and unmated along +Y.
+    connector_clearance = float(params["sensor_harness"]["channel_clearance_xy"])
+    connector_z_shift = 0.0 if assembly_position else -layout["lid_top_z"]
+    for connector in layout["lid_service_connector_envelopes"]:
+        cover = cover.cut(
+            cq.Workplane("XY")
+            .box(
+                float(connector["length_x"]) + 2 * connector_clearance,
+                float(connector["width_y"]) + 2 * connector_clearance,
+                float(connector["height_z"]) + 0.2,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    float(connector["x"]) - connector_clearance,
+                    float(connector["y"]) - connector_clearance,
+                    float(connector["z"]) + connector_z_shift - 0.1,
+                )
+            )
+        )
+    pcb_clearance = float(
+        params.get("sensor_mounts", {}).get("gas_pcb_socket_clearance_xy", 0.2)
+    )
+    for mount in layout["gas_sensor_pcb_mounts"]:
+        marker = _sensor_chip_marker_for_mount(
+            mount,
+            z=float(mount["z"]) + connector_z_shift,
+        )
+        cover = _cut_rigid_service_clearance(
+            cover,
+            marker,
+            clearance=pcb_clearance,
+        )
+    # Cut the female interface after every cover-side union so port bosses,
+    # compression stops, and receiver rails cannot refill the groove.
+    return _cut_lid_cover_tongue_groove(cover, params=params, z0=z0)
 
 
 def build_lid_manifold_shell(
@@ -1122,7 +1214,15 @@ def build_lid_manifold_shell(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_add_gasket_tab_leak_witness_features, _add_headspace_sht41_sockets, _add_lid_frame_keys, _cut_gasket_capture_groove, _cut_lid_cover_tongue_groove, _cut_lid_sensor_harness_channels)
+    from aevum_cad.row_coupon import (
+        _add_gasket_tab_leak_witness_features,
+        _add_headspace_sht41_sockets,
+        _add_lid_shell_tongue,
+        _cut_gasket_capture_groove,
+        _cut_lid_sensor_harness_channels,
+    )
+
+    from .gas_pcb import _sensor_chip_marker_for_mount
     layout = row_coupon_layout(params)
     seal = params["seal_interface"]
     lid = params["lid_manifold"]
@@ -1219,15 +1319,17 @@ def build_lid_manifold_shell(
         z0=z0,
         from_side="bottom",
     )
-    model = _add_lid_frame_keys(model, params=params, z0=z0)
     model = _add_gasket_tab_leak_witness_features(
         model,
         params=params,
         owner_part="lid_manifold_shell",
         z_shift=0.0 if assembly_position else -layout["lid_bottom_z"],
     )
-    model = _cut_lid_cover_tongue_groove(model, params=params, z0=z0)
-
+    model = _add_lid_shell_tongue(
+        model,
+        params=params,
+        z0=z0 + lid["thickness_z"],
+    )
     for tile in layout["tile_origins"]:
         if layout["row_axis"] == "x":
             x_center = tile["x"] + plate["length_x"] / 2
@@ -1288,12 +1390,76 @@ def build_lid_manifold_shell(
         params=params,
         assembly_position=assembly_position,
     )
+    # These are release-critical voids.  Apply them after every tongue, socket,
+    # and diffuser operation so later unions cannot silently refill the cable
+    # or connector passages in the body that is actually exported.
+    model = _cut_lid_sensor_harness_channels(
+        model,
+        params=params,
+        owner_part="lid_cover",
+        assembly_position=assembly_position,
+        fabrication_origin_z=layout["lid_bottom_z"],
+        cut_through_top=True,
+    )
+    connector_clearance = float(params["sensor_harness"]["channel_clearance_xy"])
+    connector_z_shift = 0.0 if assembly_position else -layout["lid_bottom_z"]
+    for connector in layout["lid_service_connector_envelopes"]:
+        board = connector["board_rect"]
+        model = model.cut(
+            cq.Workplane("XY")
+            .box(
+                float(board["length_x"]) + 2 * connector_clearance,
+                float(board["width_y"]) + 2 * connector_clearance,
+                float(board["height_z"]) + 0.1,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    float(board["x"]) - connector_clearance,
+                    float(board["y"]) - connector_clearance,
+                    float(board["z"]) + connector_z_shift - 0.05,
+                )
+            )
+        )
     model = _cut_lid_sensor_harness_channels(
         model,
         params=params,
         owner_part="lid_manifold_shell",
         assembly_position=assembly_position,
     )
+    # The vertical gas-PCB cassettes cross the shell/cover seam.  Clear the
+    # rigid cartridge envelope from any tongue or socket material added late in
+    # this builder while retaining the surrounding perimeter rails.
+    pcb_clearance = float(
+        params.get("sensor_mounts", {}).get("gas_pcb_socket_clearance_xy", 0.2)
+    )
+    pcb_z_shift = 0.0 if assembly_position else -layout["lid_bottom_z"]
+    for mount in layout["gas_sensor_pcb_mounts"]:
+        model = model.cut(
+            cq.Workplane("XY")
+            .box(
+                float(mount["length_x"]) + 2 * pcb_clearance,
+                float(mount["width_y"]) + 2 * pcb_clearance,
+                float(mount["height_z"]) + 0.2,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    float(mount["x"]) - pcb_clearance,
+                    float(mount["y"]) - pcb_clearance,
+                    float(mount["z"]) + pcb_z_shift - 0.1,
+                )
+            )
+        )
+        marker = _sensor_chip_marker_for_mount(
+            mount,
+            z=float(mount["z"]) + pcb_z_shift,
+        )
+        model = _cut_rigid_service_clearance(
+            model,
+            marker,
+            clearance=pcb_clearance,
+        )
     return model
 
 
@@ -1306,7 +1472,19 @@ def build_microplates(
     plate = params["plate"]
     z0 = layout["plate_bottom_z"] if assembly_position else 0.0
     sidewall_w = plate["sidewall_thickness"]
-    window_h = plate["bottom_window_thickness_z"]
+    # The plate's glass bottom is the #1.5H coverslip bonded across the
+    # observation window -- NOT a separate slab at the plate underside. The
+    # published profile closes exactly on this: bottom_height_z (1.73) +
+    # coverslip_thickness_z (0.17) = 1.90 = height_z (14.30) -
+    # plate_top_to_cell_plane_depth_z (12.40). A second glass layer overshoots
+    # the published cell plane by exactly its own thickness. Below the
+    # coverslip the window is OPEN AIR, which is what the Stage-0 bench cradle
+    # is built to preserve ("nothing under any well, skirt flange only",
+    # docs/engineering/observer_optical_bench.md). Optically this matters: the
+    # objective is corrected for 0.17 mm of cover glass, and only 0.17 mm is
+    # what it actually sees.
+    window_h = plate["coverslip_thickness_z"]
+    window_z0 = plate["bottom_height_z"]
     top_recess_h = plate.get("well_top_recess_depth_z", 0.0)
     well_opening_d = plate.get("upper_well_diameter", 0.0)
 
@@ -1332,7 +1510,7 @@ def build_microplates(
                 (
                     tile["x"] + plate["length_x"] / 2,
                     tile["y"] + plate["width_y"] / 2,
-                    z0,
+                    z0 + window_z0,
                 )
             )
         )
@@ -1371,7 +1549,18 @@ def build_microplates(
 
 
 def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_add_dry_bay_aperture_thresholds, _add_gasket_tab_leak_witness_features, _add_ir_aperture_drip_collars, _add_ir_sensor_retention_lips, _cut_dry_bay, _cut_gasket_capture_groove, _cut_ir_sensor_pockets_and_apertures, _cut_lid_frame_key_pockets, _cut_lower_sensor_harness_channels, _cut_observer_fiducials, _cut_wet_dry_witness_gutters)
+    from aevum_cad.row_coupon import (
+        _add_dry_bay_aperture_thresholds,
+        _add_gasket_tab_leak_witness_features,
+        _add_ir_aperture_drip_collars,
+        _add_ir_sensor_retention_lips,
+        _cut_dry_bay,
+        _cut_gasket_capture_groove,
+        _cut_ir_sensor_pockets_and_apertures,
+        _cut_lower_sensor_harness_channels,
+        _cut_observer_fiducials,
+        _cut_wet_dry_witness_gutters,
+    )
     layout = row_coupon_layout(params)
     base = params["base"]
     plate = params["plate"]
@@ -1392,6 +1581,7 @@ def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
         y0 = tile["y"]
         model = _add_plate_support_lands(
             model,
+            params=params,
             x0=x0,
             y0=y0,
             plate_len=plate_len,
@@ -1441,10 +1631,17 @@ def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
         owner_part="plate_support_frame",
     )
     model = _cut_pod_frame_key_pockets(model, params)
-    model = _cut_lid_frame_key_pockets(model, params=params, z0=base_h)
     model = _cut_ir_sensor_pockets_and_apertures(model, params=params)
     model = _add_ir_aperture_drip_collars(model, params=params)
     model = _cut_lower_sensor_harness_channels(model, params=params)
+    from .harness import (
+        _cut_lower_cover_hook_receptacles,
+        _cut_lower_shroud_mount_receptacles,
+    )
+
+    model = _cut_lower_cover_hook_receptacles(model, params=params)
+    model = _cut_lower_shroud_mount_receptacles(model, params=params)
+    model = _cut_lower_gasket_service_tab_access(model, params=params)
     model = _add_ir_sensor_retention_lips(model, params=params)
     model = _cut_gasket_capture_groove(
         model,
@@ -1452,6 +1649,40 @@ def build_plate_support_frame(params: dict[str, Any]) -> cq.Workplane:
         z0=base_h,
         from_side="top",
     )
+    return model
+
+
+def _cut_lower_gasket_service_tab_access(
+    model: cq.Workplane,
+    *,
+    params: dict[str, Any],
+) -> cq.Workplane:
+    """Clear the support-side half of both removable lower-gasket tabs."""
+
+    layout = row_coupon_layout(params)
+    seal = params["seal_interface"]
+    production = params.get("production_assembly", {})
+    tab_len = float(production.get("gasket_service_tab_length_x", 0.0))
+    tab_depth = float(production.get("gasket_service_tab_depth_y", 0.0))
+    clearance = float(production.get("gasket_service_tab_access_clearance_xy", 0.0))
+    depth = float(production.get("gasket_service_tab_access_depth_z", 0.0))
+    if min(tab_len, tab_depth, depth) <= 0:
+        return model
+
+    x = (float(layout["length_x"]) - tab_len) / 2
+    rail_w = float(seal["gasket_rail_width"])
+    gasket_z = float(layout["base_top_z"]) - float(seal["compressed_gasket_height_z"]) / 2
+    for y in (rail_w, float(layout["width_y"]) - rail_w - tab_depth):
+        model = model.cut(
+            cq.Workplane("XY")
+            .box(
+                tab_len + 2 * clearance,
+                tab_depth + 2 * clearance,
+                depth + 0.05,
+                centered=(False, False, False),
+            )
+            .translate((x - clearance, y - clearance, gasket_z - 0.05))
+        )
     return model
 
 
@@ -1503,7 +1734,7 @@ def build_wet_chamber_skirt(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_cut_gasket_capture_groove)
+    from aevum_cad.row_coupon import _cut_gasket_capture_groove
     layout = row_coupon_layout(params)
     skirt = params["wet_chamber_skirt"]
     bounds = layout["wet_chamber_skirt"]
@@ -1521,18 +1752,6 @@ def build_wet_chamber_skirt(
     radius = skirt.get("corner_radius", 0.0)
     if radius > 0:
         model = model.edges("|Z").fillet(radius)
-    model = _cut_gasket_capture_groove(
-        model,
-        params=params,
-        z0=z0,
-        from_side="bottom",
-    )
-    model = _cut_gasket_capture_groove(
-        model,
-        params=params,
-        z0=z0 + bounds["height_z"],
-        from_side="top",
-    )
     model = _cut_condensation_pockets(model, params=params, z0=z0)
     model = _add_wet_chamber_service_dividers(
         model,
@@ -1547,5 +1766,19 @@ def build_wet_chamber_skirt(
         params=params,
         z0=z0,
         height=bounds["height_z"],
+    )
+    # Capture grooves are the final interface operation.  Later divider/post
+    # unions must not refill either continuous gasket band.
+    model = _cut_gasket_capture_groove(
+        model,
+        params=params,
+        z0=z0,
+        from_side="bottom",
+    )
+    model = _cut_gasket_capture_groove(
+        model,
+        params=params,
+        z0=z0 + bounds["height_z"],
+        from_side="top",
     )
     return model

@@ -2,7 +2,7 @@
 
 Includes the two helpers (``_first_print_print_batch_traveler_row_dict`` /
 ``first_print_print_batch_traveler_csv``) that were physically interleaved into the slicer block in
-the monolith. Imports the gate1 + sliced-output y-split audits it chains from ``gates`` / ``slicer``
+the monolith. Imports the gate1 + sliced-output final-piece audits it chains from ``gates`` / ``slicer``
 (one-directional traveler -> slicer/gates edge). Function bodies stay byte-identical.
 """
 
@@ -18,8 +18,8 @@ from .common import (
     _csv_rows_from_path,
     _worksheet_evidence_file_error,
 )
-from .gates import audit_first_print_y_split_gate1_qc_worksheet
-from .slicer import audit_first_print_y_split_sliced_outputs
+from .gates import audit_first_print_final_piece_gate1_qc_worksheet
+from .slicer import audit_first_print_final_piece_sliced_outputs
 from .models import (
     FirstPrintPrintBatchTravelerRow,
     FirstPrintPrintBatchTravelerIssue,
@@ -117,11 +117,11 @@ def first_print_print_batch_traveler_rows(
     return tuple(rows)
 
 
-def write_first_print_y_split_print_batch_traveler(
+def write_first_print_final_piece_print_batch_traveler(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     sliced_output_path: str | Path,
@@ -130,10 +130,10 @@ def write_first_print_y_split_print_batch_traveler(
     expected_setup_summary: str = "",
     overwrite: bool = False,
 ) -> Path:
-    sliced_audit = audit_first_print_y_split_sliced_outputs(
+    sliced_audit = audit_first_print_final_piece_sliced_outputs(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         worksheet_path=sliced_output_path,
@@ -141,10 +141,10 @@ def write_first_print_y_split_print_batch_traveler(
     )
     if not sliced_audit.sliced_outputs_ready:
         raise ValueError("split sliced outputs are not print-ready")
-    gate1_audit = audit_first_print_y_split_gate1_qc_worksheet(
+    gate1_audit = audit_first_print_final_piece_gate1_qc_worksheet(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         worksheet_path=gate1_qc_path,
@@ -180,11 +180,11 @@ def _print_batch_traveler_issue(
     )
 
 
-def audit_first_print_y_split_print_batch_traveler(
+def audit_first_print_final_piece_print_batch_traveler(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     sliced_output_path: str | Path,
@@ -192,19 +192,19 @@ def audit_first_print_y_split_print_batch_traveler(
     worksheet_path: str | Path,
     expected_setup_summary: str = "",
 ) -> FirstPrintPrintBatchTravelerAudit:
-    sliced_audit = audit_first_print_y_split_sliced_outputs(
+    sliced_audit = audit_first_print_final_piece_sliced_outputs(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         worksheet_path=sliced_output_path,
         expected_setup_summary=expected_setup_summary,
     )
-    gate1_audit = audit_first_print_y_split_gate1_qc_worksheet(
+    gate1_audit = audit_first_print_final_piece_gate1_qc_worksheet(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         worksheet_path=gate1_qc_path,
@@ -223,14 +223,14 @@ def audit_first_print_y_split_print_batch_traveler(
         _print_batch_traveler_issue(
             issues,
             part="worksheet",
-            field="Split sliced output worksheet",
+            field="Final sliced output worksheet",
             message="split sliced outputs are not print-ready",
         )
     if not gate1_audit.worksheet_valid:
         _print_batch_traveler_issue(
             issues,
             part="worksheet",
-            field="Split Gate 1 QC worksheet",
+            field="Final Gate 1 QC worksheet",
             message="split Gate 1 QC worksheet is not valid",
         )
     if not worksheet.exists():

@@ -7,7 +7,7 @@ from pathlib import Path
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon_first_print import (
     first_print_record_table_value,
-    write_first_print_y_split_sliced_outputs,
+    write_first_print_final_piece_sliced_outputs,
 )
 
 
@@ -17,7 +17,7 @@ def _default_output_path() -> Path:
         ROOT
         / "data"
         / "measurements"
-        / f"{today}_one_row_coupon_y_split_sliced_outputs.csv"
+        / f"{today}_one_row_coupon_final_piece_sliced_outputs.csv"
     )
 
 
@@ -40,14 +40,14 @@ def main() -> None:
         help="CAD output directory containing generated STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -60,7 +60,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         default=_default_output_path(),
-        help="Split sliced-output worksheet CSV path to create.",
+        help="Final-piece sliced-output worksheet CSV path to create.",
     )
     parser.add_argument(
         "--record",
@@ -75,7 +75,7 @@ def main() -> None:
     parser.add_argument(
         "--overwrite",
         action="store_true",
-        help="Replace an existing split sliced-output worksheet.",
+        help="Replace an existing final-piece sliced-output worksheet.",
     )
     args = parser.parse_args()
 
@@ -84,10 +84,10 @@ def main() -> None:
         args.record,
         "Printer / material / profile",
     )
-    output = write_first_print_y_split_sliced_outputs(
+    output = write_first_print_final_piece_sliced_outputs(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
         slicer_setup_path=args.slicer_setup,
         output_path=args.output,

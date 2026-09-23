@@ -5,7 +5,7 @@ import argparse
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon import (
     export_row_coupon,
-    export_row_coupon_production_y_split_parts,
+    export_row_coupon_final_print_pieces,
     export_row_coupon_validation_tools,
     row_coupon_layout,
 )
@@ -23,9 +23,9 @@ def main() -> None:
 
     params = load_params(args.params)
     paths = export_row_coupon(params, ROOT / "outputs" / "cad")
-    split_paths = export_row_coupon_production_y_split_parts(
+    final_piece_paths = export_row_coupon_final_print_pieces(
         params,
-        ROOT / "outputs" / "cad" / "first_print_y_split_parts",
+        ROOT / "outputs" / "cad" / "final_print_pieces",
     )
     validation_paths = export_row_coupon_validation_tools(params, ROOT / "outputs" / "cad")
     layout = row_coupon_layout(params)
@@ -37,8 +37,8 @@ def main() -> None:
     )
     for kind, path in paths.items():
         print(f"{kind}: {path}")
-    for kind, path in split_paths.items():
-        print(f"split_{kind}: {path}")
+    for kind, path in final_piece_paths.items():
+        print(f"final_piece_{kind}: {path}")
     for kind, path in validation_paths.items():
         print(f"validation_{kind}: {path}")
 

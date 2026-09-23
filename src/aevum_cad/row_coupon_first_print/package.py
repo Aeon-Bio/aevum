@@ -7,12 +7,17 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from aevum_cad.row_coupon import row_coupon_part_manifest
+from aevum_cad.row_coupon import (
+    row_coupon_final_print_piece_plan,
+    row_coupon_part_manifest,
+    row_coupon_physical_artifact_manifest,
+    row_coupon_physical_artifact_print_policies,
+)
 
 from .common import file_sha256  # noqa: F401  (re-exported via facade)
 from .constants import (
-    FIRST_PRINT_REQUIRED_VALIDATION_CHECKS,
     FIRST_PRINT_OPTIONAL_VALIDATION_TOOLS,
+    FIRST_PRINT_REQUIRED_VALIDATION_CHECKS,
 )
 from .models import (
     FirstPrintArtifact,
@@ -48,20 +53,49 @@ def expected_production_artifacts(
 ) -> tuple[FirstPrintArtifact, ...]:
     out = Path(out_dir)
     prefix = params["name"]
-    manifest = row_coupon_part_manifest()
+    manifest = row_coupon_physical_artifact_manifest(params)
     artifacts: list[FirstPrintArtifact] = []
-    for name, entry in manifest["installed"].items():
-        stl_path = out / f"{prefix}_{name}.stl"
-        step_path = out / f"{prefix}_{name}.step"
-        fabrication_source = entry["fabrication_source"]
+    for row in row_coupon_final_print_piece_plan(params):
+        name = str(row["name"])
+        source = str(row["source_artifact"])
+        entry = manifest[source]
+        stl_path = out / "final_print_pieces" / f"{prefix}_{name}.stl"
+        step_path = out / "final_print_pieces" / f"{prefix}_{name}.step"
         artifacts.append(
             FirstPrintArtifact(
                 name=name,
-                category=artifact_category(fabrication_source),
+                category="printed",
                 stl_path=stl_path,
                 step_path=step_path,
                 stl_exists=stl_path.exists(),
                 step_exists=step_path.exists(),
+                fabrication_source=entry["fabrication_source"],
+                role=entry["role"],
+            )
+        )
+    for policy in row_coupon_physical_artifact_print_policies(
+        params,
+        bed_x_mm=250.0,
+        bed_y_mm=210.0,
+        fits_rectangular_bed=lambda target_x, target_y, bed_x, bed_y: (
+            target_x <= bed_x
+            and target_y <= bed_y
+            or target_x <= bed_y
+            and target_y <= bed_x
+        ),
+    ):
+        if policy.policy != "nonprinted_or_flexible":
+            continue
+        entry = manifest[policy.name]
+        fabrication_source = entry["fabrication_source"]
+        artifacts.append(
+            FirstPrintArtifact(
+                name=policy.name,
+                category=artifact_category(fabrication_source),
+                stl_path=out / f"{prefix}_{policy.name}.stl",
+                step_path=out / f"{prefix}_{policy.name}.step",
+                stl_exists=(out / f"{prefix}_{policy.name}.stl").exists(),
+                step_exists=(out / f"{prefix}_{policy.name}.step").exists(),
                 fabrication_source=fabrication_source,
                 role=entry["role"],
             )

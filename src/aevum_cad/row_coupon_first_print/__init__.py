@@ -17,12 +17,13 @@ from typing import Any
 from aevum_cad.row_coupon import (
     ROW_COUPON_SERVICE_MODES,
     build_row_coupon_installed_parts,
-    build_row_coupon_production_y_split_parts,
+    build_row_coupon_final_print_pieces,
     build_row_coupon_service_parts,
     build_row_coupon_service_parts_from_installed,
     row_coupon_layout,
     row_coupon_part_manifest,
-    row_coupon_production_y_split_plan,
+    realize_row_coupon_final_print_pieces,
+    row_coupon_final_print_piece_plan,
 )
 
 from .constants import (  # noqa: F401
@@ -31,11 +32,8 @@ from .constants import (  # noqa: F401
     FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM,
     FIRST_PRINT_PHYSICAL_GATES,
     FIRST_PRINT_ACTIVE_QUEUE_MODE_FIELD,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_MONOLITHIC,
-    FIRST_PRINT_ACTIVE_QUEUE_MODE_SPLIT_Y,
     FIRST_PRINT_ACTIVE_QUEUE_MODE_VALUES,
     FIRST_PRINT_PREFLIGHT_LINK_FIELDS,
-    FIRST_PRINT_SPLIT_PREFLIGHT_LINK_FIELDS,
     FIRST_PRINT_PREFLIGHT_REQUIRED_SESSION_FIELDS,
 )
 from .models import (  # noqa: F401
@@ -105,9 +103,9 @@ from .models import (  # noqa: F401
     FirstPrintBedFitSplitPlanRow,
     FirstPrintBedFitSplitPlanIssue,
     FirstPrintBedFitSplitPlanAudit,
-    FirstPrintYSplitArtifactRow,
-    FirstPrintYSplitArtifactIssue,
-    FirstPrintYSplitArtifactAudit,
+    FirstPrintFinalPieceArtifactRow,
+    FirstPrintFinalPieceArtifactIssue,
+    FirstPrintFinalPieceArtifactAudit,
     FirstPrintPreflightIssue,
     FirstPrintPreflightAudit,
 )
@@ -180,13 +178,13 @@ from .gates import (  # noqa: F401  (facade re-export of extracted gate1-6 works
     first_print_gate1_qc_worksheet_rows,
     _first_print_gate1_qc_worksheet_csv_from_rows,
     first_print_gate1_qc_worksheet_csv,
-    first_print_y_split_gate1_qc_worksheet_rows,
-    first_print_y_split_gate1_qc_worksheet_csv,
+    first_print_final_piece_gate1_qc_worksheet_rows,
+    first_print_final_piece_gate1_qc_worksheet_csv,
     _parse_gate1_float,
     _gate1_issue,
     _gate1_measurement_fields_filled,
     audit_first_print_gate1_qc_worksheet,
-    audit_first_print_y_split_gate1_qc_worksheet,
+    audit_first_print_final_piece_gate1_qc_worksheet,
     _audit_first_print_gate1_qc_worksheet_from_expected_rows,
     first_print_gate2_dry_assembly_worksheet_rows,
     first_print_gate2_dry_assembly_worksheet_csv,
@@ -269,7 +267,7 @@ from .slicer_setup import (  # noqa: F401  (facade re-export of extracted slicer
 )
 
 
-from .bed_fit import (  # noqa: F401  (facade re-export of extracted bed-fit/split-plan/y-split audits)
+from .bed_fit import (  # noqa: F401  (facade re-export of extracted bed-fit/split-plan/final-piece audits)
     FIRST_PRINT_BED_FIT_SPLIT_PLAN_FIELDNAMES,
     FIRST_PRINT_BED_FIT_SPLIT_PLAN_RESULT_VALUES,
     _slicer_profile_source_candidates,
@@ -283,9 +281,9 @@ from .bed_fit import (  # noqa: F401  (facade re-export of extracted bed-fit/spl
     write_first_print_bed_fit_split_plan,
     _split_plan_issue,
     audit_first_print_bed_fit_split_plan,
-    first_print_y_split_artifact_rows,
-    _y_split_artifact_issue,
-    audit_first_print_y_split_artifacts,
+    first_print_final_piece_artifact_rows,
+    _final_piece_artifact_issue,
+    audit_first_print_final_piece_artifacts,
 )
 
 
@@ -300,10 +298,10 @@ from .slicer_queue import (  # noqa: F401  (facade re-export of extracted slicer
     first_print_sliced_output_rows_from_slicer_queue_manifest,
     first_print_gate1_qc_rows_from_slicer_queue_manifest,
     prepare_first_print_slicer_queue,
-    first_print_y_split_slicer_queue_items,
-    prepare_first_print_y_split_slicer_queue,
+    first_print_final_piece_slicer_queue_items,
+    prepare_first_print_final_piece_slicer_queue,
     audit_first_print_slicer_queue,
-    audit_first_print_y_split_slicer_queue,
+    audit_first_print_final_piece_slicer_queue,
 )
 
 
@@ -312,17 +310,17 @@ from .slicer import (  # noqa: F401  (facade re-export of extracted sliced-outpu
     FIRST_PRINT_SLICED_OUTPUT_RESULT_VALUES,
     FIRST_PRINT_SLICED_OUTPUT_SUFFIXES,
     first_print_sliced_output_rows,
-    first_print_y_split_sliced_output_rows,
+    first_print_final_piece_sliced_output_rows,
     first_print_sliced_output_csv,
     write_first_print_sliced_outputs,
-    write_first_print_y_split_sliced_outputs,
+    write_first_print_final_piece_sliced_outputs,
     _selected_first_print_slicer_setup_or_raise,
     _prusa_slicer_datadir,
     _run_prusa_slicer_gcode_export,
-    slice_first_print_y_split_slicer_queue,
+    slice_first_print_final_piece_slicer_queue,
     _sliced_output_issue,
     audit_first_print_sliced_outputs,
-    audit_first_print_y_split_sliced_outputs,
+    audit_first_print_final_piece_sliced_outputs,
     _audit_first_print_sliced_outputs_from_expected_rows,
 )
 
@@ -333,27 +331,27 @@ from .traveler import (  # noqa: F401  (facade re-export of extracted print-batc
     _first_print_print_batch_traveler_row_dict,
     first_print_print_batch_traveler_csv,
     first_print_print_batch_traveler_rows,
-    write_first_print_y_split_print_batch_traveler,
+    write_first_print_final_piece_print_batch_traveler,
     _print_batch_traveler_issue,
-    audit_first_print_y_split_print_batch_traveler,
+    audit_first_print_final_piece_print_batch_traveler,
 )
 
 
 from .readiness import (  # noqa: F401  (facade re-export of extracted Gate 1-6 readiness chain)
     _gate1_print_qc_issue,
-    audit_first_print_y_split_gate1_print_qc,
+    audit_first_print_final_piece_gate1_print_qc,
     _gate2_dry_assembly_readiness_issue,
-    audit_first_print_y_split_gate2_dry_assembly_readiness,
+    audit_first_print_final_piece_gate2_dry_assembly_readiness,
     _gate3_placement_readiness_issue,
-    audit_first_print_y_split_gate3_placement_readiness,
+    audit_first_print_final_piece_gate3_placement_readiness,
     _gate4_wet_dry_witness_readiness_issue,
-    audit_first_print_y_split_gate4_wet_dry_witness_readiness,
+    audit_first_print_final_piece_gate4_wet_dry_witness_readiness,
     _gate5_consumable_puncture_readiness_issue,
-    audit_first_print_y_split_gate5_consumable_puncture_readiness,
+    audit_first_print_final_piece_gate5_consumable_puncture_readiness,
     _gate6_sensor_thermal_readiness_issue,
-    audit_first_print_y_split_gate6_sensor_thermal_readiness,
+    audit_first_print_final_piece_gate6_sensor_thermal_readiness,
     _operating_prototype_acceptance_issue,
-    audit_first_print_y_split_operating_prototype_acceptance,
+    audit_first_print_final_piece_operating_prototype_acceptance,
 )
 
 
@@ -362,7 +360,7 @@ from .preflight import (  # noqa: F401  (facade re-export of extracted preflight
     audit_first_print_preflight,
     write_first_print_package_manifest,
     write_first_print_gate1_qc_worksheet,
-    write_first_print_y_split_gate1_qc_worksheet,
+    write_first_print_final_piece_gate1_qc_worksheet,
     write_first_print_gate2_dry_assembly_worksheet,
     write_first_print_gate3_placement_worksheet,
     write_first_print_gate4_wet_dry_witness_worksheet,

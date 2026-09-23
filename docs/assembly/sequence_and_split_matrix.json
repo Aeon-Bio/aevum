@@ -1,0 +1,335 @@
+{
+  "schema_version": 1,
+  "registry_id": "aevum_one_row_coupon_sequence_and_split_matrix",
+  "authority": {
+    "artifact_registry": "docs/assembly/artifact_authority.json",
+    "installed_part_reader": "src/aevum_cad/row_coupon/assembly.py::build_row_coupon_installed_parts",
+    "split_reader": "src/aevum_cad/row_coupon/final_print_pieces.py::_realize_row_coupon_final_print_pieces",
+    "scope": "map-only assembly readiness; this file does not approve geometry, materials, or physical operation",
+    "status_rule": "modeled seams remain physically gated until dry-fit, load, cycle, and leak evidence exists"
+  },
+  "counts": {
+    "release_bodies": 46,
+    "canonical_sources": 38,
+    "installed_families": 28,
+    "split_sources": 8,
+    "plain_butt_blockers": 0
+  },
+  "acceptance_policy": {
+    "allowed_joining_actions": [
+      "modeled_printed_joint",
+      "modeled_printed_retainer",
+      "modeled_reversible_press_or_snap_fit"
+    ],
+    "forbidden_acceptance_actions": [
+      "glue",
+      "adhesive",
+      "filing",
+      "trimming",
+      "unmodeled_hardware"
+    ],
+    "service_path_proof_required": "full installed component swept volume plus finger or tool access, release motion, cable or tube bend envelope, and removal destination clearance",
+    "permanent_artifacts": []
+  },
+  "assembly_states": [
+    {
+      "state_id": "S00_unassembled_inventory",
+      "install_families": [],
+      "status": "entry",
+      "checks": ["identity", "material", "print_qc", "cots_inventory"]
+    },
+    {
+      "state_id": "S01_deck_foundation",
+      "install_families": ["deck_pods", "plate_support_frame"],
+      "status": "pending_physical_evidence",
+      "checks": ["join plate-support halves off-assembly", "deck datum engagement", "underside access retained"]
+    },
+    {
+      "state_id": "S02_lower_sensor_stack",
+      "install_families": ["ir_thermopile_face_gaskets", "ir_thermopiles", "lower_sensor_harness"],
+      "status": "blocked_service_path_unproved",
+      "checks": ["install IR gaskets before IR packages", "retain underside insertion path", "verify full-body IR sweep and cable bend"]
+    },
+    {
+      "state_id": "S03_lower_service_retention",
+      "install_families": ["lower_sensor_service_connector", "printed_lower_sensor_connector_shroud", "lower_sensor_service_cable_pigtail", "lower_harness_cover"],
+      "status": "blocked_service_path_unproved",
+      "checks": ["mate connector before shroud", "dress pigtail before cover", "prove shroud and cover release access"]
+    },
+    {
+      "state_id": "S04_wet_frame",
+      "install_families": ["lower_gasket", "wet_chamber_frame"],
+      "status": "blocked_physical_seam_and_seal_evidence",
+      "checks": ["seat lower gasket without squeeze-out", "join wet-frame halves before placement", "do not close underside service access before lower checks"]
+    },
+    {
+      "state_id": "S05_consumables",
+      "install_families": ["cots_microplates", "cots_septum_mats"],
+      "status": "pending_exact_cots_evidence",
+      "checks": ["seat microplates before mats", "verify datum seating", "retain vertical replacement path"]
+    },
+    {
+      "state_id": "S06_lid_shell_and_upper_seal",
+      "install_families": ["upper_gasket", "lid_manifold_shell"],
+      "status": "blocked_physical_seam_and_seal_evidence",
+      "checks": ["join shell halves off-stack", "place upper gasket before shell", "inspect all latch stations and seal land"]
+    },
+    {
+      "state_id": "S07_lid_sensor_stack",
+      "install_families": ["headspace_sht41_microcarriers", "lid_sensor_harness", "lid_sensor_service_connectors", "printed_lid_sensor_connector_shrouds", "lid_sensor_service_cable_pigtails", "lid_harness_cover"],
+      "status": "blocked_service_path_and_physical_joint_cycles",
+      "checks": ["install carriers before harness covers", "mate connectors before shrouds", "dress pigtails before closing covers", "prove full-body SHT and cover removal sweeps"]
+    },
+    {
+      "state_id": "S08_lid_cover_service_stack",
+      "install_families": ["lid_cover", "gas_pcb_interface_gaskets", "gas_sensor_pcbs", "printed_gas_pcb_keeper_doors", "cots_gas_service_tubes", "printed_sample_relief_cap"],
+      "status": "blocked_lid_bow_wet_test_and_service_evidence",
+      "checks": ["join cover halves before service hardware", "seat PCB gaskets before PCBs and keeper doors", "seat tubes and cap only after dry inspection", "prove full-body PCB, tube, door, and cap sweeps"]
+    },
+    {
+      "state_id": "S09_dry_stack_closure",
+      "install_families": [],
+      "status": "blocked_until_S01_through_S08_pass",
+      "checks": ["lower lid vertically without cable or tube pinch", "verify seal-land registration", "verify tool and finger access remains for all reversible retainers"]
+    },
+    {
+      "state_id": "S10_wedge_lock_closure",
+      "install_families": ["printed_wedge_locks"],
+      "status": "blocked_material_and_interference",
+      "checks": ["install only after complete dry-state witness review", "verify all nine stations seat without collision", "retain visible removal purchase"]
+    }
+  ],
+  "removal_states": [
+    {"state_id": "R10_release_wedges", "removes_families": ["printed_wedge_locks"], "status": "blocked_until_full_release_sweep_proved"},
+    {"state_id": "R09_open_dry_stack", "removes_families": [], "status": "blocked_until_vertical_lid_sweep_proved"},
+    {"state_id": "R08_remove_lid_cover_service_stack", "removes_families": ["printed_sample_relief_cap", "cots_gas_service_tubes", "printed_gas_pcb_keeper_doors", "gas_sensor_pcbs", "gas_pcb_interface_gaskets", "lid_cover"], "status": "blocked_service_paths_unproved"},
+    {"state_id": "R07_remove_lid_sensor_stack", "removes_families": ["lid_harness_cover", "lid_sensor_service_cable_pigtails", "printed_lid_sensor_connector_shrouds", "lid_sensor_service_connectors", "lid_sensor_harness", "headspace_sht41_microcarriers"], "status": "blocked_service_paths_unproved"},
+    {"state_id": "R06_remove_lid_shell_and_upper_seal", "removes_families": ["lid_manifold_shell", "upper_gasket"], "status": "blocked_split_and_seal_release_unproved"},
+    {"state_id": "R05_remove_consumables", "removes_families": ["cots_septum_mats", "cots_microplates"], "status": "pending_exact_cots_evidence"},
+    {"state_id": "R04_remove_wet_frame", "removes_families": ["wet_chamber_frame", "lower_gasket"], "status": "blocked_split_and_seal_release_unproved"},
+    {"state_id": "R03_remove_lower_service_retention", "removes_families": ["lower_harness_cover", "lower_sensor_service_cable_pigtail", "printed_lower_sensor_connector_shroud", "lower_sensor_service_connector"], "status": "blocked_service_paths_unproved"},
+    {"state_id": "R02_remove_lower_sensor_stack", "removes_families": ["lower_sensor_harness", "ir_thermopiles", "ir_thermopile_face_gaskets"], "status": "blocked_service_paths_unproved"},
+    {"state_id": "R01_remove_deck_foundation", "removes_families": ["plate_support_frame", "deck_pods"], "status": "pending_physical_evidence"}
+  ],
+  "artifact_transitions": [
+    {"source_artifact_id": "deck_pod_tile_1", "install_state_id": "S01_deck_foundation", "removal_state_id": "R01_remove_deck_foundation", "status": "pending_physical_evidence"},
+    {"source_artifact_id": "deck_pod_tile_2", "install_state_id": "S01_deck_foundation", "removal_state_id": "R01_remove_deck_foundation", "status": "pending_physical_evidence"},
+    {"source_artifact_id": "deck_pod_tile_3", "install_state_id": "S01_deck_foundation", "removal_state_id": "R01_remove_deck_foundation", "status": "pending_physical_evidence"},
+    {"source_artifact_id": "deck_pod_tile_4", "install_state_id": "S01_deck_foundation", "removal_state_id": "R01_remove_deck_foundation", "status": "pending_physical_evidence"},
+    {"source_artifact_id": "plate_support_frame", "install_state_id": "S01_deck_foundation", "removal_state_id": "R01_remove_deck_foundation", "preassembly": "join_two_release_bodies", "status": "pending_keyed_seam_physical_evidence"},
+    {"source_artifact_id": "ir_thermopile_face_gasket_tile_1", "install_state_id": "S02_lower_sensor_stack", "removal_state_id": "R02_remove_lower_sensor_stack", "status": "blocked_material_and_service_path"},
+    {"source_artifact_id": "ir_thermopile_face_gasket_tile_2", "install_state_id": "S02_lower_sensor_stack", "removal_state_id": "R02_remove_lower_sensor_stack", "status": "blocked_material_and_service_path"},
+    {"source_artifact_id": "ir_thermopile_face_gasket_tile_3", "install_state_id": "S02_lower_sensor_stack", "removal_state_id": "R02_remove_lower_sensor_stack", "status": "blocked_material_and_service_path"},
+    {"source_artifact_id": "ir_thermopile_face_gasket_tile_4", "install_state_id": "S02_lower_sensor_stack", "removal_state_id": "R02_remove_lower_sensor_stack", "status": "blocked_material_and_service_path"},
+    {"source_artifact_id": "printed_lower_sensor_connector_shroud", "install_state_id": "S03_lower_service_retention", "removal_state_id": "R03_remove_lower_service_retention", "status": "blocked_service_path_unproved"},
+    {"source_artifact_id": "lower_harness_cover", "install_state_id": "S03_lower_service_retention", "removal_state_id": "R03_remove_lower_service_retention", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_cycles_and_service_path"},
+    {"source_artifact_id": "lower_gasket", "install_state_id": "S04_wet_frame", "removal_state_id": "R04_remove_wet_frame", "status": "blocked_material_and_compression_evidence"},
+    {"source_artifact_id": "wet_chamber_frame", "install_state_id": "S04_wet_frame", "removal_state_id": "R04_remove_wet_frame", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_load_and_leak_evidence"},
+    {"source_artifact_id": "upper_gasket", "install_state_id": "S06_lid_shell_and_upper_seal", "removal_state_id": "R06_remove_lid_shell_and_upper_seal", "status": "blocked_material_and_compression_evidence"},
+    {"source_artifact_id": "lid_manifold_shell", "install_state_id": "S06_lid_shell_and_upper_seal", "removal_state_id": "R06_remove_lid_shell_and_upper_seal", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_load_and_leak_evidence"},
+    {"source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus", "install_state_id": "S07_lid_sensor_stack", "removal_state_id": "R07_remove_lid_sensor_stack", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_cycles_and_service_path"},
+    {"source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus", "install_state_id": "S07_lid_sensor_stack", "removal_state_id": "R07_remove_lid_sensor_stack", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_cycles_and_service_path"},
+    {"source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus", "install_state_id": "S07_lid_sensor_stack", "removal_state_id": "R07_remove_lid_sensor_stack", "preassembly": "join_two_release_bodies", "status": "blocked_physical_joint_cycles_and_service_path"},
+    {"source_artifact_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector", "install_state_id": "S07_lid_sensor_stack", "removal_state_id": "R07_remove_lid_sensor_stack", "status": "blocked_service_path_unproved"},
+    {"source_artifact_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector", "install_state_id": "S07_lid_sensor_stack", "removal_state_id": "R07_remove_lid_sensor_stack", "status": "blocked_service_path_unproved"},
+    {"source_artifact_id": "lid_cover", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "preassembly": "join_two_release_bodies", "status": "blocked_lid_bow_joint_leak_and_service_evidence"},
+    {"source_artifact_id": "gas_pcb_interface_gasket_supply_gas_sensor_pcb", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "status": "blocked_material_and_service_stack"},
+    {"source_artifact_id": "gas_pcb_interface_gasket_return_gas_sensor_pcb", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "status": "blocked_material_and_service_stack"},
+    {"source_artifact_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "status": "blocked_known_interference_and_service_path"},
+    {"source_artifact_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "status": "blocked_known_interference_and_service_path"},
+    {"source_artifact_id": "printed_sample_relief_cap", "install_state_id": "S08_lid_cover_service_stack", "removal_state_id": "R08_remove_lid_cover_service_stack", "status": "blocked_service_and_wet_seal_path"},
+    {"source_artifact_id": "printed_wedge_lock_station_01_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_02_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_03_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_04_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_05_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_06_x_min", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_07_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_08_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_09_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_10_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_11_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"},
+    {"source_artifact_id": "printed_wedge_lock_station_12_x_max", "install_state_id": "S10_wedge_lock_closure", "removal_state_id": "R10_release_wedges", "status": "blocked_material_and_interference"}
+  ],
+  "service_paths": [
+    {
+      "path_id": "gas_pcb_cartridge_vertical_service",
+      "affected_installed_families": ["gas_sensor_pcbs", "gas_pcb_interface_gaskets", "printed_gas_pcb_keeper_doors"],
+      "nominal_motion": "+Z removal after keeper release",
+      "status": "blocked_undersized_proxy_and_known_interference",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/harness.py:758-773", "plans/aevum_assembly_readiness_hypergraph/FINDINGS.md:13-14"],
+      "missing_proof": ["full PCB swept body", "keeper release finger or tool access", "gasket release", "wire bend envelope", "clear removal destination"]
+    },
+    {
+      "path_id": "sht41_carrier_side_service",
+      "affected_installed_families": ["headspace_sht41_microcarriers", "lid_sensor_harness", "lid_harness_cover"],
+      "nominal_motion": "+X removal from lid service edge",
+      "status": "blocked_undersized_proxy",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/harness.py:775-790", "src/aevum_cad/row_coupon/parts/harness.py:809-852"],
+      "missing_proof": ["full carrier swept body", "keeper release access", "harness disconnect order", "clear removal destination"]
+    },
+    {
+      "path_id": "ir_thermopile_underside_service",
+      "affected_installed_families": ["ir_thermopiles", "ir_thermopile_face_gaskets", "lower_sensor_harness"],
+      "nominal_motion": "-Z removal from dry-bay underside",
+      "status": "blocked_undersized_proxy",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/harness.py:792-806", "src/aevum_cad/row_coupon/parts/harness.py:863-906"],
+      "missing_proof": ["full package swept body", "lip release access", "gasket retention", "harness bend envelope", "deck clearance"]
+    },
+    {
+      "path_id": "connector_shroud_and_pigtail_service",
+      "affected_installed_families": ["printed_lower_sensor_connector_shroud", "printed_lid_sensor_connector_shrouds", "lower_sensor_service_cable_pigtail", "lid_sensor_service_cable_pigtails"],
+      "nominal_motion": "service-edge disconnect then shroud release",
+      "status": "blocked_exact_cots_mate_and_release_motion_unproved",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/assembly.py:55-99", "plans/aevum_assembly_readiness_hypergraph/FINDINGS.md:12"],
+      "missing_proof": ["exact connector body", "mating hand clearance", "latch access", "minimum bend radius", "shroud attachment and release"]
+    },
+    {
+      "path_id": "harness_cover_install_and_release",
+      "affected_installed_families": ["lower_harness_cover", "lid_harness_cover"],
+      "nominal_motion": "normal-to-owner snap placement and release",
+      "status": "blocked_physical_cycle_and_release_evidence",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/harness.py:355-401", "plans/aevum_assembly_readiness_hypergraph/FINDINGS.md:12"],
+      "missing_proof": ["true hook geometry", "owner receptacle", "non-colliding insertion sweep", "release tool access", "split-cover continuity"]
+    },
+    {
+      "path_id": "gas_tube_service",
+      "affected_installed_families": ["cots_gas_service_tubes", "lid_cover"],
+      "nominal_motion": "axial removal from side barb",
+      "status": "blocked_nominal_envelope_only",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/assembly.py:100-105", "src/aevum_cad/row_coupon/parts/latches.py:426-448"],
+      "missing_proof": ["exact tube OD and wall", "barb insertion force", "bend radius", "finger purchase", "adjacent-slot clearance"]
+    },
+    {
+      "path_id": "sample_relief_cap_service",
+      "affected_installed_families": ["printed_sample_relief_cap", "lid_cover"],
+      "nominal_motion": "+Z removal from boss",
+      "status": "blocked_wet_seal_and_release_motion_unproved",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/_shared_tile.py:48-125", "src/aevum_cad/row_coupon/parts/latches.py:319-356"],
+      "missing_proof": ["cap finger purchase", "seal release force", "boss integrity across split", "wet containment after cycles"]
+    },
+    {
+      "path_id": "microplate_and_septum_vertical_service",
+      "affected_installed_families": ["cots_microplates", "cots_septum_mats"],
+      "nominal_motion": "+Z removal after lid opens",
+      "status": "blocked_exact_cots_sweep_and_grip_access_unproved",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/assembly.py:70-76", "src/aevum_cad/row_coupon/parts/latches.py:389-448"],
+      "missing_proof": ["exact COTS dimensions", "grip access", "vertical swept body", "septum retention during plate removal"]
+    },
+    {
+      "path_id": "wedge_lock_release",
+      "affected_installed_families": ["printed_wedge_locks", "lid_cover"],
+      "nominal_motion": "reverse modeled insertion after releasing detent",
+      "status": "blocked_known_receiver_interference_and_release_access_unproved",
+      "blocking": true,
+      "evidence": ["src/aevum_cad/row_coupon/parts/latches.py:250-265", "plans/aevum_assembly_readiness_hypergraph/FINDINGS.md:9"],
+      "missing_proof": ["detent release access", "non-interfering swept body", "removal purchase", "cycle durability"]
+    }
+  ],
+  "split_sources": [
+    {
+      "source_artifact_id": "plate_support_frame",
+      "axis": "y",
+      "split_y_mm": 188.625,
+      "mating_feature_kind": "printed_dovetail_key_and_pocket",
+      "seam_status": "pending_physical_gate_2_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "datum_and_primary_load_path", "status": "crosses_split", "evidence": "src/aevum_cad/row_coupon/artifacts.py:121"},
+        {"feature_class": "lower_gasket_seal_support", "status": "crosses_split", "evidence": "plans/aevum_assembly_readiness_hypergraph/FINDINGS.md:11"}
+      ]
+    },
+    {
+      "source_artifact_id": "lower_harness_cover",
+      "axis": "y",
+      "split_y_mm": 188.625,
+      "mating_feature_kind": "printed_full_thickness_planar_finger",
+      "seam_status": "modeled_clearance_pending_physical_gate_2_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "harness_channel_and_cover_span", "status": "crosses_split", "evidence": "src/aevum_cad/row_coupon/parts/harness.py:863-906"},
+        {"feature_class": "snap_retention_and_service_load_path", "status": "registered_by_full_thickness_planar_finger_physical_cycles_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "wet_chamber_frame",
+      "axis": "y",
+      "split_y_mm": 198.0,
+      "mating_feature_kind": "printed_stepped_labyrinth_lap_and_pocket",
+      "seam_status": "modeled_clearance_pending_load_and_leak_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "lower_and_upper_seal_paths", "status": "relocated_mid_z_labyrinth_physical_leak_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"},
+        {"feature_class": "latch_compression_station_and_frame_load_path", "status": "relocated_off_nominal_latch_plane_physical_load_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "lid_manifold_shell",
+      "axis": "y",
+      "split_y_mm": 198.0,
+      "mating_feature_kind": "printed_dovetail_key_and_pocket",
+      "seam_status": "modeled_clearance_pending_load_and_leak_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "upper_gasket_seal_land", "status": "relocated_rail_keys_physical_leak_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"},
+        {"feature_class": "tongue_groove_and_latch_compression_load_path", "status": "excluded_from_key_windows_physical_load_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "axis": "y",
+      "split_y_mm": 188.625,
+      "mating_feature_kind": "printed_full_thickness_planar_finger",
+      "seam_status": "modeled_clearance_pending_physical_gate_2_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "left_gas_harness_channel", "status": "crosses_split", "evidence": "src/aevum_cad/row_coupon/parts/harness.py:355-370"},
+        {"feature_class": "snap_retention_and_service_load_path", "status": "registered_by_full_thickness_planar_finger_physical_cycles_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "axis": "y",
+      "split_y_mm": 188.625,
+      "mating_feature_kind": "printed_full_thickness_planar_finger",
+      "seam_status": "modeled_clearance_pending_physical_gate_2_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "right_gas_harness_channel", "status": "crosses_split", "evidence": "src/aevum_cad/row_coupon/parts/harness.py:371-385"},
+        {"feature_class": "snap_retention_and_service_load_path", "status": "registered_by_full_thickness_planar_finger_physical_cycles_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "axis": "y",
+      "split_y_mm": 188.625,
+      "mating_feature_kind": "printed_full_thickness_planar_finger",
+      "seam_status": "modeled_clearance_pending_physical_gate_2_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "right_sht41_harness_channel", "status": "crosses_split", "evidence": "src/aevum_cad/row_coupon/parts/harness.py:386-400"},
+        {"feature_class": "snap_retention_and_service_load_path", "status": "registered_by_full_thickness_planar_finger_physical_cycles_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    },
+    {
+      "source_artifact_id": "lid_cover",
+      "axis": "y",
+      "split_y_mm": 198.0,
+      "mating_feature_kind": "printed_dovetail_key_and_pocket",
+      "seam_status": "modeled_clearance_pending_load_bow_and_leak_evidence",
+      "blocking": true,
+      "feature_load_intersections": [
+        {"feature_class": "sample_relief_boss_bore_and_wet_boundary", "status": "nominal_plane_relocated_physical_leak_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"},
+        {"feature_class": "tongue_groove_seal_path_and_latch_receiver_load", "status": "excluded_from_key_windows_physical_load_test_pending", "evidence": "tests/test_row_coupon_split_interfaces.py"}
+      ]
+    }
+  ]
+}

@@ -4,7 +4,7 @@ import argparse
 
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon_first_print import (
-    audit_first_print_y_split_gate1_print_qc,
+    audit_first_print_final_piece_print_batch_traveler,
     first_print_record_table_value,
 )
 
@@ -23,14 +23,14 @@ def main() -> None:
         help="CAD output directory containing generated production STL/STEP files.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -41,28 +41,28 @@ def main() -> None:
         help="Selected slicer setup worksheet.",
     )
     parser.add_argument(
-        "--gate1-qc",
-        default=ROOT
-        / "data"
-        / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_gate1_qc.csv",
-        help="Split Gate 1 QC worksheet.",
-    )
-    parser.add_argument(
-        "--print-batch-traveler",
-        default=ROOT
-        / "data"
-        / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_print_batch_traveler.csv",
-        help="Split print batch traveler worksheet.",
-    )
-    parser.add_argument(
         "--sliced-outputs",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_sliced_outputs.csv",
-        help="Ready split sliced-output worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_sliced_outputs.csv",
+        help="Ready final-piece sliced-output worksheet.",
+    )
+    parser.add_argument(
+        "--gate1-qc",
+        default=ROOT
+        / "data"
+        / "measurements"
+        / "2026-06-02_one_row_coupon_final_piece_gate1_qc.csv",
+        help="Final Gate 1 QC worksheet.",
+    )
+    parser.add_argument(
+        "--worksheet",
+        default=ROOT
+        / "data"
+        / "measurements"
+        / "2026-06-02_one_row_coupon_final_piece_print_batch_traveler.csv",
+        help="Final print batch traveler CSV path to audit.",
     )
     parser.add_argument(
         "--record",
@@ -73,9 +73,9 @@ def main() -> None:
         help="Measurement record to read selected setup from, if present.",
     )
     parser.add_argument(
-        "--require-print-qc-ready",
+        "--require-handoff-ready",
         action="store_true",
-        help="Exit nonzero unless printed traveler rows and Gate 1 pass rows agree.",
+        help="Exit nonzero unless the traveler is ready for physical print handoff.",
     )
     args = parser.parse_args()
 
@@ -84,42 +84,39 @@ def main() -> None:
         args.record,
         "Printer / material / profile",
     )
-    audit = audit_first_print_y_split_gate1_print_qc(
+    audit = audit_first_print_final_piece_print_batch_traveler(
         params=params,
         out_dir=args.out_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
         slicer_setup_path=args.slicer_setup,
-        gate1_qc_path=args.gate1_qc,
-        print_batch_traveler_path=args.print_batch_traveler,
         sliced_output_path=args.sliced_outputs,
+        gate1_qc_path=args.gate1_qc,
+        worksheet_path=args.worksheet,
         expected_setup_summary=expected_setup,
     )
 
-    print(f"split_gate1_qc_worksheet: {audit.gate1_qc_worksheet_path}")
-    print(f"split_print_batch_traveler: {audit.print_batch_traveler_path}")
-    print(f"print_qc_ready: {'true' if audit.print_qc_ready else 'false'}")
+    print(f"split_print_batch_traveler: {audit.worksheet_path}")
+    print(f"worksheet_valid: {'true' if audit.worksheet_valid else 'false'}")
+    print(f"handoff_ready: {'true' if audit.handoff_ready else 'false'}")
+    print(f"sliced_outputs_ready: {'true' if audit.sliced_outputs_ready else 'false'}")
     print(
         "gate1_qc_worksheet_valid: "
         f"{'true' if audit.gate1_qc_worksheet_valid else 'false'}"
     )
-    print(f"gate1_pass_ready: {'true' if audit.gate1_pass_ready else 'false'}")
-    print(
-        "print_batch_handoff_ready: "
-        f"{'true' if audit.print_batch_handoff_ready else 'false'}"
-    )
     print(f"expected_rows: {audit.expected_row_count}")
-    print(f"printed_rows: {audit.printed_row_count}")
-    print(f"unprinted_parts: {len(audit.unprinted_parts)}")
-    for part in audit.unprinted_parts:
-        print(f"unprinted_part: {part}")
+    print(f"actual_rows: {audit.actual_row_count}")
+    print(f"missing_parts: {len(audit.missing_parts)}")
+    print(f"extra_parts: {len(audit.extra_parts)}")
+    print(f"duplicate_parts: {len(audit.duplicate_parts)}")
+    print(f"print_result_counts: {audit.print_result_counts}")
     print(f"issues: {len(audit.issues)}")
     for issue in audit.issues:
         print(f"issue: {issue.part} | {issue.field} | {issue.message}")
 
-    if audit.issues:
+    if not audit.worksheet_valid:
         raise SystemExit(1)
-    if args.require_print_qc_ready and not audit.print_qc_ready:
+    if args.require_handoff_ready and not audit.handoff_ready:
         raise SystemExit(1)
 
 

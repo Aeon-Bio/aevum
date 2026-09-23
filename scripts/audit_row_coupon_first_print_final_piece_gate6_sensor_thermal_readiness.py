@@ -4,7 +4,7 @@ import argparse
 
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon_first_print import (
-    audit_first_print_y_split_operating_prototype_acceptance,
+    audit_first_print_final_piece_gate6_sensor_thermal_readiness,
     first_print_record_table_value,
 )
 
@@ -23,19 +23,14 @@ def main() -> None:
         help="CAD output directory containing generated production STL/STEP files.",
     )
     parser.add_argument(
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
+    )
+    parser.add_argument(
         "--queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_slicer_queue",
-        help="Monolithic first-print slicer queue directory for preflight fallback.",
-    )
-    parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
-    )
-    parser.add_argument(
-        "--split-queue-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_slicer_queue",
-        help="Split first-print slicer queue directory.",
+        default=ROOT / "outputs" / "cad" / "first_print_final_piece_slicer_queue",
+        help="Final-piece first-print slicer queue directory.",
     )
     parser.add_argument(
         "--slicer-setup",
@@ -50,24 +45,24 @@ def main() -> None:
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_gate1_qc.csv",
-        help="Split Gate 1 QC worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_gate1_qc.csv",
+        help="Final Gate 1 QC worksheet.",
     )
     parser.add_argument(
         "--print-batch-traveler",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_print_batch_traveler.csv",
-        help="Split print batch traveler worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_print_batch_traveler.csv",
+        help="Final print batch traveler worksheet.",
     )
     parser.add_argument(
         "--sliced-outputs",
         default=ROOT
         / "data"
         / "measurements"
-        / "2026-06-02_one_row_coupon_y_split_sliced_outputs.csv",
-        help="Ready split sliced-output worksheet.",
+        / "2026-06-02_one_row_coupon_final_piece_sliced_outputs.csv",
+        help="Ready final-piece sliced-output worksheet.",
     )
     parser.add_argument(
         "--gate2-dry-assembly",
@@ -131,14 +126,14 @@ def main() -> None:
         / "data"
         / "measurements"
         / "2026-06-02_one_row_coupon_first_print.md",
-        help="Measurement record to audit.",
+        help="Measurement record to read selected setup from, if present.",
     )
     parser.add_argument(
-        "--require-operating-prototype-ready",
+        "--require-sensor-thermal-ready",
         action="store_true",
         help=(
-            "Exit nonzero unless print-start artifacts and the full Gate 1-6 "
-            "physical evidence chain are ready."
+            "Exit nonzero unless Gate 6 sensor/thermal and upstream "
+            "consumable/puncture evidence are ready."
         ),
     )
     args = parser.parse_args()
@@ -148,14 +143,11 @@ def main() -> None:
         args.record,
         "Printer / material / profile",
     )
-    audit = audit_first_print_y_split_operating_prototype_acceptance(
+    audit = audit_first_print_final_piece_gate6_sensor_thermal_readiness(
         params=params,
         out_dir=args.out_dir,
+        piece_dir=args.piece_dir,
         queue_dir=args.queue_dir,
-        split_dir=args.split_dir,
-        split_queue_dir=args.split_queue_dir,
-        record_path=args.record,
-        root=ROOT,
         slicer_setup_path=args.slicer_setup,
         gate1_qc_path=args.gate1_qc,
         print_batch_traveler_path=args.print_batch_traveler,
@@ -170,59 +162,30 @@ def main() -> None:
         expected_setup_summary=expected_setup,
     )
 
-    print(f"measurement_record: {audit.record_path}")
     print(
-        "operating_prototype_ready: "
-        f"{'true' if audit.operating_prototype_ready else 'false'}"
+        "gate6_sensor_thermal_worksheet: "
+        f"{audit.gate6_sensor_thermal_worksheet_path}"
     )
     print(
-        "preflight_artifacts_ready: "
-        f"{'true' if audit.preflight_artifacts_ready else 'false'}"
-    )
-    print(f"print_start_ready: {'true' if audit.print_start_ready else 'false'}")
-    print(
-        "service_state_review_ready: "
-        f"{'true' if audit.service_state_review_ready else 'false'}"
+        "gate5_consumable_puncture_worksheet: "
+        f"{audit.gate5_consumable_puncture_worksheet_path}"
     )
     print(
-        "install_inventory_ready: "
-        f"{'true' if audit.install_inventory_ready else 'false'}"
+        "gate4_wet_dry_witness_worksheet: "
+        f"{audit.gate4_wet_dry_witness_worksheet_path}"
     )
+    print(f"gate3_placement_worksheet: {audit.gate3_placement_worksheet_path}")
     print(
-        "gate1_print_qc_ready: "
-        f"{'true' if audit.gate1_print_qc_ready else 'false'}"
+        "gate2_dry_assembly_worksheet: "
+        f"{audit.gate2_dry_assembly_worksheet_path}"
     )
-    print(
-        "gate2_dry_assembly_ready: "
-        f"{'true' if audit.gate2_dry_assembly_ready else 'false'}"
-    )
-    print(f"gate2_pass_rows: {audit.gate2_pass_row_count}")
-    print(
-        "gate3_placement_ready: "
-        f"{'true' if audit.gate3_placement_ready else 'false'}"
-    )
-    print(f"gate3_pass_rows: {audit.gate3_pass_row_count}")
-    print(
-        "gate4_wet_dry_witness_ready: "
-        f"{'true' if audit.gate4_wet_dry_witness_ready else 'false'}"
-    )
-    print(f"gate4_pass_rows: {audit.gate4_pass_row_count}")
-    print(
-        "gate5_consumable_puncture_ready: "
-        f"{'true' if audit.gate5_consumable_puncture_ready else 'false'}"
-    )
-    print(f"gate5_pass_rows: {audit.gate5_pass_row_count}")
+    print(f"split_gate1_qc_worksheet: {audit.gate1_qc_worksheet_path}")
+    print(f"split_print_batch_traveler: {audit.print_batch_traveler_path}")
+    print(f"install_inventory: {audit.install_inventory_path}")
     print(
         "sensor_thermal_ready: "
         f"{'true' if audit.sensor_thermal_ready else 'false'}"
     )
-    print(
-        "real_sensor_inventory_ready: "
-        f"{'true' if audit.real_sensor_inventory_ready else 'false'}"
-    )
-    print(f"sensor_inventory_blank_parts: {len(audit.sensor_inventory_blank_parts)}")
-    for part in audit.sensor_inventory_blank_parts:
-        print(f"sensor_inventory_blank_part: {part}")
     print(
         "gate6_sensor_thermal_worksheet_valid: "
         f"{'true' if audit.gate6_sensor_thermal_worksheet_valid else 'false'}"
@@ -232,22 +195,60 @@ def main() -> None:
         f"{'true' if audit.gate6_sensor_thermal_pass_ready else 'false'}"
     )
     print(f"gate6_pass_rows: {audit.gate6_pass_row_count}")
-    print(f"physical_gate_passes: {len(audit.physical_gate_passes)}")
-    for gate in audit.physical_gate_passes:
-        print(f"physical_gate_pass: {gate}")
-    print(f"next_evidence_actions: {len(audit.next_evidence_actions)}")
-    for action in audit.next_evidence_actions:
-        print(f"next_evidence_action: {action}")
+    print(
+        "gate5_consumable_puncture_ready: "
+        f"{'true' if audit.gate5_consumable_puncture_ready else 'false'}"
+    )
+    print(f"gate5_pass_rows: {audit.gate5_pass_row_count}")
+    print(
+        "gate4_wet_dry_witness_ready: "
+        f"{'true' if audit.gate4_wet_dry_witness_ready else 'false'}"
+    )
+    print(f"gate4_pass_rows: {audit.gate4_pass_row_count}")
+    print(
+        "gate3_placement_ready: "
+        f"{'true' if audit.gate3_placement_ready else 'false'}"
+    )
+    print(f"gate3_pass_rows: {audit.gate3_pass_row_count}")
+    print(
+        "gate2_dry_assembly_ready: "
+        f"{'true' if audit.gate2_dry_assembly_ready else 'false'}"
+    )
+    print(f"gate2_pass_rows: {audit.gate2_pass_row_count}")
+    print(
+        "gate1_print_qc_ready: "
+        f"{'true' if audit.gate1_print_qc_ready else 'false'}"
+    )
+    print(
+        "install_inventory_ready: "
+        f"{'true' if audit.install_inventory_ready else 'false'}"
+    )
+    print(
+        "service_state_review_ready: "
+        f"{'true' if audit.service_state_review_ready else 'false'}"
+    )
+    print(
+        "gate5_consumable_puncture_worksheet_valid: "
+        f"{'true' if audit.gate5_consumable_puncture_worksheet_valid else 'false'}"
+    )
+    print(
+        "gate5_consumable_puncture_pass_ready: "
+        f"{'true' if audit.gate5_consumable_puncture_pass_ready else 'false'}"
+    )
+    print(
+        "real_sensor_inventory_ready: "
+        f"{'true' if audit.real_sensor_inventory_ready else 'false'}"
+    )
+    print(f"sensor_inventory_blank_parts: {len(audit.sensor_inventory_blank_parts)}")
+    for part in audit.sensor_inventory_blank_parts:
+        print(f"sensor_inventory_blank_part: {part}")
     print(f"issues: {len(audit.issues)}")
     for issue in audit.issues:
-        print(f"issue: {issue.field} | {issue.message}")
+        print(f"issue: {issue.target} | {issue.field} | {issue.message}")
 
     if audit.issues:
         raise SystemExit(1)
-    if (
-        args.require_operating_prototype_ready
-        and not audit.operating_prototype_ready
-    ):
+    if args.require_sensor_thermal_ready and not audit.sensor_thermal_ready:
         raise SystemExit(1)
 
 

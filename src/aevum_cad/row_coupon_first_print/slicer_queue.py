@@ -2,7 +2,8 @@
 
 Single owner of ``first_print_slicer_queue_artifacts`` / ``first_print_slicer_queue_manifest_items``
 (the cross-module queue-source helpers bed_fit + slicer consume). Builds the slicer input queue
-(STL list + sha256 hashes) for monolithic + y-split modes and the package/queue manifest markdown.
+(STL list + sha256 hashes) for monolithic + final-piece modes and the package/queue manifest
+markdown.
 The install/service worksheet-row helpers it calls in ``first_print_package_manifest_markdown`` are
 not yet extracted this cycle; they are late-bound into this module's globals by the facade via
 ``_bind_facade_deferred`` (same partially-initialized-module-cycle reason as ``gates``). Function
@@ -13,24 +14,25 @@ from __future__ import annotations
 
 from pathlib import Path
 from shutil import copy2
-from hashlib import sha256
 from typing import Any
 
-from aevum_cad.row_coupon import row_coupon_part_manifest
+from aevum_cad.row_coupon import (
+    row_coupon_final_print_piece_plan,
+    row_coupon_part_manifest,
+    row_coupon_physical_artifact_manifest,
+)
 
+from .bed_fit import (
+    audit_first_print_final_piece_artifacts,
+)
+from .cad_targets import first_print_qc_targets
 from .common import (
-    file_sha256,
-    _artifact_presence,
     _artifact_path,
+    _artifact_presence,
     _markdown_table_cells,
+    file_sha256,
 )
 from .constants import FIRST_PRINT_PHYSICAL_GATES
-from .package import audit_first_print_package
-from .cad_targets import first_print_qc_targets
-from .bed_fit import (
-    audit_first_print_y_split_artifacts,
-    first_print_y_split_artifact_rows,
-)
 from .gates import (
     first_print_gate1_qc_worksheet_rows,
     first_print_gate2_dry_assembly_worksheet_rows,
@@ -41,15 +43,15 @@ from .gates import (
 )
 from .models import (
     FirstPrintArtifact,
+    FirstPrintGate1QCWorksheetRow,
     FirstPrintPackageAudit,
     FirstPrintQCTarget,
-    FirstPrintGate1QCWorksheetRow,
     FirstPrintSlicedOutputRow,
-    FirstPrintSlicerQueueItem,
     FirstPrintSlicerQueueAudit,
     FirstPrintSlicerQueueHashMismatch,
-    FirstPrintYSplitArtifactRow,
+    FirstPrintSlicerQueueItem,
 )
+from .package import artifact_category, audit_first_print_package
 
 # Install/service worksheet-row helpers referenced by ``first_print_package_manifest_markdown``;
 # not extracted this cycle, late-bound by the facade via ``_bind_facade_deferred``.
@@ -106,6 +108,11 @@ def first_print_package_manifest_markdown(
     audit: FirstPrintPackageAudit,
 ) -> str:
     manifest = row_coupon_part_manifest()
+    production_manifest = row_coupon_physical_artifact_manifest(params)
+    final_piece_sources = {
+        str(row["name"]): str(row["source_artifact"])
+        for row in row_coupon_final_print_piece_plan(params)
+    }
     policy = manifest["policy"]
     forbidden_authority = ", ".join(
         f"`{term}`" for term in policy["forbidden_retention_authority_terms"]
@@ -121,12 +128,29 @@ def first_print_package_manifest_markdown(
         for artifact in audit.production_artifacts
         if artifact.category == "compressible_or_flexible"
     ]
-    nonprinted = [
-        artifact
-        for artifact in audit.production_artifacts
-        if artifact.category
-        in {"cots_consumable", "electronics_or_dimensional_blank", "service_tubing"}
-    ]
+    nonprinted = []
+    for name, entry in manifest["installed"].items():
+        category = artifact_category(entry["fabrication_source"])
+        if category not in {
+            "cots_consumable",
+            "electronics_or_dimensional_blank",
+            "service_tubing",
+        }:
+            continue
+        stl_path = audit.out_dir / f"{audit.name}_{name}.stl"
+        step_path = audit.out_dir / f"{audit.name}_{name}.step"
+        nonprinted.append(
+            FirstPrintArtifact(
+                name=name,
+                category=category,
+                stl_path=stl_path,
+                step_path=step_path,
+                stl_exists=stl_path.exists(),
+                step_exists=step_path.exists(),
+                fabrication_source=entry["fabrication_source"],
+                role=entry["role"],
+            )
+        )
 
     lines = [
         f"# {audit.name} First-Print Package Manifest",
@@ -260,16 +284,52 @@ def first_print_package_manifest_markdown(
             "It does not mark BSL1 material, cleaning, leachable, or biological",
             "compatibility evidence as passed.",
             "",
-            "| Part | Exposure class | Service disposition | Evidence gate |",
-            "|---|---|---|---|",
+            "Every installed operating surface is listed here, whether or not it is",
+            "printed in this batch: a part that is not printed still contacts the",
+            "sample and still needs an exposure class. `Provenance` is the",
+            "distinction. `printed_in_this_batch` rows are slicer output and carry a",
+            "print-piece name; every other row is supplied or procured and is NOT in",
+            "the slicer queue.",
+            "",
+            "| Part | Provenance | Exposure class | Service disposition | Evidence gate |",
+            "|---|---|---|---|---|",
         ]
     )
+    covered_installed_parts: set[str] = set()
     for artifact in audit.production_artifacts:
-        entry = manifest["installed"][artifact.name]
+        source = final_piece_sources.get(artifact.name, artifact.name)
+        entry = production_manifest[source]
+        covered_installed_parts.add(str(entry["installed_part"]))
+        provenance = (
+            "printed_in_this_batch"
+            if artifact.category == "printed"
+            else f"supplied_{artifact.category}"
+        )
         lines.append(
             "| "
-            f"`{artifact.name}` | {entry['exposure_class']} | "
+            f"`{artifact.name}` | {provenance} | {entry['exposure_class']} | "
             f"{entry['service_disposition']} | {entry['material_evidence_gate']} |"
+        )
+    for artifact in nonprinted:
+        entry = manifest["installed"][artifact.name]
+        covered_installed_parts.add(artifact.name)
+        lines.append(
+            "| "
+            f"`{artifact.name}` | not_printed_{artifact.category} | "
+            f"{entry['exposure_class']} | {entry['service_disposition']} | "
+            f"{entry['material_evidence_gate']} |"
+        )
+    # Fail closed on coverage.  This table previously iterated release bodies
+    # only, so COTS consumables and electronics silently vanished from an
+    # operator-facing document while every assertion about it still passed.
+    # row_coupon_part_manifest() already guarantees that the material surface
+    # policy covers every installed part; this guarantees the rendered table
+    # does too, so a part cannot drop out again without failing here.
+    uncovered = sorted(set(manifest["installed"]) - covered_installed_parts)
+    if uncovered:
+        raise ValueError(
+            "operating material and exposure policy table does not cover every "
+            f"installed part: {uncovered}"
         )
 
     lines.extend(
@@ -451,7 +511,7 @@ def first_print_gate1_qc_rows_from_slicer_queue_manifest(
 ) -> tuple[FirstPrintGate1QCWorksheetRow, ...]:
     rows: list[FirstPrintGate1QCWorksheetRow] = []
     for item in first_print_slicer_queue_manifest_items(queue_dir):
-        source = "printed_split" if "split segment" in item.role else "printed"
+        source = "printed_final_piece" if "final print piece" in item.role else "printed"
         rows.append(
             FirstPrintGate1QCWorksheetRow(
                 part=item.name,
@@ -515,86 +575,66 @@ def prepare_first_print_slicer_queue(
     return tuple(items)
 
 
-def first_print_y_split_slicer_queue_items(
+def first_print_final_piece_slicer_queue_items(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
 ) -> tuple[FirstPrintSlicerQueueItem, ...]:
-    package_audit = audit_first_print_package(params, out_dir)
-    split_audit = audit_first_print_y_split_artifacts(
+    piece_audit = audit_first_print_final_piece_artifacts(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         slicer_setup_path=slicer_setup_path,
     )
     targets = _target_lookup(params)
-    split_rows_by_source: dict[str, list[FirstPrintYSplitArtifactRow]] = {}
-    for row in split_audit.rows:
-        split_rows_by_source.setdefault(row.source_part, []).append(row)
 
     queue = Path(queue_dir)
     items: list[FirstPrintSlicerQueueItem] = []
-    for artifact in first_print_slicer_queue_artifacts(package_audit):
-        split_rows = sorted(
-            split_rows_by_source.get(artifact.name, ()),
-            key=lambda row: row.segment_index,
-        )
-        if split_rows:
-            for row in split_rows:
-                items.append(
-                    FirstPrintSlicerQueueItem(
-                        name=row.split_part,
-                        source_stl_path=row.stl_path,
-                        queue_stl_path=queue / row.stl_path.name,
-                        sha256=file_sha256(row.stl_path) if row.stl_exists else "",
-                        target_x_mm=row.target_x_mm,
-                        target_y_mm=row.target_y_mm,
-                        target_z_mm=row.target_z_mm,
-                        role=(
-                            f"{artifact.role}; split segment "
-                            f"{row.segment_index}/{row.segment_count} at "
-                            f"{row.interface_zone}"
-                        ),
-                    )
-                )
-            continue
-        target = targets[artifact.name]
+    for row in piece_audit.rows:
+        target = targets[row.split_part]
+        role = target.role
+        if row.segment_count > 1:
+            role = (
+                f"{role}; final print piece "
+                f"{row.segment_index}/{row.segment_count} from {row.source_part} at "
+                f"{row.interface_zone}"
+            )
         items.append(
             FirstPrintSlicerQueueItem(
-                name=artifact.name,
-                source_stl_path=artifact.stl_path,
-                queue_stl_path=queue / artifact.stl_path.name,
-                sha256=file_sha256(artifact.stl_path) if artifact.stl_exists else "",
-                target_x_mm=target.target_x_mm,
-                target_y_mm=target.target_y_mm,
-                target_z_mm=target.target_z_mm,
-                role=artifact.role,
+                name=row.split_part,
+                source_stl_path=row.stl_path,
+                queue_stl_path=queue / row.stl_path.name,
+                sha256=file_sha256(row.stl_path) if row.stl_exists else "",
+                target_x_mm=row.target_x_mm,
+                target_y_mm=row.target_y_mm,
+                target_z_mm=row.target_z_mm,
+                role=role,
             )
         )
     return tuple(items)
 
 
-def prepare_first_print_y_split_slicer_queue(
+def prepare_first_print_final_piece_slicer_queue(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     overwrite: bool = False,
 ) -> tuple[FirstPrintSlicerQueueItem, ...]:
-    split_audit = audit_first_print_y_split_artifacts(
+    piece_audit = audit_first_print_final_piece_artifacts(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         slicer_setup_path=slicer_setup_path,
     )
-    if not split_audit.split_artifacts_ready:
-        detail = split_audit.issues[0].message if split_audit.issues else "not ready"
-        raise ValueError(f"split artifacts are not ready: {detail}")
+    if not piece_audit.final_piece_artifacts_ready:
+        detail = piece_audit.issues[0].message if piece_audit.issues else "not ready"
+        raise ValueError(f"final-piece artifacts are not ready: {detail}")
 
     queue = Path(queue_dir)
     queue.mkdir(parents=True, exist_ok=True)
@@ -602,10 +642,10 @@ def prepare_first_print_y_split_slicer_queue(
     if manifest.exists() and not overwrite:
         raise FileExistsError(manifest)
 
-    items = first_print_y_split_slicer_queue_items(
+    items = first_print_final_piece_slicer_queue_items(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue,
         slicer_setup_path=slicer_setup_path,
     )
@@ -688,27 +728,27 @@ def audit_first_print_slicer_queue(
     )
 
 
-def audit_first_print_y_split_slicer_queue(
+def audit_first_print_final_piece_slicer_queue(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
 ) -> FirstPrintSlicerQueueAudit:
-    split_audit = audit_first_print_y_split_artifacts(
+    piece_audit = audit_first_print_final_piece_artifacts(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         slicer_setup_path=slicer_setup_path,
     )
     package_audit = audit_first_print_package(params, out_dir)
     queue = Path(queue_dir)
     manifest = queue / "SLICER_QUEUE_MANIFEST.md"
-    items = first_print_y_split_slicer_queue_items(
+    items = first_print_final_piece_slicer_queue_items(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue,
         slicer_setup_path=slicer_setup_path,
     )
@@ -743,7 +783,7 @@ def audit_first_print_y_split_slicer_queue(
 
     source_issues = tuple(
         f"{issue.split_part} | {issue.field} | {issue.message}"
-        for issue in split_audit.issues
+        for issue in piece_audit.issues
     )
     return FirstPrintSlicerQueueAudit(
         queue_dir=queue,

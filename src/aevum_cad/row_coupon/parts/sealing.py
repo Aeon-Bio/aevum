@@ -1,8 +1,11 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_boxes_from_rectangles, _perimeter_rails, _rounded_box)
+
+from ..layout import row_coupon_layout
+from ._geom_base import _boxes_from_rectangles, _perimeter_rails
 
 
 def _add_gasket_service_tabs(
@@ -35,18 +38,16 @@ def _add_gasket_service_tabs(
     return gasket
 
 
-def _add_lid_cover_tongue(
-    cover: cq.Workplane,
+def _add_lid_shell_tongue(
+    shell: cq.Workplane,
     *,
     params: dict[str, Any],
     z0: float,
 ) -> cq.Workplane:
-    production = params.get("production_assembly", {})
-    tongue_d = production.get("lid_cover_tongue_depth_z", 0.0)
-    ring = _lid_cover_tongue_ring(params=params, z0=z0 - tongue_d)
+    ring = _lid_cover_tongue_ring(params=params, z0=z0)
     if ring is None:
-        return cover
-    return cover.union(ring)
+        return shell
+    return shell.union(ring)
 
 
 def _cut_gasket_capture_groove(
@@ -82,190 +83,31 @@ def _cut_gasket_capture_groove(
         z0=groove_z,
     )
     model = model.cut(cutter)
-    return _add_gasket_capture_split_lap(
-        model,
-        params=params,
-        layout=layout,
-        outer_land=outer_land,
-        rail_width=rail_width,
-        groove_z=groove_z,
-        depth=depth,
-    )
-
-
-def _add_gasket_capture_split_lap(
-    model: cq.Workplane,
-    *,
-    params: dict[str, Any],
-    layout: dict[str, Any],
-    outer_land: float,
-    rail_width: float,
-    groove_z: float,
-    depth: float,
-) -> cq.Workplane:
-    """D5 seal-across-split lap (flag-on only). Adds a short printed land into the gasket
-    capture groove on the two Y-running rails, straddling split_y.
-
-    KNOWN LIMITATIONS — this is a SCAFFOLD, NOT a validated wet seal (FINDINGS G5):
-    (1) the land is unioned onto the FULL-ROW body BEFORE the Y-split, so the split bisects
-        it at split_y — it does NOT bridge the two modules (it becomes two butting halves);
-    (2) at the default lap height it fills the elastomer seat up to the capture face,
-        locally reducing gasket compression at the highest-risk leak location.
-    A real seal-across-split (lap applied DURING the split so one half overlaps the other,
-    seated OUTSIDE the elastomer pocket) plus dye/pressure wet evidence is required before
-    any wet use. Printed polymer only (box union) — no metal."""
-    production = params.get("production_assembly", {})
-    if not bool(production.get("keyed_joints_enabled", False)) or depth <= 0:
-        return model
-    from aevum_cad.row_coupon import _split_y_from_tile_origins
-
-    split_y = _split_y_from_tile_origins(layout["tile_origins"], params)
-    lap_len = float(production.get("gasket_capture_split_lap_len_y", 8.0))
-    lap_height = float(production.get("gasket_capture_split_lap_height_z", depth))
-    length_x = float(layout["length_x"])
-    rail_x = [
-        outer_land,
-        length_x - outer_land - rail_width,
-    ]
-    lap_y = split_y - lap_len / 2.0
-    for x in rail_x:
-        model = model.union(
-            cq.Workplane("XY")
-            .box(rail_width, lap_len, lap_height, centered=(False, False, False))
-            .translate((x, lap_y, groove_z))
-        )
     return model
 
 
 def _cut_lid_cover_tongue_groove(
-    shell: cq.Workplane,
+    cover: cq.Workplane,
     *,
     params: dict[str, Any],
     z0: float,
 ) -> cq.Workplane:
     production = params.get("production_assembly", {})
-    tongue_d = production.get("lid_cover_tongue_depth_z", 0.0)
-    clearance = production.get("lid_cover_tongue_clearance_xy", 0.0)
+    tongue_d = float(production.get("lid_cover_tongue_depth_z", 0.0))
+    clearance_xy = float(production.get("lid_cover_tongue_clearance_xy", 0.0))
+    clearance_z = float(production.get("lid_cover_tongue_clearance_z", 0.0))
     if tongue_d <= 0:
-        return shell
+        return cover
 
     groove = _lid_cover_tongue_ring(
         params=params,
-        z0=z0 + params["lid_manifold"]["thickness_z"] - tongue_d - 0.05,
-        width_extra=2 * clearance,
+        z0=z0 - 0.05,
+        width_extra=2 * clearance_xy,
+        depth_extra=clearance_z + 0.05,
     )
     if groove is None:
-        return shell
-    return shell.cut(groove)
-
-
-def _lid_frame_key_rectangles(*, params: dict[str, Any]) -> list[dict[str, Any]]:
-    """Single source of truth (D3 lesson) for the D6 lateral lid<->frame locating key.
-
-    Returns corner key rects (``x, y, length_x, width_y``) seated strictly INBOARD of the
-    gasket capture groove envelope. The gasket band occupies, on each edge,
-    ``[outer_land, outer_land + (gasket_rail_width - outer_land + clearance)]`` i.e.
-    ``[0.8, 5.25]`` with the stock params; the keys sit at ``band_inner + inset_xy`` on both
-    axes so the XY footprint is disjoint from the groove on every edge it is near.
-
-    Returns ``[]`` unless ``keyed_joints_enabled`` is set and length/width are positive, so the
-    flag-off geometry is byte-identical. The boss adder and the pocket cutter both consume THIS
-    list (the pocket derives from the boss rect + clearance — no parallel re-derivation)."""
-    layout = row_coupon_layout(params)
-    seal = params["seal_interface"]
-    production = params.get("production_assembly", {})
-    if not bool(production.get("keyed_joints_enabled", False)):
-        return []
-    length = production.get("lid_frame_key_length_x", 0.0)
-    width = production.get("lid_frame_key_width_y", 0.0)
-    if length <= 0 or width <= 0:
-        return []
-
-    inset = production.get("lid_frame_key_inset_xy", 0.0)
-    clearance = production.get("gasket_capture_clearance_xy", 0.0)
-    outer_land = min(
-        production.get("gasket_capture_outer_land_xy", 0.8),
-        seal["gasket_rail_width"] - 0.2,
-    )
-    band_inner = outer_land + (seal["gasket_rail_width"] - outer_land + clearance)
-
-    near = band_inner + inset
-    x_lo = near
-    x_hi = layout["length_x"] - near - length
-    y_lo = near
-    y_hi = layout["width_y"] - near - width
-    # G5e: THREE keys (kinematic plane location), not four. A rigid lid on four corner keys
-    # is over-constrained and rocks between whichever diagonal pair touches (degrading the
-    # gasket/tongue registration the keys are meant to improve); three points fully locate a
-    # plane in XY without fighting. The dropped (x_hi, y_hi) corner is the free corner.
-    return [
-        {"x": round(x, 3), "y": round(y, 3), "length_x": round(length, 3), "width_y": round(width, 3)}
-        for (x, y) in ((x_lo, y_lo), (x_hi, y_lo), (x_lo, y_hi))
-    ]
-
-
-def _add_lid_frame_keys(
-    model: cq.Workplane,
-    *,
-    params: dict[str, Any],
-    z0: float,
-) -> cq.Workplane:
-    """Add the printed lid<->frame locating boss(es) to the lid manifold shell (flag-on only).
-
-    Printed feature only — a rounded box union per key rect, NO metal/insert/fastener. Early
-    returns the model unchanged when the feature is off (empty rect list or zero height)."""
-    production = params.get("production_assembly", {})
-    key_h = production.get("lid_frame_key_height_z", 0.0)
-    if key_h <= 0:
-        return model
-    for key in _lid_frame_key_rectangles(params=params):
-        boss = _rounded_box(
-            float(key["length_x"]),
-            float(key["width_y"]),
-            key_h,
-            min(float(key["length_x"]), float(key["width_y"])) / 6,
-        ).translate((float(key["x"]), float(key["y"]), z0))
-        model = model.union(boss)
-    return model
-
-
-def _cut_lid_frame_key_pockets(
-    model: cq.Workplane,
-    *,
-    params: dict[str, Any],
-    z0: float,
-) -> cq.Workplane:
-    """Cut the mating pocket(s) into the plate support frame (flag-on only).
-
-    The pocket rects are DERIVED from the SAME ``_lid_frame_key_rectangles`` boss list inflated
-    by ``lid_frame_key_clearance_xy`` (single source — avoids the D3 parallel-derivation
-    anti-pattern). A clearance box ``.cut`` descending from the receiving top face ``z0`` —
-    printed slip/press fit, NO metal."""
-    production = params.get("production_assembly", {})
-    key_h = production.get("lid_frame_key_height_z", 0.0)
-    clearance = production.get("lid_frame_key_clearance_xy", 0.25)
-    pocket_extra_z = production.get("lid_frame_key_pocket_extra_z", 0.2)
-    if key_h <= 0:
-        return model
-    pocket_h = key_h + pocket_extra_z
-    for key in _lid_frame_key_rectangles(params=params):
-        model = model.cut(
-            cq.Workplane("XY")
-            .box(
-                float(key["length_x"]) + 2 * clearance,
-                float(key["width_y"]) + 2 * clearance,
-                pocket_h + 0.1,
-                centered=(False, False, False),
-            )
-            .translate(
-                (
-                    float(key["x"]) - clearance,
-                    float(key["y"]) - clearance,
-                    z0 - pocket_h,
-                )
-            )
-        )
-    return model
+        return cover
+    return cover.cut(groove)
 
 
 def _cut_rectangular_gas_interface_window(
@@ -485,11 +327,12 @@ def _lid_cover_tongue_ring(
     params: dict[str, Any],
     z0: float,
     width_extra: float = 0.0,
+    depth_extra: float = 0.0,
 ) -> cq.Workplane | None:
     layout = row_coupon_layout(params)
     production = params.get("production_assembly", {})
     tongue_w = production.get("lid_cover_tongue_width", 0.0) + width_extra
-    tongue_d = production.get("lid_cover_tongue_depth_z", 0.0)
+    tongue_d = production.get("lid_cover_tongue_depth_z", 0.0) + depth_extra
     if tongue_w <= 0 or tongue_d <= 0:
         return None
 
@@ -507,6 +350,67 @@ def _lid_cover_tongue_ring(
         height=tongue_d,
         z0=z0,
     )
+
+
+def build_lid_tongue_groove_coupon_pair(
+    params: dict[str, Any],
+    *,
+    assembly_position: bool = False,
+) -> dict[str, cq.Workplane]:
+    """Two small bodies that reproduce the production lid fit class.
+
+    The assembled state places the shell-side male rail in the cover-side
+    female groove.  The default state separates and beds both bodies for a
+    physical no-trim/no-glue fit check before committing to the lid plates.
+    """
+
+    production = params.get("production_assembly", {})
+    tongue_w = float(production.get("lid_cover_tongue_width", 0.0))
+    tongue_d = float(production.get("lid_cover_tongue_depth_z", 0.0))
+    clearance_xy = float(production.get("lid_cover_tongue_clearance_xy", 0.0))
+    clearance_z = float(production.get("lid_cover_tongue_clearance_z", 0.0))
+    if min(tongue_w, tongue_d) <= 0:
+        raise ValueError("lid tongue/groove coupon requires positive tongue dimensions")
+
+    base_l, base_w, base_h = 24.0, 10.0, 2.0
+    rail_l = 18.0
+    shell_coupon = cq.Workplane("XY").box(
+        base_l, base_w, base_h, centered=(False, False, False)
+    )
+    shell_coupon = shell_coupon.union(
+        cq.Workplane("XY")
+        .box(rail_l, tongue_w, tongue_d + 0.1, centered=(False, False, False))
+        .translate(((base_l - rail_l) / 2, (base_w - tongue_w) / 2, base_h - 0.1))
+    )
+
+    cover_coupon = (
+        cq.Workplane("XY")
+        .box(base_l, base_w, base_h, centered=(False, False, False))
+        .translate((0.0, 0.0, base_h))
+    )
+    groove_w = tongue_w + 2 * clearance_xy
+    cover_coupon = cover_coupon.cut(
+        cq.Workplane("XY")
+        .box(
+            rail_l + 2 * clearance_xy,
+            groove_w,
+            tongue_d + clearance_z + 0.1,
+            centered=(False, False, False),
+        )
+        .translate(
+            (
+                (base_l - rail_l) / 2 - clearance_xy,
+                (base_w - groove_w) / 2,
+                base_h - 0.05,
+            )
+        )
+    )
+    if not assembly_position:
+        cover_coupon = cover_coupon.translate((base_l + 4.0, 0.0, -base_h))
+    return {
+        "lid_tongue_shell_coupon": shell_coupon,
+        "lid_groove_cover_coupon": cover_coupon,
+    }
 
 
 def build_gas_pcb_interface_gaskets(
@@ -596,20 +500,31 @@ def build_lid_gasket(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_shared_chamber_bounds)
+    from aevum_cad.row_coupon import _shared_chamber_bounds
     layout = row_coupon_layout(params)
     seal = params["seal_interface"]
     rail_w = seal["gasket_rail_width"]
     rail_h = seal["compressed_gasket_height_z"]
     z0 = layout["gasket_bottom_z"] if assembly_position else 0.0
     bounds = _shared_chamber_bounds(layout, params)
+    production = params.get("production_assembly", {})
+    outer_land = min(
+        float(production.get("gasket_capture_outer_land_xy", 0.8)),
+        float(rail_w) - 0.2,
+    )
+    capture_clearance = max(
+        0.0,
+        float(production.get("gasket_capture_clearance_xy", 0.0)),
+    )
+    gasket_inset = outer_land + capture_clearance / 2
+    captured_rail_w = float(rail_w) - outer_land
 
     gasket = _perimeter_rails(
-        x0=bounds["x"],
-        y0=bounds["y"],
-        length=bounds["length_x"],
-        width=bounds["width_y"],
-        rail_width=rail_w,
+        x0=bounds["x"] + gasket_inset,
+        y0=bounds["y"] + gasket_inset,
+        length=bounds["length_x"] - 2 * gasket_inset,
+        width=bounds["width_y"] - 2 * gasket_inset,
+        rail_width=captured_rail_w,
         height=rail_h,
         z0=z0,
     )
@@ -621,20 +536,39 @@ def build_lower_gasket(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_shared_chamber_bounds)
+    from aevum_cad.row_coupon import _shared_chamber_bounds
     layout = row_coupon_layout(params)
     seal = params["seal_interface"]
     rail_w = seal["gasket_rail_width"]
     rail_h = seal["compressed_gasket_height_z"]
-    z0 = layout["base_top_z"] if assembly_position else 0.0
+    # The lower gasket is captured by opposed grooves in the support and wet
+    # frame.  Center the already-compressed CAD state across that interface;
+    # placing its full height above the datum incorrectly embeds it in the wet
+    # frame and leaves the support-side groove empty.
+    z0 = (
+        layout["base_top_z"] - float(rail_h) / 2
+        if assembly_position
+        else 0.0
+    )
     bounds = _shared_chamber_bounds(layout, params)
+    production = params.get("production_assembly", {})
+    outer_land = min(
+        float(production.get("gasket_capture_outer_land_xy", 0.8)),
+        float(rail_w) - 0.2,
+    )
+    capture_clearance = max(
+        0.0,
+        float(production.get("gasket_capture_clearance_xy", 0.0)),
+    )
+    gasket_inset = outer_land + capture_clearance / 2
+    captured_rail_w = float(rail_w) - outer_land
 
     gasket = _perimeter_rails(
-        x0=bounds["x"],
-        y0=bounds["y"],
-        length=bounds["length_x"],
-        width=bounds["width_y"],
-        rail_width=rail_w,
+        x0=bounds["x"] + gasket_inset,
+        y0=bounds["y"] + gasket_inset,
+        length=bounds["length_x"] - 2 * gasket_inset,
+        width=bounds["width_y"] - 2 * gasket_inset,
+        rail_width=captured_rail_w,
         height=rail_h,
         z0=z0,
     )

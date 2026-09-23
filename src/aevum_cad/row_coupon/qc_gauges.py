@@ -1,10 +1,18 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from .layout import (row_coupon_layout)
-from .manifest import (row_coupon_part_manifest)
-from .parts._geom_base import (_boxes_from_rectangles, _rounded_box)
-from .parts._shared_tile import (_well_centers_for_tile)
+
+from .layout import row_coupon_layout
+from .manifest import row_coupon_part_manifest
+from .parts._geom_base import (
+    _boxes_from_rectangles,
+    _fused_z_box,
+    _integral_feature_fusion_overlap_z,
+    _rounded_box,
+)
+from .parts._shared_tile import _well_centers_for_tile
 
 
 def _add_gasket_tab_leak_witness_features(
@@ -15,6 +23,8 @@ def _add_gasket_tab_leak_witness_features(
     z_shift: float = 0.0,
 ) -> cq.Workplane:
     layout = row_coupon_layout(params)
+    seal = params["seal_interface"]
+    overlap_z = _integral_feature_fusion_overlap_z(params)
     for witness in layout["gasket_tab_leak_witnesses"]:
         if witness["owner_part"] != owner_part:
             continue
@@ -24,7 +34,26 @@ def _add_gasket_tab_leak_witness_features(
 
         threshold = dict(witness["threshold_rect"])
         threshold["z"] = float(threshold["z"]) + z_shift
-        model = model.union(_boxes_from_rectangles([threshold]))
+        fuse_into = (
+            "up"
+            if witness["dam_orientation"] == "down_from_lid_shell_underside"
+            else "down"
+        )
+        threshold_overlap_z = overlap_z
+        if fuse_into == "up":
+            threshold_overlap_z += float(seal["headspace_recess_depth_z"])
+        model = model.union(
+            _fused_z_box(
+                length=float(threshold["length_x"]),
+                width=float(threshold["width_y"]),
+                height=float(threshold["height_z"]),
+                x=float(threshold["x"]),
+                y=float(threshold["y"]),
+                z=float(threshold["z"]),
+                overlap_z=threshold_overlap_z,
+                into=fuse_into,
+            )
+        )
     return model
 
 
@@ -143,7 +172,7 @@ def _fail_closed_prerun_inspection_check(
     unseated_side_gas_tubes_review: list[dict[str, Any]],
     unmated_connector_review_rects: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    from aevum_cad.row_coupon import (ROW_COUPON_SERVICE_MODES)
+    from aevum_cad.row_coupon import ROW_COUPON_SERVICE_MODES
     metrology = params.get("consumable_metrology", {})
     check_params = params.get("fail_closed_prerun_inspection", {})
     tab_len = float(check_params.get("tab_length_x", 42.0))
@@ -805,7 +834,7 @@ def _printability_support_cleanup_check(
     headspace_sht41_mounts: list[dict[str, Any]],
     ir_sensor_mounts: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    from aevum_cad.row_coupon import (ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS)
+    from aevum_cad.row_coupon import ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS
     metrology = params.get("consumable_metrology", {})
     check_params = params.get("printability_support_cleanup_check", {})
     slab_len = float(check_params.get("length_x", 64.0))
@@ -833,7 +862,7 @@ def _printability_support_cleanup_check(
     )
     gutter_count = len(wet_dry_failure_paths["wet_dry_witness_gutters"])
     dry_bay_audit_count = len(dry_bay_ingress_audit_rects)
-    split_source_count = len(ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS)
+    structural_piece_source_count = len(ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS)
     checkpoints = [
         {
             "name": "gasket_lands_support_scar_free",
@@ -881,15 +910,15 @@ def _printability_support_cleanup_check(
             "cad_value": f"{gutter_count} gutters / {dry_bay_audit_count} audit rects",
         },
         {
-            "name": "split_segment_edges_do_not_remove_authority_features",
-            "blocks": ["split_segment_cleanup_authority_feature_loss_unchecked"],
+            "name": "final_piece_edges_do_not_remove_authority_features",
+            "blocks": ["final_piece_cleanup_authority_feature_loss_unchecked"],
             "source_validation_checks": [
                 "operating_service_dress_check",
                 "row_tiling_service_clearance_check",
             ],
-            "inspection_method": "split_segment_edge_visual_check",
+            "inspection_method": "final_piece_edge_visual_check",
             "evidence_gate": "Gate 1 Print QC",
-            "cad_value": f"{split_source_count} split-source printed parts",
+            "cad_value": f"{structural_piece_source_count} structural piece sources",
         },
     ]
     blockers = sorted(
@@ -957,7 +986,7 @@ def _printability_support_cleanup_check(
         "sensor_pocket_count": sensor_pocket_count,
         "wet_dry_witness_gutter_count": gutter_count,
         "dry_bay_ingress_audit_rect_count": dry_bay_audit_count,
-        "split_source_part_count": split_source_count,
+        "structural_piece_source_count": structural_piece_source_count,
         "checkpoints": checkpoints,
         "blockers": blockers,
         "source_layout_checks": source_layout_checks,

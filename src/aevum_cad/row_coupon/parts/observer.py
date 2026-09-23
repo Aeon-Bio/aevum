@@ -265,14 +265,22 @@ def _observer_carriage_traverse(
         if row_axis == "y"
         else float(dry_bay_envelope["width_y"]) - raw_width_y
     )
-    # OC-A15: the binding SCAN-axis wall is whichever is tightest of (a) the standoff-leg
-    # corridor -- the clear gap between the 80 mm deck-engagement legs that straddle the
-    # scan axis -- and (b) the milled dry-bay wall. The two are nearly co-located here:
-    # the bay (X 13.7..133.9) is milled just INSIDE the legs (13.6..134.0), so the bay
-    # hi-wall is actually ~0.1 mm tighter than the leg wall. Both span the head's Z sweep,
-    # so a footprint wider than the tighter wall strikes it. We surface the corridor, the
-    # per-wall bay clearance, and the binding minimum of the two; the razor-thin flag
-    # tracks the binding wall, not just the corridor (which under-reported the bay wall).
+    # OC-A15 (comment corrected against live geometry): the binding SCAN-axis wall is
+    # whichever is tightest of (a) the standoff-leg corridor -- the clear gap between the
+    # 80 mm deck-engagement legs that straddle the scan axis -- and (b) the milled dry-bay
+    # wall. Both span the head's Z sweep, so a footprint wider than the tighter wall
+    # strikes it.
+    #
+    # The two are NOT nearly co-located, and the legs are NOT symmetric about the well
+    # array. `lower_service_foot_inset_x` (3.0) walks one tile-4 foot inboard, so the live
+    # corridor is X 17.10..134.50 = 117.4 mm while the well centres run 24.88..123.88.
+    # Near slack is 7.78 mm, far slack 10.62 mm: the NEAR (low-X) leg binds, and the head
+    # budget is 2 x 7.78 = 15.56 mm, not (corridor - 99.0 mm span). An earlier version of
+    # this comment claimed legs at 13.6/134.0 with the bay hi-wall ~0.1 mm inside them;
+    # that described geometry the model no longer has.
+    #
+    # We surface the corridor, the per-wall bay clearance, and the binding minimum of the
+    # two; the razor-thin flag tracks the binding wall, not just the corridor.
     scan_lo, scan_hi = (
         (swept_x, swept_x + swept_length_x)
         if row_axis == "y"

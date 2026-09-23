@@ -1,0 +1,3863 @@
+{
+  "schema_version": 2,
+  "ledger_id": "aevum_row_coupon_mk4_elegoo_pla_body_printability",
+  "authority": {
+    "body_identity": "artifact authority release ID plus exact 3MF object metadata and ordered BGCODE M486 identity; filename and plate position alone are not authority",
+    "artifact_registry": "docs/assembly/artifact_authority.json",
+    "artifact_registry_schema_version": 2,
+    "scope": "current twelve-plate MK4 / Elegoo PLA C2 manufacturing package",
+    "manufacturing_evidence_only": true,
+    "prototype_acceptance_granted": false
+  },
+  "supersession": {
+    "status": "supersedes_prior_eight_plate_package",
+    "prior_scope": "retained legacy eight-plate MK4 / Elegoo PLA package",
+    "reason": "C2 geometry/profile/failure-domain repack; old hashes and plate mappings must not be used with this package",
+    "retained_recovery_package": "outputs/sliced/.mk4_elegoo_pla.previous"
+  },
+  "decoder_evidence": {
+    "decoder": "Prusa libbgcode command-line converter",
+    "decoder_executable": "/tmp/aevum-c2-libbgcode/build-default/src/LibBGCode/cmd/bgcode",
+    "decoder_executable_sha256": "b2a139db244ac719f70304fa9e7555458cecb841f5b73aabf03e90a698bf6d4b",
+    "libbgcode_source_commit": "d4da9073616d70a43c151e8c1d7fbff879d2e08a",
+    "command_pattern": "bgcode <private-copy.bgcode>",
+    "plaintext_outputs_retained": false,
+    "decoded_report": "outputs/sliced/mk4_elegoo_pla/decoded_toolpath_report.json",
+    "decoded_report_sha256": "571a75522d31733847036e19b8fc263c4760577d44e95a8482716c648b318f0d",
+    "binding": "Every decoded-gcode SHA256 and ordered M486 object list is paired with the current plate BGCODE SHA256."
+  },
+  "policy": {
+    "disposition_order": [
+      "print-now-test-article",
+      "coupon-first",
+      "hold"
+    ],
+    "print_now_test_article": "May print only as a measured test article; does not authorize assembly or operating use.",
+    "coupon_first": "Print a bounded interface/material coupon or single first article before queuing the body.",
+    "hold": "Do not queue from the current package until the stated blocker is reworked or evidenced.",
+    "support_rule": "Any decoded support on a body with unresolved mating, sealing, snap, datum, or deck surfaces is a blocker until contact location and cleanup allowance are proved.",
+    "mixed_plate_rule": "A multi-body plate inherits the strictest contained-body disposition.",
+    "assembly_authorization": "Always false in this ledger."
+  },
+  "counts": {
+    "plates": 12,
+    "rigid_bodies": 38,
+    "decoded_bodies": 38,
+    "print-now-test-article": 2,
+    "coupon-first": 17,
+    "hold": 19,
+    "whole_plates_authorized": 0
+  },
+  "plates": [
+    {
+      "plate_id": "plate_01",
+      "plate_name": "01_lid_cover_piece_01_of_02_y_000p000_to_188p625",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "lid_cover_piece_01_of_02_y_000p000_to_188p625"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/01_lid_cover_piece_01_of_02_y_000p000_to_188p625.3mf",
+          "sha256": "f59f8e888f4f494683fd0e4f0250d6d50201e657ce33ccfc8e0d782d057060cb"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/01_lid_cover_piece_01_of_02_y_000p000_to_188p625.bgcode",
+          "sha256": "6af3eb4e8da4c10a7e2364e2a9ffe0c8b926493ad89cf6b7d7c1f49f07e96b78"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "35b3095b37fa103bc1153bd053bb59f92aa7d9fccc4fce930318aee669ba6298"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 55
+    },
+    {
+      "plate_id": "plate_02",
+      "plate_name": "02_lid_cover_piece_02_of_02_y_188p625_to_377p250",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "lid_cover_piece_02_of_02_y_188p625_to_377p250"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/02_lid_cover_piece_02_of_02_y_188p625_to_377p250.3mf",
+          "sha256": "24b6c15dddd8fe3d1e41f9bc55733b01a6cf1641962f582a01947ff2807e1475"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/02_lid_cover_piece_02_of_02_y_188p625_to_377p250.bgcode",
+          "sha256": "22df49d7d42fb8f0e2305185cd9e3e4dc08d847bcf12f177980195a93a473a60"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "4a7342cbacc65c90c28e89d04215d67bed0c6d4631a4c9311f943406792de09d"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 39
+    },
+    {
+      "plate_id": "plate_03",
+      "plate_name": "03_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/03_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625.3mf",
+          "sha256": "d24c88d9e7d311cbf7460a5d491f55f6707507e87cc7a36b8290c5472041c593"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/03_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625.bgcode",
+          "sha256": "6bdfd0fc9dabdaab70a837b30b4b4aec7b558225b0b5a583eb3606ad9b49b146"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "21eac5066ee15968a8e5ed08e8bd19e82fce3a48ba9ddaf96c82072f1f7751f7"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 77
+    },
+    {
+      "plate_id": "plate_04",
+      "plate_name": "04_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/04_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250.3mf",
+          "sha256": "4e570c83385475861d089610871b93bf159328c0ccf5f80be1f4a8fbf697aecc"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/04_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250.bgcode",
+          "sha256": "16c78d2705f18a4f6035500991853b77cfda8a54ca7a910c572a9f4c1dcf7a8d"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "33a90ba0497f6f6e5875c1396ab916e6c7f70cc274f707f7a113987c009590f9"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 88
+    },
+    {
+      "plate_id": "plate_05",
+      "plate_name": "05_plate_support_frame_piece_01_of_02_y_000p000_to_188p625_plus_deck_pod_tile_1",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": true,
+      "body_ids": [
+        "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+        "deck_pod_tile_1"
+      ],
+      "body_dispositions": [
+        "hold",
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/05_plate_support_frame_piece_01_of_02_y_000p000_to_188p625_plus_deck_pod_tile_1.3mf",
+          "sha256": "1a492535f83f035753ff402a6a039493736f1c7ea02e5d5829c0cccd459b6425"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/05_plate_support_frame_piece_01_of_02_y_000p000_to_188p625_plus_deck_pod_tile_1.bgcode",
+          "sha256": "b29a4e6638b148b704a2a47ae95fcd53c609bcd3230107597070dcdf3dd6e105"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "df766b42365097f5254866c03f34afbe304ae778cdaf6be861dfd042fa285b28"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 2,
+      "decoded_support_type_markers": 97
+    },
+    {
+      "plate_id": "plate_06",
+      "plate_name": "06_plate_support_frame_piece_02_of_02_y_188p625_to_377p250_plus_deck_pod_tile_3",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": true,
+      "body_ids": [
+        "plate_support_frame_piece_02_of_02_y_188p625_to_377p250",
+        "deck_pod_tile_3"
+      ],
+      "body_dispositions": [
+        "hold",
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/06_plate_support_frame_piece_02_of_02_y_188p625_to_377p250_plus_deck_pod_tile_3.3mf",
+          "sha256": "2f914dc912db908a87e674d842c4736e2025614d87628a2bdc74c45a14cce9bf"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/06_plate_support_frame_piece_02_of_02_y_188p625_to_377p250_plus_deck_pod_tile_3.bgcode",
+          "sha256": "c36f033c1a538d94f2bc4df5e59b2ebdbb4223aadb5f1f5f94aa2fb33b03c3f3"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "bfeaeac6f050bdf0af2a9a0a0c679fe292d0ffe87da90ddf9be7f18d2017ecea"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 2,
+      "decoded_support_type_markers": 83
+    },
+    {
+      "plate_id": "plate_07",
+      "plate_name": "07_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/07_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625.3mf",
+          "sha256": "7fbb3f3eb934c1376f1f71f2eef3602e7272da3fe685cf520b85eb4a6da1d2b4"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/07_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625.bgcode",
+          "sha256": "990f579ab4f93703ba1a932bdce91c786b868d0cd18a14be9714fd3de62745ac"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "64d42ba29ee97c66c11a6eb5a8f422a571b87a6c260fea2f7462f708014e42a4"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 225
+    },
+    {
+      "plate_id": "plate_08",
+      "plate_name": "08_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250",
+      "profile": "structural",
+      "failure_domain": "held_structural_anchor_and_compatible_held_pod_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/08_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250.3mf",
+          "sha256": "64db73be989090778604b57855b1ac191d0045f845345c0afe50fdaecac6cfd2"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/08_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250.bgcode",
+          "sha256": "e94fb8c3eae4ee130b0d063431d4ca7442ce0a7cd3e708394a3340d4008f925d"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "1e687d48d73422982bd240b6d0ef05436fdb025889d018b22e69f69be188d425"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 212
+    },
+    {
+      "plate_id": "plate_09",
+      "plate_name": "09_deck_pod_tile_2_plus_deck_pod_tile_4",
+      "profile": "structural",
+      "failure_domain": "print_now_deck_pod_test_articles_only",
+      "mixed_body_plate": true,
+      "body_ids": [
+        "deck_pod_tile_2",
+        "deck_pod_tile_4"
+      ],
+      "body_dispositions": [
+        "print-now-test-article",
+        "print-now-test-article"
+      ],
+      "plate_disposition": "print-now-test-article",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/09_deck_pod_tile_2_plus_deck_pod_tile_4.3mf",
+          "sha256": "11015a0b4d18404e03084b133f06b5c7cac8a7a927e59c344738de0df7b3b9bd"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/09_deck_pod_tile_2_plus_deck_pod_tile_4.bgcode",
+          "sha256": "5391958cf561fa069a23745180cda45ff027fb158bf2d78af7a5179e522c2b53"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_structural_mk4_elegoo_pla.ini",
+          "sha256": "e7ab8475f95cb3e5ee00b317c19678b3e26377b701ffda6e46618bc8f0c69d77"
+        },
+        "decoded_gcode_sha256": "83ad799d90dc5aa06ce3e958581fc1f7d9b9d2d8f1e4a27a0ab372b72b590fe9"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.2,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 20.0,
+        "brim_width_mm": 0.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 2,
+      "decoded_support_type_markers": 0
+    },
+    {
+      "plate_id": "plate_10",
+      "plate_name": "10_fine_harness_and_service_parts",
+      "profile": "fine_service",
+      "failure_domain": "fine_harness_and_service_only",
+      "mixed_body_plate": true,
+      "body_ids": [
+        "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+        "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+        "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625",
+        "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250",
+        "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+        "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250",
+        "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+        "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+        "printed_lower_sensor_connector_shroud",
+        "printed_wedge_lock_station_01_x_min",
+        "printed_wedge_lock_station_02_x_min",
+        "printed_wedge_lock_station_03_x_min",
+        "printed_wedge_lock_station_04_x_min",
+        "printed_wedge_lock_station_05_x_min",
+        "printed_wedge_lock_station_06_x_min",
+        "printed_wedge_lock_station_07_x_max",
+        "printed_wedge_lock_station_08_x_max",
+        "printed_wedge_lock_station_09_x_max",
+        "printed_wedge_lock_station_10_x_max",
+        "printed_wedge_lock_station_11_x_max",
+        "printed_wedge_lock_station_12_x_max"
+      ],
+      "body_dispositions": [
+        "hold",
+        "hold",
+        "hold",
+        "hold",
+        "hold",
+        "hold",
+        "hold",
+        "hold",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first",
+        "coupon-first"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/10_fine_harness_and_service_parts.3mf",
+          "sha256": "eb2b9752e5d4c701ad7a040e073f037bab76eeea3f6adb0a2bc739dd3b56989e"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/10_fine_harness_and_service_parts.bgcode",
+          "sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_fine_service_mk4_elegoo_pla.ini",
+          "sha256": "a825e0265bcec2bc5806057bc2888080cfa5df0ddb6eb686b270ee9cf00dfdad"
+        },
+        "decoded_gcode_sha256": "22bc31e1afe16ec0de5a0f3598857bc45321551ce56ee20cd0684e5d7048e0c3"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.15,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 30.0,
+        "brim_width_mm": 3.0,
+        "support_material": false,
+        "support_material_auto": false,
+        "support_material_buildplate_only": false,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 23,
+      "decoded_support_type_markers": 0
+    },
+    {
+      "plate_id": "plate_11",
+      "plate_name": "11_sample_relief_cap_support_review",
+      "profile": "relief_cap_support_review",
+      "failure_domain": "held_relief_cap_support_review_only",
+      "mixed_body_plate": false,
+      "body_ids": [
+        "printed_sample_relief_cap"
+      ],
+      "body_dispositions": [
+        "hold"
+      ],
+      "plate_disposition": "hold",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/11_sample_relief_cap_support_review.3mf",
+          "sha256": "3d4cf4191f7aa4d5a6a5895585b10f30c7903ad3a3717de1bbe1f308300a4639"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/11_sample_relief_cap_support_review.bgcode",
+          "sha256": "7f59d8aa322bd4091efe2e140096d8dafc748bd49eee41f1cb7939d5f6744bd7"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_relief_cap_support_review_mk4_elegoo_pla.ini",
+          "sha256": "be7f6a74a2cd5d2a5115cbe67ca5257acca2d83967a7d053d54c1f8e5059d732"
+        },
+        "decoded_gcode_sha256": "35655e03aaed016cf14704bc62b0a297a3e5b85d05c370b50558f50a1a87bbb0"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.15,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 30.0,
+        "brim_width_mm": 3.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 1,
+      "decoded_support_type_markers": 17
+    },
+    {
+      "plate_id": "plate_12",
+      "plate_name": "12_lid_connector_shrouds_support_review",
+      "profile": "coupon_support_review",
+      "failure_domain": "coupon_first_lid_shrouds_support_review_only",
+      "mixed_body_plate": true,
+      "body_ids": [
+        "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+        "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector"
+      ],
+      "body_dispositions": [
+        "coupon-first",
+        "coupon-first"
+      ],
+      "plate_disposition": "coupon-first",
+      "whole_plate_print_authorized": false,
+      "strictest_body_policy_applied": true,
+      "artifacts": {
+        "3mf": {
+          "path": "outputs/sliced/mk4_elegoo_pla/12_lid_connector_shrouds_support_review.3mf",
+          "sha256": "77d08556d0bb70955fcc048e6f0f5c4ee02d472532e3fbc8fa4688f81ba3416a"
+        },
+        "bgcode": {
+          "path": "outputs/sliced/mk4_elegoo_pla/12_lid_connector_shrouds_support_review.bgcode",
+          "sha256": "5a2bf37aba548c5bc9ff0d2a50239215d1520f04a13490e3b8c013c80eafaefd"
+        },
+        "profile_snapshot": {
+          "path": "outputs/sliced/mk4_elegoo_pla/profile_coupon_support_review_mk4_elegoo_pla.ini",
+          "sha256": "f8379a80c568dfa76f52c944401396df15f19d63961f16852c5305d0b9b2ce5f"
+        },
+        "decoded_gcode_sha256": "25cc0dd683326fa371d18d4bd8984309859a09ddcf00740bf9f67a2a62db17d4"
+      },
+      "slice_settings": {
+        "layer_height_mm": 0.15,
+        "first_layer_height_mm": 0.2,
+        "perimeters": 3,
+        "fill_density_percent": 30.0,
+        "brim_width_mm": 3.0,
+        "support_material": true,
+        "support_material_auto": true,
+        "support_material_buildplate_only": true,
+        "max_print_speed_mm_s": 70.0,
+        "nozzle_temperature_c": 205.0,
+        "first_layer_nozzle_temperature_c": 210.0,
+        "bed_temperature_c": 60.0
+      },
+      "decoded_body_count": 2,
+      "decoded_support_type_markers": 8
+    }
+  ],
+  "bodies": [
+    {
+      "release_body_id": "lid_cover_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_cover",
+      "plate_id": "plate_01",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_cover_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lid_cover_piece_01_of_02_y_000p000_to_188p625",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "6af3eb4e8da4c10a7e2364e2a9ffe0c8b926493ad89cf6b7d7c1f49f07e96b78"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 30.0,
+          "x_max_mm": 220.0,
+          "y_min_mm": 26.899997,
+          "y_max_mm": 183.100003,
+          "z_min_mm": 0.0,
+          "z_max_mm": 25.299441
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 0.10684
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.351535,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 795.09202,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 454.31188,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "digitally_resolved_physical_gate_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "digitally_resolved_physical_gate_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "733804775674d98f3fcbef91d835f9b878ad809f88af5abc89f3554f28baa55e",
+        "canonical_step_sha256": "c621ccbf81a79c57e069c085e18e9e05b906bc93744d43f95ba57045f69ed8e9",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 6520.68495,
+        "decoded_model_layer_count": 130,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_cover_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_cover",
+      "plate_id": "plate_02",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_cover_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lid_cover_piece_02_of_02_y_188p625_to_377p250",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "22df49d7d42fb8f0e2305185cd9e3e4dc08d847bcf12f177980195a93a473a60"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 40.375,
+          "x_max_mm": 209.625,
+          "y_min_mm": 26.900002,
+          "y_max_mm": 183.099998,
+          "z_min_mm": 0.0,
+          "z_max_mm": 25.299441
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 0.10684
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.35376,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 730.81955,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 356.12224,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "digitally_resolved_physical_gate_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "digitally_resolved_physical_gate_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_cover_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "dbd0aab13010a27d2b5e79e3a84ac4e961f96eb114e9c7f57c4fb4022a61a2af",
+        "canonical_step_sha256": "a9551cdbb8f7eee3a8d5dee59918ccc109e9033505eb8a2ebe90f6d04270dd16",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 5941.33999,
+        "decoded_model_layer_count": 131,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_manifold_shell",
+      "plate_id": "plate_03",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "6bdfd0fc9dabdaab70a837b30b4b4aec7b558225b0b5a583eb3606ad9b49b146"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 25.0,
+          "x_max_mm": 225.0,
+          "y_min_mm": 30.699997,
+          "y_max_mm": 179.300003,
+          "z_min_mm": 0.0,
+          "z_max_mm": 9.6
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 0.51308
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.348339,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 2540.70287,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 7420.43581,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "digitally_resolved_physical_gate_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "digitally_resolved_physical_gate_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "b2692a47560bab39f4d46bcceec291e2c6bc40f333bd46f589ac7c0d5cb263c1",
+        "canonical_step_sha256": "75c8be48e559c9d8ac5238f9ad1e35f8429945ebc9c266bd24512352ff7592bf",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 23724.48036,
+        "decoded_model_layer_count": 62,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_manifold_shell",
+      "plate_id": "plate_04",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "16c78d2705f18a4f6035500991853b77cfda8a54ca7a910c572a9f4c1dcf7a8d"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 35.375,
+          "x_max_mm": 214.625,
+          "y_min_mm": 30.699997,
+          "y_max_mm": 179.300003,
+          "z_min_mm": 0.0,
+          "z_max_mm": 9.6
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 0.51309
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.35052,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 2084.00137,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 5900.8321,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "digitally_resolved_physical_gate_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "digitally_resolved_physical_gate_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_manifold_shell_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "e9abe677abbeaef6ddabe247e77b6b071042f6245e6861488517b00d406dbdad",
+        "canonical_step_sha256": "4cbf386dc48fe14c636e0c3083b3b135c21c2c48ad955fd6a942fe360371a806",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 19566.79299,
+        "decoded_model_layer_count": 62,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "plate_support_frame",
+      "plate_id": "plate_05",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "plate_support_frame_piece_01_of_02_y_000p000_to_188p625",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "b29a4e6638b148b704a2a47ae95fcd53c609bcd3230107597070dcdf3dd6e105"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 4.699997,
+          "x_max_mm": 153.300003,
+          "y_min_mm": 9.1875,
+          "y_max_mm": 200.8125,
+          "z_min_mm": 0.0,
+          "z_max_mm": 11.2
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 1305.03137
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.345022,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 2993.39879,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 1106.32217,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "pending_keyed_split_physical_evidence",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_keyed_split_physical_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "f1f48e81b74dced8bdd1248542c2d7d2493b1b82085acc6e4eae469196eec07b",
+        "canonical_step_sha256": "6af5da367c0b2abfbaa4043fe4f676660f9868884e9ad7a93ebb3b63912f405d",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 33790.42447,
+        "decoded_model_layer_count": 66,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "deck_pod_tile_1",
+      "source_artifact_id": "deck_pod_tile_1",
+      "plate_id": "plate_05",
+      "object_ordinal": 1,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "deck_pod_tile_1",
+        "bgcode_m486_name": "deck_pod_tile_1",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "b29a4e6638b148b704a2a47ae95fcd53c609bcd3230107597070dcdf3dd6e105"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 159.300003,
+          "x_max_mm": 245.300003,
+          "y_min_mm": 9.1875,
+          "y_max_mm": 137.187503,
+          "z_min_mm": 0.0,
+          "z_max_mm": 84.1
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 911.01485
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364436,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 1223.70921,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 0.73831,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_1.stl",
+        "canonical_stl_sha256": "7e3c8dcd81e62373f39f25f50242ea05e8258f2e70283075b54a747c72dac722",
+        "canonical_step_sha256": "1b63e217ffe44421fa10e99a30a7787c6a82d81e6632efabfd8f6a957666a60d",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14607.07604,
+        "decoded_model_layer_count": 421,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "plate_support_frame_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "plate_support_frame",
+      "plate_id": "plate_06",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "plate_support_frame_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "plate_support_frame_piece_02_of_02_y_188p625_to_377p250",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "c36f033c1a538d94f2bc4df5e59b2ebdbb4223aadb5f1f5f94aa2fb33b03c3f3"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 4.699997,
+          "x_max_mm": 153.300003,
+          "y_min_mm": 10.6875,
+          "y_max_mm": 199.3125,
+          "z_min_mm": 0.0,
+          "z_max_mm": 11.2
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 1282.12024
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.352077,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 2861.11119,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 985.98099,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "pending_keyed_split_physical_evidence",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_keyed_split_physical_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_plate_support_frame_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "c7ae2e0844121de99a9e091ce7a5c590742fc437bac27823f0bbed6da4dcb0c2",
+        "canonical_step_sha256": "a88c4f8929d26d1513f808027ba37e54d7ee4b938c6c2bfe8bf49fb6b7f601a8",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 33589.93291,
+        "decoded_model_layer_count": 65,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "deck_pod_tile_3",
+      "source_artifact_id": "deck_pod_tile_3",
+      "plate_id": "plate_06",
+      "object_ordinal": 1,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "deck_pod_tile_3",
+        "bgcode_m486_name": "deck_pod_tile_3",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "c36f033c1a538d94f2bc4df5e59b2ebdbb4223aadb5f1f5f94aa2fb33b03c3f3"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 159.300003,
+          "x_max_mm": 245.300003,
+          "y_min_mm": 10.6875,
+          "y_max_mm": 138.687503,
+          "z_min_mm": 0.0,
+          "z_max_mm": 84.1
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 911.01462
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.38292,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 1225.80953,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 3.93091,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_3.stl",
+        "canonical_stl_sha256": "8d7f96460763653f2b0f0625c89c883cee307b0314726223b6fe3d542f195411",
+        "canonical_step_sha256": "03f336727f3791bd1daa8de1fb163ce673ae40558d4930568fddffdc29f9ed1e",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14611.69941,
+        "decoded_model_layer_count": 420,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "wet_chamber_frame",
+      "plate_id": "plate_07",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "990f579ab4f93703ba1a932bdce91c786b868d0cd18a14be9714fd3de62745ac"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 22.0,
+          "x_max_mm": 228.0,
+          "y_min_mm": 30.699997,
+          "y_max_mm": 179.300003,
+          "z_min_mm": 0.0,
+          "z_max_mm": 32.099998
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 66.18758
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.370644,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 138.7684,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 2876.48546,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_labyrinth_lap_load_and_leak_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "modeled_labyrinth_lap_load_and_leak_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "0671b66cf34a0fa1d9df6ee3805432884a556c3d788d48df24a8ae774add0de0",
+        "canonical_step_sha256": "ccea18bdcb3fa4255b5cd3a30d04f1daf389d3f7717309b073ca94183bea1971",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14966.15836,
+        "decoded_model_layer_count": 235,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "wet_chamber_frame",
+      "plate_id": "plate_08",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "e94fb8c3eae4ee130b0d063431d4ca7442ce0a7cd3e708394a3340d4008f925d"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 35.375,
+          "x_max_mm": 214.625,
+          "y_min_mm": 30.699997,
+          "y_max_mm": 179.300003,
+          "z_min_mm": 0.0,
+          "z_max_mm": 32.099998
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 60.84144
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.367124,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 139.63876,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 2703.91481,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_labyrinth_lap_load_and_leak_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "modeled_labyrinth_lap_load_and_leak_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_wet_chamber_frame_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "84fd06a07f2e8cfc44383a7d352e9269e5e28032bc4c94de1df88105d40064ff",
+        "canonical_step_sha256": "4939ff18cfa7470ab4a90f15c73bbb84ae9fdfb3833e63d6f14dcc0bb0dc9294",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14035.16185,
+        "decoded_model_layer_count": 242,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance; source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "deck_pod_tile_2",
+      "source_artifact_id": "deck_pod_tile_2",
+      "plate_id": "plate_09",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "deck_pod_tile_2",
+        "bgcode_m486_name": "deck_pod_tile_2",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "5391958cf561fa069a23745180cda45ff027fb158bf2d78af7a5179e522c2b53"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 36.0,
+          "x_max_mm": 122.0,
+          "y_min_mm": 40.999999,
+          "y_max_mm": 169.000001,
+          "z_min_mm": 0.0,
+          "z_max_mm": 84.1
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 911.01506
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.38292,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 1222.38453,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_2.stl",
+        "canonical_stl_sha256": "94ebc2729d96818d4651a5b19f60c7832d49752ab90431847b44b8bcfa4c8fc3",
+        "canonical_step_sha256": "f54e44e4bd9cdab74511bc46d29e9e468c70a8f42ae491c4f1ed8498c3bd87c3",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14579.5118,
+        "decoded_model_layer_count": 420,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "print-now-test-article",
+      "disposition_reason": "authorization is limited to a measured dimensional/interface article.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "deck_pod_tile_4",
+      "source_artifact_id": "deck_pod_tile_4",
+      "plate_id": "plate_09",
+      "object_ordinal": 1,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "deck_pod_tile_4",
+        "bgcode_m486_name": "deck_pod_tile_4",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "5391958cf561fa069a23745180cda45ff027fb158bf2d78af7a5179e522c2b53"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          90
+        ],
+        "placed_bounds": {
+          "x_min_mm": 128.0,
+          "x_max_mm": 214.0,
+          "y_min_mm": 40.999999,
+          "y_max_mm": 169.000001,
+          "z_min_mm": 0.0,
+          "z_max_mm": 84.1
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 910.31488
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364627,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 1225.08525,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 0.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 6.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_deck_pod_tile_4.stl",
+        "canonical_stl_sha256": "1c3e16ba816636e092d647bc475865ee9913c26c26a1e24e98da82eb22d8adab",
+        "canonical_step_sha256": "d5c015137dfcb513c808dd1e6381748a3ed923f56309c3c9860dea4b8dbb7953",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 14622.24493,
+        "decoded_model_layer_count": 420,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "print-now-test-article",
+      "disposition_reason": "authorization is limited to a measured dimensional/interface article.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_00...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 92.900009,
+          "x_max_mm": 96.900009,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 147.5625,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 41.74844
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.363138,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "1818a0d4a7b35d0f70da8551bc8d7b9dcb2cdfee4c6faf634f766f6f78bd6184",
+        "canonical_step_sha256": "cbf936b96393f9dea0eb54aa4e45f0dd79646814fba6d6c341f346a79c9e0b87",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 149.53131,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_cover_left_gas_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 1,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_18...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 9.699985,
+          "x_max_mm": 13.699985,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 198.5625,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 58.17144
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.378595,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_left_gas_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "26f56988a3cf7640df1cf5211bcd283543cf4c447ef647ddb1a1ef9d7794fe80",
+        "canonical_step_sha256": "19148ba720c459879d0a75203faa0dbbb50a334192bb7c3d6deada0480b58cf7",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 206.236,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 2,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_0...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 104.900009,
+          "x_max_mm": 107.100006,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 147.5625,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 19.18577
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364378,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "7ce67c3b4c97b77940b3220deafe8482895f67127c7a24f7530bbe7c64e94cbf",
+        "canonical_step_sha256": "bdcce6f1123e335e05550965317ae894e750f3f1641548f248e214ae52d6f574",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 76.15706,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_cover_right_gas_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 3,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_1...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 31.149997,
+          "x_max_mm": 37.649997,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 189.0625,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 28.85438
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.349678,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_cover_right_gas_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "99d84aa46f073755fd648d089cb281f5ed3a6c36ccad6594dfb5276d94d21bc3",
+        "canonical_step_sha256": "3d5eef279407581b111dc769206a13bb5af01ca82fbaad89d5d3f8a9493005b8",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 110.26042,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 4,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 83.449996,
+          "x_max_mm": 84.900009,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 154.6875,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 13.46336
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.37219,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "54438b06935323cc5d35e534694e212bcd4f0db99793eda9ff9f42f309b65a3e",
+        "canonical_step_sha256": "fec9639f9ad690c6e19ffe914ae3ac785ef3b03c5bf66951c13a599142e53ca0",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 56.34253,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lid_harness_cover_lid_shell_right_sht41_bus",
+      "plate_id": "plate_10",
+      "object_ordinal": 5,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 21.699985,
+          "x_max_mm": 23.149997,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 195.0625,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.7
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 17.84
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.37219,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lid_harness_cover_lid_shell_right_sht41_bus_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "a9cc802171eb36b6e76dc7b87b580fd91ba6517a9648ef68e08508c07d3a0b06",
+        "canonical_step_sha256": "d29ed872510b57b6a98cc00f55cdb827b5a75e2eb6adb4de20f3fcc5161dd2fb",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 72.2551,
+        "decoded_model_layer_count": 4,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+      "source_artifact_id": "lower_harness_cover",
+      "plate_id": "plate_10",
+      "object_ordinal": 6,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+        "bgcode_m486_name": "lower_harness_cover_piece_01_of_02_y_000p000_to_188p625",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 64.549997,
+          "x_max_mm": 75.449996,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 154.6875,
+          "z_min_mm": 0.0,
+          "z_max_mm": 1.15
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 62.9926
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_01_of_02_y_000p000_to_188p625.stl",
+        "canonical_stl_sha256": "f88dd2c962fce1085a23099a484991d0b8b7151d3d9cc26bb30f67aef544a4e6",
+        "canonical_step_sha256": "643b5bd8a8083f7791f175c299a093568061a670f8c69a5fb55c339d74313ed1",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 250.17939,
+        "decoded_model_layer_count": 7,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250",
+      "source_artifact_id": "lower_harness_cover",
+      "plate_id": "plate_10",
+      "object_ordinal": 7,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250",
+        "bgcode_m486_name": "lower_harness_cover_piece_02_of_02_y_188p625_to_377p250",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 45.649997,
+          "x_max_mm": 56.549997,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 186.762512,
+          "z_min_mm": 0.0,
+          "z_max_mm": 1.15
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 77.44895
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.37219,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "modeled_full_thickness_planar_finger_physical_cycles_pending",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "modeled_full_thickness_planar_finger_physical_cycles_pending"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_lower_harness_cover_piece_02_of_02_y_188p625_to_377p250.stl",
+        "canonical_stl_sha256": "ddded51e397d6a214a9c027354c65cad0eaef14c09717facc6568439962fd5ff",
+        "canonical_step_sha256": "4bdcb6485bfbbc17293084c9eb015f80e5124fa2eb10fcdfadec21535d27f885",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 293.8786,
+        "decoded_model_layer_count": 7,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "source-local retained split is digitally corrected but physical seam fit, load, and cycle evidence remains pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "source_artifact_id": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+      "plate_id": "plate_10",
+      "object_ordinal": 8,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+        "bgcode_m486_name": "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 115.100006,
+          "x_max_mm": 125.500015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 43.837524,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.799999
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 14.05543
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.409462,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_return_gas_sensor_pcb.stl",
+        "canonical_stl_sha256": "eb331dc74ee9a6d65624949d16338dd3dbf975b699ee9ac274ecb754fbe3cd31",
+        "canonical_step_sha256": "64785477e35a4b4ed4dfb348fad97001c88a3520acf319a98c3f29583f94b991",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 92.475,
+        "decoded_model_layer_count": 5,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "bounded interface coupon and COTS mating evidence remain pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "source_artifact_id": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+      "plate_id": "plate_10",
+      "object_ordinal": 9,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+        "bgcode_m486_name": "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 133.500015,
+          "x_max_mm": 143.900015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 43.837498,
+          "z_min_mm": 0.0,
+          "z_max_mm": 0.799999
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 12.65527
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.397252,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_gas_pcb_keeper_door_supply_gas_sensor_pcb.stl",
+        "canonical_stl_sha256": "fc2261731f346a7c2f47ac2afa0d7b306dec95d6107dc241c3b051f0bb48ede4",
+        "canonical_step_sha256": "e2b449ca576592335c2eb5ecad26d270d83be5e4a971434b9d848426911c8f7d",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 88.27228,
+        "decoded_model_layer_count": 5,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "bounded interface coupon and COTS mating evidence remain pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_lower_sensor_connector_shroud",
+      "source_artifact_id": "printed_lower_sensor_connector_shroud",
+      "plate_id": "plate_10",
+      "object_ordinal": 10,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_lower_sensor_connector_shroud",
+        "bgcode_m486_name": "printed_lower_sensor_connector_shroud",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 151.900015,
+          "x_max_mm": 164.300015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 22.137512,
+          "z_min_mm": 0.0,
+          "z_max_mm": 5.4
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 2.63286
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.397256,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 45.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lower_sensor_connector_shroud.stl",
+        "canonical_stl_sha256": "809d372f432648f09a6da3835658477a1b3a754e41ee60133ff8fc7f096d74b5",
+        "canonical_step_sha256": "8d944263e680d5487846f6e0f4f9275e2a6e23da558d38d80d3f371152268fc6",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 80.3035,
+        "decoded_model_layer_count": 36,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "bounded interface coupon and COTS mating evidence remain pending.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_01_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_01_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 11,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_01_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_01_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 172.300015,
+          "x_max_mm": 183.300015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 23.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 11.58419
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_01_x_min.stl",
+        "canonical_stl_sha256": "adb0e2e6883af9d93b443f163db04dded9866b491ddffd352903eb5eccc4e2c1",
+        "canonical_step_sha256": "0157628b8886f5e1ca513fe7d82d245fbf4ef41dd13443b6a3a7265521142afb",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 159.14586,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_02_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_02_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 12,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_02_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_02_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 191.300015,
+          "x_max_mm": 202.300015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 23.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 11.58424
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_02_x_min.stl",
+        "canonical_stl_sha256": "ac47dd648a3f36f26d8366ec7f19879d34bf92bd9543c369d87e639d34d2afdb",
+        "canonical_step_sha256": "3cf7229cf42f8984c71735f70720d813b79be91aac64b3999c447a84c15f51b8",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 158.46878,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_03_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_03_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 13,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_03_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_03_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 210.300015,
+          "x_max_mm": 221.300015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 23.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 11.58416
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_03_x_min.stl",
+        "canonical_stl_sha256": "d35a93909dfb9a6e921b4bcbdb84e9c072aada0c4c904f36aecb887623b4a492",
+        "canonical_step_sha256": "ba1851f565b7de3d0cf53377466aa4c04cd1ec9bc7dc38c15c0e00876ef79e57",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 159.16854,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_04_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_04_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 14,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_04_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_04_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 229.300015,
+          "x_max_mm": 240.300015,
+          "y_min_mm": 11.4375,
+          "y_max_mm": 23.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88416
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_04_x_min.stl",
+        "canonical_stl_sha256": "f1b7ebfabc8ead27f2bae3dfa9d163a022c878c45ad547aa72a65857e636d8e0",
+        "canonical_step_sha256": "8ede10f28b1f078adf08bdf82b47905f666bc7a2b3d5c64d835f987ab2a66766",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 159.16854,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_05_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_05_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 15,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_05_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_05_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 151.900015,
+          "x_max_mm": 162.900015,
+          "y_min_mm": 30.137512,
+          "y_max_mm": 42.137512,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 11.58431
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_05_x_min.stl",
+        "canonical_stl_sha256": "17ef05a58b6135bf1fecc454156a405c49a7c9307fefd30c9b1c1a65642a8681",
+        "canonical_step_sha256": "173060f4b657172400b0f2bf1a1f79777975c9cb494c342812e4be76212fb073",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 157.74874,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_06_x_min",
+      "source_artifact_id": "printed_wedge_lock_station_06_x_min",
+      "plate_id": "plate_10",
+      "object_ordinal": 16,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_06_x_min",
+        "bgcode_m486_name": "printed_wedge_lock_station_06_x_min",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 170.900015,
+          "x_max_mm": 181.900015,
+          "y_min_mm": 31.4375,
+          "y_max_mm": 43.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 11.58431
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364382,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_06_x_min.stl",
+        "canonical_stl_sha256": "01f3cdf4509b6497aad36c2612d2d8d4d36798626ccf7df31dfbc2200b0c5e6c",
+        "canonical_step_sha256": "707e0f87e1d6e720f042ea303b0e77b725ae3966aa2d23c754bbfc00b072a93f",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 157.74794,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_07_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_07_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 17,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_07_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_07_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 189.900015,
+          "x_max_mm": 200.900015,
+          "y_min_mm": 31.4375,
+          "y_max_mm": 43.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88614
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_07_x_max.stl",
+        "canonical_stl_sha256": "020b5345814df5f916bfdd261fd4de6bbb25e0851b7b62292d7425a99b77fc59",
+        "canonical_step_sha256": "a7752ae62b02dcca9918d0e49c257422dfafafba9ddab2111d999b5cb3802285",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 167.21178,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_08_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_08_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 18,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_08_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_08_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 208.900015,
+          "x_max_mm": 219.900015,
+          "y_min_mm": 31.4375,
+          "y_max_mm": 43.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88611
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_08_x_max.stl",
+        "canonical_stl_sha256": "b62569f3eb65980e0f242c4605d314918db23a06383e3d4483847683f75a0338",
+        "canonical_step_sha256": "47d2825c41bfe227d1d0fa6169dc0d434736241ecee85ce426764092f2bfe3a9",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 167.91101,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_09_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_09_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 19,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_09_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_09_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 227.900015,
+          "x_max_mm": 238.900015,
+          "y_min_mm": 31.4375,
+          "y_max_mm": 43.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88611
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_09_x_max.stl",
+        "canonical_stl_sha256": "5003e2624369b41f61424069dc95065629cff44e7eac3c3ef6c7ed71f2290570",
+        "canonical_step_sha256": "204a5646a389fa43571d981012c2ca6e947042e83922fef2edf0a6e1135295b9",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 167.91101,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_10_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_10_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 20,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_10_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_10_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 151.900015,
+          "x_max_mm": 162.900015,
+          "y_min_mm": 50.137512,
+          "y_max_mm": 62.137512,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88611
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_10_x_max.stl",
+        "canonical_stl_sha256": "fe87f22f3e63573e6281967ead2a85b3d3af8f2c96effd91b44a22dbff33e40e",
+        "canonical_step_sha256": "23a463c16f0857e68b66b2f4f9cb82d71e44f238d0cd9ed5f46d83203a19e1c2",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 167.91153,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_11_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_11_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 21,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_11_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_11_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 170.900015,
+          "x_max_mm": 181.900015,
+          "y_min_mm": 51.4375,
+          "y_max_mm": 63.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88618
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_11_x_max.stl",
+        "canonical_stl_sha256": "89a7c9741827e6f17272cbee514ee435d70bf92221f56113a2d4fa6a88c75788",
+        "canonical_step_sha256": "1cf7b89fde457762d6febc6ad0402f115ec62de9895cda8af71723114e61cdef",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 168.59661,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_wedge_lock_station_12_x_max",
+      "source_artifact_id": "printed_wedge_lock_station_12_x_max",
+      "plate_id": "plate_10",
+      "object_ordinal": 22,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_wedge_lock_station_12_x_max",
+        "bgcode_m486_name": "printed_wedge_lock_station_12_x_max",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "36db91d9f3c7803a605b1521b0a2034a1500420804a6dae49bee7d9ec9172499"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 189.900015,
+          "x_max_mm": 200.900015,
+          "y_min_mm": 51.4375,
+          "y_max_mm": 63.4375,
+          "z_min_mm": 0.0,
+          "z_max_mm": 3.0
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 10.88618
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.364394,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 0.0,
+        "present": false,
+        "critical_surface_contact_status": "not_applicable_no_decoded_support",
+        "cleanup_allowance": "not_applicable",
+        "blocker": false
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_interface_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_wedge_lock_station_12_x_max.stl",
+        "canonical_stl_sha256": "c8a11596b7b0d775727b3d42dbdb950f6511081aa4626156a7a2b0da8e63e5f7",
+        "canonical_step_sha256": "bf0573a756a4ad85023c633d8d55c3bc9a8b44a913c641f57310121b595a613f",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 168.59661,
+        "decoded_model_layer_count": 20,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "PLA is not approved for operating wedge-lock use.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_sample_relief_cap",
+      "source_artifact_id": "printed_sample_relief_cap",
+      "plate_id": "plate_11",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_sample_relief_cap",
+        "bgcode_m486_name": "printed_sample_relief_cap",
+        "m486_name_match": "exact",
+        "bgcode_sha256": "7f59d8aa322bd4091efe2e140096d8dafc748bd49eee41f1cb7939d5f6744bd7"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 116.599998,
+          "x_max_mm": 133.400002,
+          "y_min_mm": 99.000763,
+          "y_max_mm": 110.999237,
+          "z_min_mm": 0.0,
+          "z_max_mm": 4.6
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 0.4488
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.37219,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 11.64153,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 77.01864,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 70.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": null,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_sample_relief_cap.stl",
+        "canonical_stl_sha256": "ccaf5be4b9015b6fd195f7c41bdc58b3ffa7a4d9216f510e046c4e54fbf8bee5",
+        "canonical_step_sha256": "fe8a75f74456f31c7c5d41b930e08774a931b0207f0876212c5846a7824368c1",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 181.08694,
+        "decoded_model_layer_count": 37,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "hold",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+      "plate_id": "plate_12",
+      "object_ordinal": 0,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+        "bgcode_m486_name": "printed_lid_sensor_connector_shroud_lid_left_gas_service_con...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "5a2bf37aba548c5bc9ff0d2a50239215d1520f04a13490e3b8c013c80eafaefd"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 108.600003,
+          "x_max_mm": 121.000003,
+          "y_min_mm": 99.649994,
+          "y_max_mm": 110.350006,
+          "z_min_mm": 0.0,
+          "z_max_mm": 4.8
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 3.79576
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.399994,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.0,
+        "present": false
+      },
+      "supports": {
+        "support_extrusion_mm": 1.00682,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 40.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_left_gas_service_connector.stl",
+        "canonical_stl_sha256": "b1dc472c2da56255fa5d2bd7c8da06f96b924968804a5476383d56602af6be31",
+        "canonical_step_sha256": "cfe2886d7242e60a53df0042cf4e06178beebf5bbed9471738e508fd1fa1c32a",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 88.12503,
+        "decoded_model_layer_count": 32,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance.",
+      "assembly_authorized": false
+    },
+    {
+      "release_body_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "source_artifact_id": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+      "plate_id": "plate_12",
+      "object_ordinal": 1,
+      "identity_evidence": {
+        "authority": "authority_release_id_plus_3mf_name_plus_ordered_m486",
+        "3mf_object_name": "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+        "bgcode_m486_name": "printed_lid_sensor_connector_shroud_lid_right_sensor_service...",
+        "m486_name_match": "truncated_prefix",
+        "bgcode_sha256": "5a2bf37aba548c5bc9ff0d2a50239215d1520f04a13490e3b8c013c80eafaefd"
+      },
+      "orientation": {
+        "method": "preserve_functional_z_axis_and_place_lowest_surface_on_bed",
+        "rotation_from_canonical_deg_xyz": [
+          0,
+          0,
+          0
+        ],
+        "placed_bounds": {
+          "x_min_mm": 129.000003,
+          "x_max_mm": 141.399997,
+          "y_min_mm": 99.649994,
+          "y_max_mm": 110.350006,
+          "z_min_mm": 0.0,
+          "z_max_mm": 4.8
+        },
+        "placed_z_min_mm": 0.0
+      },
+      "first_layer_contact": {
+        "status": "direct_model_extrusion_at_first_layer",
+        "first_model_layer_z_mm": 0.2,
+        "first_model_layer_extrusion_mm": 2.99462
+      },
+      "minimum_printed_feature": {
+        "observed_minimum_model_extrusion_width_mm": 0.399994,
+        "status": "unresolved_width_proxy_only",
+        "limitation": "Extrusion width is not a geometric wall, gap, or thickness measurement; the feature-aware minimum gate remains physical."
+      },
+      "bridges": {
+        "bridge_or_overhang_extrusion_mm": 0.11738,
+        "present": true
+      },
+      "supports": {
+        "support_extrusion_mm": 7.71139,
+        "present": true,
+        "critical_surface_contact_status": "unresolved_support_present_no_functional_surface_map",
+        "cleanup_allowance": "none_documented",
+        "blocker": true
+      },
+      "seams": {
+        "assembly_split_seam_status": "not_applicable_unsplit_source",
+        "slicer_layer_seam_status": "not_feature_mapped"
+      },
+      "brim": {
+        "configured_width_mm": 3.0,
+        "allocation_note": "plate-level setting; global Skirt/Brim paths are not assigned to M486 bodies"
+      },
+      "speed": {
+        "configured_max_print_speed_mm_s": 70.0,
+        "maximum_observed_model_extrusion_speed_mm_s": 40.0
+      },
+      "body_collisions": {
+        "plate_xy_bbox_intersection": false,
+        "intersecting_body_ids": [],
+        "minimum_xy_bbox_gap_to_other_body_mm": 8.0,
+        "installed_body_collision_status": "pending_service_clearance_evidence"
+      },
+      "artifact_completeness": {
+        "canonical_stl_path": "outputs/cad/final_print_pieces/aevum_one_row_coupon_printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector.stl",
+        "canonical_stl_sha256": "5939b5d8eabe8fc725c277949403dd54bb150b86e8a5ea5cadb09a608a139434",
+        "canonical_step_sha256": "b38eddf915c54929dd8e857f31a8497985e869e60e2c95a573d7d1b2ca928153",
+        "3mf_object_present": true,
+        "bgcode_m486_object_present": true,
+        "positive_extrusion_present": true,
+        "decoded_total_positive_extrusion_mm": 93.55169,
+        "decoded_model_layer_count": 38,
+        "complete": true
+      },
+      "geometry_likely_to_print": true,
+      "disposition": "coupon-first",
+      "disposition_reason": "decoded support has no mapped functional-surface cleanup allowance.",
+      "assembly_authorized": false
+    }
+  ]
+}

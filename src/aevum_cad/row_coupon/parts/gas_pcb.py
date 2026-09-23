@@ -1,8 +1,18 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_axis_cylinder, _axis_cylinder_envelope_rect, _axis_tube, _boxes_from_rectangles, _perimeter_rails, _rectangles_overlap_xy)
+
+from ..layout import row_coupon_layout
+from ._geom_base import (
+    _axis_cylinder,
+    _axis_cylinder_envelope_rect,
+    _axis_tube,
+    _boxes_from_rectangles,
+    _perimeter_rails,
+    _rectangles_overlap_xy,
+)
 
 
 def _add_gas_sensor_pcb_sockets(
@@ -11,12 +21,13 @@ def _add_gas_sensor_pcb_sockets(
     params: dict[str, Any],
     assembly_position: bool,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (_cut_rectangular_gas_interface_window)
+    from aevum_cad.row_coupon import _cut_rectangular_gas_interface_window
     layout = row_coupon_layout(params)
     mounts = params.get("sensor_mounts", {})
     wall = mounts.get("gas_pcb_socket_wall_thickness", 1.2)
     lip_h = mounts.get("gas_pcb_socket_lip_height_z", 1.2)
     lip_w = mounts.get("gas_pcb_socket_lip_width_xy", 1.5)
+    cartridge_clearance = mounts.get("gas_pcb_socket_clearance_xy", 0.2)
     z_shift = 0.0 if assembly_position else -layout["lid_top_z"]
 
     for mount in layout["gas_sensor_pcb_mounts"]:
@@ -26,12 +37,10 @@ def _add_gas_sensor_pcb_sockets(
         length_x = float(mount["length_x"])
         width_y = float(mount["width_y"])
         height_z = float(mount["height_z"])
-        shelf_z = z
-        cover = cover.union(
-            cq.Workplane("XY")
-            .box(length_x + 2 * wall, width_y + 2 * wall, lip_h, centered=(False, False, False))
-            .translate((x - wall, y - wall, shelf_z))
-        )
+        # The cassette is open through the PCB footprint.  A solid floor here
+        # occupied the first ``lip_h`` of every rigid PCB and made insertion
+        # physically impossible; the perimeter rails and removable keeper own
+        # lateral and vertical retention instead.
         cover = cover.union(
             _perimeter_rails(
                 x0=x - wall,
@@ -84,6 +93,24 @@ def _add_gas_sensor_pcb_sockets(
                     float(cable["x"]),
                     float(cable["y"]),
                     float(cable["z"]) + z_shift - 0.05,
+                )
+            )
+        )
+        # Reassert the complete cartridge volume after every socket union.
+        # This is the insertion path for the rigid PCB, not printable material.
+        cover = cover.cut(
+            cq.Workplane("XY")
+            .box(
+                length_x + 2 * cartridge_clearance,
+                width_y + 2 * cartridge_clearance,
+                height_z + 0.1,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    x - cartridge_clearance,
+                    y - cartridge_clearance,
+                    z - 0.05,
                 )
             )
         )
@@ -364,6 +391,8 @@ def _gas_pcb_sampling_interface(
         "type": "sealed_dry_side_duct_sampling_cell",
         "face_axis": face_axis,
         "gasket_material_intent": "compressible_elastomer_or_printed_tpu",
+        "gasket_print_orientation": "largest_face_on_bed_no_support",
+        "gasket_physical_gate": "compression_leak_and_repeated_service_cycle",
         "gasket_rect": gasket_rect,
         "gasket_window_rect": gasket_window_rect,
         "seal_land_rect": seal_land_rect,
@@ -394,6 +423,7 @@ def _gas_sensor_pcb_mounts_for_layout(
     aperture_d = mounts.get("gas_pcb_aperture_diameter", 2.0)
     channel_w = mounts.get("cable_channel_width_xy", 1.2)
     channel_d = mounts.get("cable_channel_depth_z", 0.5)
+    cable_offset_y = mounts.get("gas_pcb_cable_offset_y", 8.0)
     z0 = lid_top_z
     aperture_z = lid_top_z + lid["duct_height_z"] / 2
     side_gas_by_role = {
@@ -418,11 +448,21 @@ def _gas_sensor_pcb_mounts_for_layout(
             y0 = center_y - gas_len / 2
             cable_x = 0.0 if role == "supply" else x0 + gas_thick
             cable_len = x0 if role == "supply" else float(layout["length_x"]) - cable_x
+            cable_center_y = center_y - cable_offset_y
             spec = {
                 "name": f"{role}_gas_sensor_pcb",
                 "role": role,
                 "owner_part": "lid_cover",
                 "retention": "screwless_printed_keeper",
+                "keeper_install_axis": "+Z",
+                "keeper_removal_axis": "+Z",
+                "keeper_vertical_clearance_z": round(
+                    float(params.get("sensor_installation", {}).get(
+                        "gas_pcb_keeper_vertical_clearance_z", 0.2
+                    )), 3
+                ),
+                "keeper_physical_gate": "pull_off_and_repeated_service_cycle",
+                "keeper_print_orientation": "retainer_frame_flat_no_internal_support",
                 "orientation": "vertical_side_cartridge",
                 "socket_enclosure": "full_height_printed_dry_side_cassette",
                 "wet_boundary": "dry_side_gas_duct_aperture_only",
@@ -437,9 +477,10 @@ def _gas_sensor_pcb_mounts_for_layout(
                 "aperture_y": round(center_y, 3),
                 "aperture_z": round(aperture_z, 3),
                 "aperture_diameter": aperture_d,
+                "cable_center_y": round(cable_center_y, 3),
                 "cable_exit_rect": {
                     "x": round(cable_x, 3),
-                    "y": round(center_y - channel_w / 2, 3),
+                    "y": round(cable_center_y - channel_w / 2, 3),
                     "z": round(lid_top_z, 3),
                     "length_x": round(cable_len, 3),
                     "width_y": round(channel_w, 3),
@@ -470,6 +511,15 @@ def _gas_sensor_pcb_mounts_for_layout(
             "role": role,
             "owner_part": "lid_cover",
             "retention": "screwless_printed_keeper",
+            "keeper_install_axis": "+Z",
+            "keeper_removal_axis": "+Z",
+            "keeper_vertical_clearance_z": round(
+                float(params.get("sensor_installation", {}).get(
+                    "gas_pcb_keeper_vertical_clearance_z", 0.2
+                )), 3
+            ),
+            "keeper_physical_gate": "pull_off_and_repeated_service_cycle",
+            "keeper_print_orientation": "retainer_frame_flat_no_internal_support",
             "orientation": "vertical_side_cartridge",
             "socket_enclosure": "full_height_printed_dry_side_cassette",
             "wet_boundary": "dry_side_gas_duct_aperture_only",
@@ -1231,17 +1281,28 @@ def _keeper_door_body(
     length_x = float(mount["length_x"])
     width_y = float(mount["width_y"])
     height_z = float(mount["height_z"])
-    door_z = z + height_z - door_h
-    door = (
+    clearance_z = float(install.get("gas_pcb_keeper_vertical_clearance_z", 0.2))
+    ledge = min(float(install.get("gas_pcb_keeper_retaining_ledge_xy", 1.0)), wall)
+    door_z = z + height_z + clearance_z
+    outer = (
         cq.Workplane("XY")
-        .box(
-            length_x + 2 * wall,
-            width_y + 2 * wall,
-            door_h,
-            centered=(False, False, False),
-        )
+        .box(length_x + 2 * wall, width_y + 2 * wall, door_h, centered=(False, False, False))
         .translate((x - wall, y - wall, door_z))
     )
+    # A perimeter keeper frame leaves the PCB/service face open and overlaps
+    # only its edge projection.  Positive Z clearance makes installation real
+    # geometry instead of the former solid plate through the top 0.8 mm.
+    opening = (
+        cq.Workplane("XY")
+        .box(
+            max(length_x - 2 * ledge, 0.1),
+            max(width_y - 2 * ledge, 0.1),
+            door_h + 0.2,
+            centered=(False, False, False),
+        )
+        .translate((x + ledge, y + ledge, door_z - 0.1))
+    )
+    door = outer.cut(opening)
     if length_x <= width_y:
         if mount["role"] == "supply":
             tab_x = max(0.0, x - wall - tab_w)

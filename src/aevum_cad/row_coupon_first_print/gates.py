@@ -19,29 +19,28 @@ from pathlib import Path
 from typing import Any
 
 from .common import (
-    _resolve_worksheet_evidence_path,
     _worksheet_evidence_file_error,
 )
 from .constants import FIRST_PRINT_GATE1_QC_DIMENSION_TOLERANCE_MM
 from .models import (
-    FirstPrintGate1QCWorksheetRow,
-    FirstPrintGate1QCWorksheetIssue,
     FirstPrintGate1QCWorksheetAudit,
-    FirstPrintGate2DryAssemblyWorksheetRow,
-    FirstPrintGate2DryAssemblyWorksheetIssue,
+    FirstPrintGate1QCWorksheetIssue,
+    FirstPrintGate1QCWorksheetRow,
     FirstPrintGate2DryAssemblyWorksheetAudit,
-    FirstPrintGate3PlacementWorksheetRow,
-    FirstPrintGate3PlacementWorksheetIssue,
+    FirstPrintGate2DryAssemblyWorksheetIssue,
+    FirstPrintGate2DryAssemblyWorksheetRow,
     FirstPrintGate3PlacementWorksheetAudit,
-    FirstPrintGate4WetDryWitnessWorksheetRow,
-    FirstPrintGate4WetDryWitnessWorksheetIssue,
+    FirstPrintGate3PlacementWorksheetIssue,
+    FirstPrintGate3PlacementWorksheetRow,
     FirstPrintGate4WetDryWitnessWorksheetAudit,
-    FirstPrintGate5ConsumablePunctureWorksheetRow,
-    FirstPrintGate5ConsumablePunctureWorksheetIssue,
+    FirstPrintGate4WetDryWitnessWorksheetIssue,
+    FirstPrintGate4WetDryWitnessWorksheetRow,
     FirstPrintGate5ConsumablePunctureWorksheetAudit,
-    FirstPrintGate6SensorThermalWorksheetRow,
-    FirstPrintGate6SensorThermalWorksheetIssue,
+    FirstPrintGate5ConsumablePunctureWorksheetIssue,
+    FirstPrintGate5ConsumablePunctureWorksheetRow,
     FirstPrintGate6SensorThermalWorksheetAudit,
+    FirstPrintGate6SensorThermalWorksheetIssue,
+    FirstPrintGate6SensorThermalWorksheetRow,
 )
 
 # Facade-owned helpers the gate ``*_worksheet_rows`` bodies reference as plain globals. They still
@@ -57,7 +56,7 @@ _FACADE_DEFERRED = (
     "first_print_gate5_consumable_puncture_targets",
     "first_print_gate6_sensor_thermal_targets",
     "first_print_gate1_qc_rows_from_slicer_queue_manifest",
-    "first_print_y_split_slicer_queue_items",
+    "first_print_final_piece_slicer_queue_items",
 )
 
 first_print_qc_targets = None  # bound by facade _bind_facade_targets
@@ -67,7 +66,7 @@ first_print_gate4_wet_dry_witness_targets = None  # bound by facade _bind_facade
 first_print_gate5_consumable_puncture_targets = None  # bound by facade _bind_facade_targets
 first_print_gate6_sensor_thermal_targets = None  # bound by facade _bind_facade_targets
 first_print_gate1_qc_rows_from_slicer_queue_manifest = None  # bound by facade _bind_facade_targets
-first_print_y_split_slicer_queue_items = None  # bound by facade _bind_facade_targets
+first_print_final_piece_slicer_queue_items = None  # bound by facade _bind_facade_targets
 
 
 def _bind_facade_targets(facade) -> None:
@@ -221,11 +220,11 @@ def first_print_gate1_qc_worksheet_csv(params: dict[str, Any]) -> str:
     )
 
 
-def first_print_y_split_gate1_qc_worksheet_rows(
+def first_print_final_piece_gate1_qc_worksheet_rows(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
 ) -> tuple[FirstPrintGate1QCWorksheetRow, ...]:
@@ -233,16 +232,33 @@ def first_print_y_split_gate1_qc_worksheet_rows(
     if manifest_rows:
         return manifest_rows
 
-    split_path = Path(split_dir)
+    piece_path = Path(piece_dir)
     rows: list[FirstPrintGate1QCWorksheetRow] = []
-    for item in first_print_y_split_slicer_queue_items(
+    for item in first_print_final_piece_slicer_queue_items(
         params=params,
         out_dir=out_dir,
-        split_dir=split_path,
+        piece_dir=piece_path,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
     ):
-        source = "printed_split" if item.source_stl_path.parent == split_path else "printed"
+        # Must agree row-for-row with the manifest-derived branch above
+        # (``first_print_gate1_qc_rows_from_slicer_queue_manifest``), because the
+        # audit compares the operator's worksheet against whichever branch is
+        # live: a worksheet written before the queue was prepared has to survive
+        # the audit run after it.
+        #
+        # Under the y_split scheme the two branches agreed by accident -- only cut
+        # segments lived in the split directory, so "does this STL come out of the
+        # split dir" and "is this a cut piece" were the same question. Under the
+        # final-piece scheme EVERY queued part is exported to ``piece_dir``,
+        # including bodies that fit the bed whole, so the directory test labels
+        # everything ``printed_final_piece`` while the manifest branch still
+        # labels an unsplit body ``printed``. Ask the same question the manifest
+        # branch asks -- the queue item's own role, which is the field that
+        # round-trips through the manifest table.
+        source = (
+            "printed_final_piece" if "final print piece" in item.role else "printed"
+        )
         rows.append(
             FirstPrintGate1QCWorksheetRow(
                 part=item.name,
@@ -255,19 +271,19 @@ def first_print_y_split_gate1_qc_worksheet_rows(
     return tuple(rows)
 
 
-def first_print_y_split_gate1_qc_worksheet_csv(
+def first_print_final_piece_gate1_qc_worksheet_csv(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
 ) -> str:
     return _first_print_gate1_qc_worksheet_csv_from_rows(
-        first_print_y_split_gate1_qc_worksheet_rows(
+        first_print_final_piece_gate1_qc_worksheet_rows(
             params=params,
             out_dir=out_dir,
-            split_dir=split_dir,
+            piece_dir=piece_dir,
             queue_dir=queue_dir,
             slicer_setup_path=slicer_setup_path,
         )
@@ -318,11 +334,11 @@ def audit_first_print_gate1_qc_worksheet(
     )
 
 
-def audit_first_print_y_split_gate1_qc_worksheet(
+def audit_first_print_final_piece_gate1_qc_worksheet(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     worksheet_path: str | Path,
@@ -330,10 +346,10 @@ def audit_first_print_y_split_gate1_qc_worksheet(
 ) -> FirstPrintGate1QCWorksheetAudit:
     return _audit_first_print_gate1_qc_worksheet_from_expected_rows(
         worksheet_path=Path(worksheet_path),
-        expected_rows=first_print_y_split_gate1_qc_worksheet_rows(
+        expected_rows=first_print_final_piece_gate1_qc_worksheet_rows(
             params=params,
             out_dir=out_dir,
-            split_dir=split_dir,
+            piece_dir=piece_dir,
             queue_dir=queue_dir,
             slicer_setup_path=slicer_setup_path,
         ),

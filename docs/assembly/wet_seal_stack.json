@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "contract_id": "row_coupon_wet_seal_stack_b2",
+  "scope": [
+    "plate_support_frame",
+    "lower_gasket",
+    "wet_chamber_frame",
+    "upper_gasket",
+    "lid_manifold_shell"
+  ],
+  "nominal_geometry": {
+    "compressed_gasket_height_mm": 0.8,
+    "capture_depth_per_mate_mm": 0.45,
+    "capture_outer_land_mm": 0.8,
+    "capture_clearance_xy_mm": 0.25,
+    "captured_gasket_rail_width_mm": 4.2,
+    "gasket_perimeter_inset_mm": 0.925,
+    "lower_gasket_z_mm": [
+      7.6,
+      8.4
+    ],
+    "upper_gasket_z_mm": [
+      24.3,
+      25.1
+    ],
+    "lower_gasket_centered_across_support_wet_datum": true,
+    "upper_gasket_fills_wet_shell_nominal_gap": true
+  },
+  "compression_screen": {
+    "minimum_squeeze_mm": 0.2,
+    "target_squeeze_mm": 0.55,
+    "maximum_squeeze_mm": 0.8,
+    "bounded_squeeze_mm": 0.55,
+    "cad_budget_passes": true,
+    "meaning": "kinematic screen only; not a material, force, wear, or seal acceptance"
+  },
+  "digital_acceptance": {
+    "gaskets_are_single_continuous_solids": true,
+    "forbidden_mating_body_intersection_max_mm3": 0.000001,
+    "lower_service_tabs_have_support_access_pockets": true,
+    "condensation_pocket_count": 4,
+    "wet_dry_witness_gutter_count": 8,
+    "gasket_tab_witness_count": 4
+  },
+  "material_and_physical_authority": {
+    "pla_allowed_for_operating_gaskets": false,
+    "operating_gasket_material": "unresolved",
+    "requires_d2_physical_evidence": true,
+    "blocked_claims": [
+      "leak_tight",
+      "pressure_tight",
+      "compression_set_acceptable",
+      "chemical_compatibility_acceptable",
+      "cleaning_protocol_acceptable",
+      "wet_operation_ready"
+    ],
+    "required_coupons": [
+      "gasket compression gap gauge",
+      "captured perimeter section",
+      "service-tab removal section",
+      "wet-dry dye witness section"
+    ]
+  }
+}

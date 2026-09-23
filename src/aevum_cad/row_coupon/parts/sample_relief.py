@@ -1,9 +1,16 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_boxes_from_rectangles)
-from ._shared_tile import (_lid_port_positions)
+
+from ..layout import row_coupon_layout
+from ._geom_base import (
+    _boxes_from_rectangles,
+    _fused_z_box,
+    _integral_feature_fusion_overlap_z,
+)
+from ._shared_tile import _lid_port_positions
 
 
 def _add_sample_relief_cap_review_flag(
@@ -31,6 +38,42 @@ def _add_sample_relief_cap_review_flag(
     )
 
 
+def _sample_relief_threshold_internal_stem(
+    *,
+    witness: dict[str, Any],
+    shelf: dict[str, Any],
+    threshold: dict[str, Any],
+    layout: dict[str, Any],
+    params: dict[str, Any],
+    z_shift: float,
+    overlap_z: float,
+) -> cq.Workplane | None:
+    production = params.get("production_assembly", {})
+    stem_z = float(layout["lid_top_z"]) + z_shift + float(
+        production.get("port_seal_land_height_z", 0.0)
+    )
+    stem_h = float(shelf["z"]) - stem_z
+    if stem_h <= 0:
+        return None
+
+    stem_length = float(threshold["length_x"])
+    stem_width = min(float(threshold["width_y"]), 1.0)
+    stem_y = min(
+        max(float(witness["port_y"]) - stem_width / 2, float(threshold["y"])),
+        float(threshold["y"]) + float(threshold["width_y"]) - stem_width,
+    )
+    return _fused_z_box(
+        length=stem_length,
+        width=stem_width,
+        height=stem_h,
+        x=float(threshold["x"]),
+        y=stem_y,
+        z=stem_z,
+        overlap_z=overlap_z,
+        into="down",
+    )
+
+
 def _add_sample_relief_leak_witness_features(
     cover: cq.Workplane,
     *,
@@ -39,14 +82,49 @@ def _add_sample_relief_leak_witness_features(
 ) -> cq.Workplane:
     layout = row_coupon_layout(params)
     z_shift = 0.0 if assembly_position else -layout["lid_top_z"]
+    overlap_z = _integral_feature_fusion_overlap_z(params)
     for witness in layout["sample_relief_leak_witnesses"]:
         shelf = dict(witness["shelf_rect"])
         shelf["z"] = float(shelf["z"]) + z_shift
-        cover = cover.union(_boxes_from_rectangles([shelf]))
+        cover = cover.union(
+            _fused_z_box(
+                length=float(shelf["length_x"]),
+                width=float(shelf["width_y"]),
+                height=float(shelf["height_z"]),
+                x=float(shelf["x"]),
+                y=float(shelf["y"]),
+                z=float(shelf["z"]),
+                overlap_z=overlap_z,
+                into="down",
+            )
+        )
 
         threshold = dict(witness["threshold_rect"])
         threshold["z"] = float(threshold["z"]) + z_shift
-        cover = cover.union(_boxes_from_rectangles([threshold]))
+        threshold_stem_z = max(0.0, float(threshold["z"]) - float(shelf["z"]))
+        threshold_internal_stem = _sample_relief_threshold_internal_stem(
+            witness=witness,
+            shelf=shelf,
+            threshold=threshold,
+            layout=layout,
+            params=params,
+            z_shift=z_shift,
+            overlap_z=overlap_z,
+        )
+        if threshold_internal_stem is not None:
+            cover = cover.union(threshold_internal_stem)
+        cover = cover.union(
+            _fused_z_box(
+                length=float(threshold["length_x"]),
+                width=float(threshold["width_y"]),
+                height=float(threshold["height_z"]) + threshold_stem_z,
+                x=float(threshold["x"]),
+                y=float(threshold["y"]),
+                z=float(shelf["z"]),
+                overlap_z=overlap_z,
+                into="down",
+            )
+        )
 
         gutter = dict(witness["gutter_rect"])
         gutter["z"] = float(gutter["z"]) + z_shift

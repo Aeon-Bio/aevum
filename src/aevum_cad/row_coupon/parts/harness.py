@@ -1,8 +1,11 @@
 from __future__ import annotations
+
 from typing import Any
+
 import cadquery as cq
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_boxes_from_rectangles, _harness_z_shift, _rectangles_bounding_extents)
+
+from ..layout import row_coupon_layout
+from ._geom_base import _boxes_from_rectangles, _harness_z_shift, _rectangles_bounding_extents
 
 
 def _add_harness_snap_tabs(
@@ -42,6 +45,166 @@ def _add_harness_snap_tabs(
     return model
 
 
+def _lower_cover_trunk(params: dict[str, Any]) -> dict[str, Any]:
+    """Return the lower cover trunk stopped before the connector tool lane."""
+
+    layout = row_coupon_layout(params)
+    trunk = dict(layout["lower_ir_harness_trunk"])
+    connector = layout["lower_ir_connector_envelope"]
+    shroud = connector["printed_shroud"]
+    harness = params["sensor_harness"]
+    key_y = float(shroud["y"]) - float(connector["key_rib_rect"]["width_y"])
+    clearance = float(harness["lower_connector_cover_clearance_y"])
+    cover_overlap = float(harness["cover_overlap_xy"])
+    trunk["width_y"] = round(
+        min(float(shroud["y"]), key_y)
+        - clearance
+        - cover_overlap
+        - float(trunk["y"]),
+        3,
+    )
+    return trunk
+
+
+def _lower_cover_hook_rectangles(params: dict[str, Any]) -> list[dict[str, float]]:
+    harness = params["sensor_harness"]
+    trunk = _lower_cover_trunk(params)
+    pitch = float(harness["snap_tab_pitch_y"])
+    tab_len = float(harness["snap_tab_length_y"])
+    hook_w = float(harness["lower_cover_hook_width_x"])
+    hook_len = float(harness["lower_cover_hook_length_y"])
+    hook_h = float(harness["lower_cover_hook_height_z"])
+    embed = float(harness["lower_cover_hook_embed_z"])
+    x = float(trunk["x"]) + float(trunk["length_x"]) + float(harness["snap_tab_width_x"]) - hook_w
+    y = float(trunk["y"]) + pitch / 2
+    y_end = float(trunk["y"]) + float(trunk["width_y"]) - tab_len
+    rects: list[dict[str, float]] = []
+    while y <= y_end:
+        rects.append(
+            {
+                "x": x,
+                "y": y + (tab_len - hook_len) / 2,
+                "z": float(trunk["z"]) - embed,
+                "length_x": hook_w,
+                "width_y": hook_len,
+                "height_z": hook_h,
+            }
+        )
+        y += pitch
+    return rects
+
+
+def _lower_shroud_mount_rectangles(params: dict[str, Any]) -> list[dict[str, float]]:
+    harness = params["sensor_harness"]
+    connector = row_coupon_layout(params)["lower_ir_connector_envelope"]
+    shroud = connector["printed_shroud"]
+    board = connector["board_rect"]
+    lug_l = float(harness["lower_shroud_mount_lug_length_x"])
+    lug_w = float(harness["lower_shroud_mount_lug_width_y"])
+    lug_h = float(harness["lower_shroud_mount_lug_height_z"])
+    embed = float(harness["lower_shroud_mount_lug_embed_z"])
+    top = (
+        float(board["z"])
+        + float(board["height_z"])
+        + float(shroud["height_z"])
+    )
+    span = float(shroud["length_x"])
+    return [
+        {
+            "x": float(shroud["x"]) + span * fraction - lug_l / 2,
+            "y": float(shroud["y"]),
+            "z": top - embed,
+            "length_x": lug_l,
+            "width_y": lug_w,
+            "height_z": lug_h,
+        }
+        for fraction in (0.55, 0.8)
+    ]
+
+
+def _cut_rect_receptacles(
+    model: cq.Workplane,
+    rects: list[dict[str, float]],
+    *,
+    clearance_xy: float,
+    clearance_z: float,
+) -> cq.Workplane:
+    for rect in rects:
+        model = model.cut(
+            cq.Workplane("XY")
+            .box(
+                rect["length_x"] + 2 * clearance_xy,
+                rect["width_y"] + 2 * clearance_xy,
+                rect["height_z"] + clearance_z,
+                centered=(False, False, False),
+            )
+            .translate(
+                (
+                    rect["x"] - clearance_xy,
+                    rect["y"] - clearance_xy,
+                    rect["z"],
+                )
+            )
+        )
+    return model
+
+
+def _cut_lower_cover_hook_receptacles(
+    model: cq.Workplane, *, params: dict[str, Any]
+) -> cq.Workplane:
+    harness = params["sensor_harness"]
+    return _cut_rect_receptacles(
+        model,
+        _lower_cover_hook_rectangles(params),
+        clearance_xy=float(harness["lower_cover_hook_clearance_xy"]),
+        clearance_z=float(harness["lower_cover_hook_clearance_z"]),
+    )
+
+
+def _cut_lower_shroud_mount_receptacles(
+    model: cq.Workplane, *, params: dict[str, Any]
+) -> cq.Workplane:
+    harness = params["sensor_harness"]
+    model = _cut_rect_receptacles(
+        model,
+        _lower_shroud_mount_rectangles(params),
+        clearance_xy=float(harness["lower_shroud_mount_clearance_xy"]),
+        clearance_z=float(harness["lower_shroud_mount_clearance_z"]),
+    )
+    # The lower support also needs the complete above-datum shroud insertion
+    # envelope.  Cutting the U-profile piecemeal left its side rails embedded
+    # in the frame when the guard height changed.
+    connector = row_coupon_layout(params)["lower_ir_connector_envelope"]
+    shroud = connector["printed_shroud"]
+    key = connector["key_rib_rect"]
+    board = connector["board_rect"]
+    clearance = float(harness["lower_shroud_mount_clearance_xy"])
+    key_y = float(shroud["y"]) - float(key["width_y"])
+    insertion_rect = {
+        "x": float(shroud["x"]),
+        "y": min(float(shroud["y"]), key_y),
+        "z": 0.0,
+        "length_x": float(shroud["length_x"]),
+        "width_y": (
+            float(shroud["y"])
+            + float(shroud["width_y"])
+            - min(float(shroud["y"]), key_y)
+        ),
+        "height_z": max(
+            0.0,
+            float(board["z"])
+            + float(board["height_z"])
+            + float(shroud["height_z"]),
+        ),
+    }
+    return _cut_rect_receptacles(
+        model,
+        [insertion_rect],
+        clearance_xy=clearance,
+        clearance_z=float(harness["lower_shroud_mount_clearance_z"]),
+    )
+
+
 def _build_printed_sensor_connector_shrouds(
     connectors: list[dict[str, Any]] | tuple[dict[str, Any], ...],
     *,
@@ -56,7 +219,11 @@ def _build_printed_sensor_connector_shrouds(
         wall = float(shroud["wall_xy"])
         x = float(shroud["x"])
         y = float(shroud["y"])
-        z = float(shroud["z"]) + z_shift
+        # The shroud is a removable guard, not a socket around the carrier PCB.
+        # Start it above the PCB plane so the printed walls never consume the
+        # COTS board volume during installation/removal.
+        board = connector["board_rect"]
+        z = float(board["z"]) + float(board["height_z"]) + z_shift
         length = float(shroud["length_x"])
         width = float(shroud["width_y"])
         height = float(shroud["height_z"])
@@ -76,6 +243,9 @@ def _build_printed_sensor_connector_shrouds(
             )
         )
         key = connector["key_rib_rect"]
+        # Put the tactile key on the outside of the closed (-Y) wall.  The old
+        # placement projected through the connector body itself.
+        key_y = y - float(key["width_y"]) + min(0.1, wall / 4)
         rails = rails.union(
             cq.Workplane("XY")
             .box(
@@ -84,7 +254,7 @@ def _build_printed_sensor_connector_shrouds(
                 float(key["height_z"]),
                 centered=(False, False, False),
             )
-            .translate((float(key["x"]), float(key["y"]), float(key["z"]) + z_shift))
+            .translate((float(key["x"]), key_y, z))
         )
         if emit_grip_rib:
             rails = rails.union(
@@ -98,8 +268,8 @@ def _build_printed_sensor_connector_shrouds(
                 .translate(
                     (
                         float(key["x"]),
-                        float(key["y"]) + float(grip_rib_y_offset),
-                        float(key["z"]) + z_shift,
+                        key_y - float(grip_rib_y_offset),
+                        z,
                     )
                 )
             )
@@ -107,6 +277,47 @@ def _build_printed_sensor_connector_shrouds(
     if model is None:
         raise ValueError("sensor connector shroud model requires at least one connector")
     return model
+
+
+def _cut_lower_shroud_harness_entry(
+    model: cq.Workplane,
+    *,
+    params: dict[str, Any],
+    z_shift: float,
+) -> cq.Workplane:
+    """Open the lower shroud's closed wall for its fixed cable bundle.
+
+    The connector unmates toward +Y while its harness approaches from -Y.
+    Without this low notch, the already-wired harness passes through solid
+    shroud wall material and the guard cannot be installed.
+    """
+
+    layout = row_coupon_layout(params)
+    connector = layout["lower_ir_connector_envelope"]
+    shroud = connector["printed_shroud"]
+    key = connector["key_rib_rect"]
+    trunk = layout["lower_ir_harness_trunk"]
+    clearance = float(params["sensor_harness"]["channel_clearance_xy"])
+    wall_y = float(shroud["y"])
+    key_y = wall_y - float(key["width_y"]) + min(0.1, float(shroud["wall_xy"]) / 4)
+    z0 = float(trunk["z"]) + z_shift
+    notch = (
+        cq.Workplane("XY")
+        .box(
+            float(trunk["length_x"]) + 2 * clearance,
+            wall_y + float(shroud["wall_xy"]) - key_y + 2 * clearance,
+            float(trunk["height_z"]) + 2 * clearance,
+            centered=(False, False, False),
+        )
+        .translate(
+            (
+                float(trunk["x"]) - clearance,
+                key_y - clearance,
+                z0 - clearance,
+            )
+        )
+    )
+    return model.cut(notch)
 
 
 def _build_sensor_service_connector_models(
@@ -159,13 +370,17 @@ def _cut_lid_sensor_harness_channels(
     params: dict[str, Any],
     owner_part: str,
     assembly_position: bool,
+    fabrication_origin_z: float | None = None,
+    cut_through_top: bool = False,
 ) -> cq.Workplane:
     layout = row_coupon_layout(params)
     harness = params["sensor_harness"]
     channel_depth = harness["channel_depth_z"]
     channel_clearance = harness["channel_clearance_xy"]
     z_shift = 0.0
-    if not assembly_position:
+    if not assembly_position and fabrication_origin_z is not None:
+        z_shift = -fabrication_origin_z
+    elif not assembly_position:
         if owner_part == "lid_manifold_shell":
             z_shift = -layout["lid_bottom_z"]
         else:
@@ -181,19 +396,26 @@ def _cut_lid_sensor_harness_channels(
         rects.append(route["branch_rect"])
         rects.append(route["strain_relief_rect"])
     for rect in rects:
+        cutter_z = float(rect["z"]) + z_shift - 0.05
+        cutter_height = channel_depth + 0.05
+        if cut_through_top:
+            cutter_height = max(
+                cutter_height,
+                float(model.val().BoundingBox().zmax) - cutter_z + 0.1,
+            )
         model = model.cut(
             cq.Workplane("XY")
             .box(
                 float(rect["length_x"]) + 2 * channel_clearance,
                 float(rect["width_y"]) + 2 * channel_clearance,
-                channel_depth + 0.05,
+                cutter_height,
                 centered=(False, False, False),
             )
             .translate(
                 (
                     float(rect["x"]) - channel_clearance,
                     float(rect["y"]) - channel_clearance,
-                    float(rect["z"]) + z_shift - 0.05,
+                    cutter_z,
                 )
             )
         )
@@ -343,6 +565,12 @@ def _lid_sensor_harness_for_layout(
     left_w = harness["lid_left_trunk_width_x"]
     right_x = harness["lid_right_trunk_x"]
     right_w = harness["lid_right_trunk_width_x"]
+    shell_right_x = harness.get("lid_shell_right_trunk_x", right_x)
+    shell_bus_z = (
+        lid_bottom_z
+        + float(harness["cover_height_z"])
+        + float(harness.get("lid_shell_cover_gasket_clearance_z", 0.1))
+    )
 
     gas_ys = [float(mount["aperture_y"]) for mount in gas_sensor_pcb_mounts]
     sht_ys = [float(mount["aperture_y"]) for mount in headspace_sht41_mounts]
@@ -354,7 +582,10 @@ def _lid_sensor_harness_for_layout(
             "name": "lid_cover_left_gas_bus",
             "domain": "lid_sensor_harness",
             "owner_part": "lid_cover",
-            "retention": "printed_snap_cover",
+            "retention": "channel_clearance_cover_physical_retention_gate",
+            "install_axis": "+Z",
+            "removal_axis": "+Z",
+            "critical_surface_printing": "channel_face_up_no_internal_support",
             "x": round(left_x, 3),
             "y": round(cover_trunk_y, 3),
             "z": round(lid_top_z, 3),
@@ -369,7 +600,10 @@ def _lid_sensor_harness_for_layout(
             "name": "lid_cover_right_gas_bus",
             "domain": "lid_sensor_harness",
             "owner_part": "lid_cover",
-            "retention": "printed_snap_cover",
+            "retention": "channel_clearance_cover_physical_retention_gate",
+            "install_axis": "+Z",
+            "removal_axis": "+Z",
+            "critical_surface_printing": "channel_face_up_no_internal_support",
             "x": round(right_x, 3),
             "y": round(cover_trunk_y, 3),
             "z": round(lid_top_z, 3),
@@ -384,10 +618,16 @@ def _lid_sensor_harness_for_layout(
             "name": "lid_shell_right_sht41_bus",
             "domain": "lid_sensor_harness",
             "owner_part": "lid_manifold_shell",
-            "retention": "printed_snap_cover",
-            "x": round(right_x, 3),
+            "retention": "channel_clearance_cover_physical_retention_gate",
+            "install_axis": "-Z",
+            "removal_axis": "-Z",
+            "critical_surface_printing": "channel_face_up_no_internal_support",
+            # The underside SHT41 bus must remain inside the upper perimeter
+            # gasket's inner edge.  It is independently located from the
+            # cover-side gas bus, which legitimately runs at the outer edge.
+            "x": round(shell_right_x, 3),
             "y": round(shell_trunk_y, 3),
-            "z": round(lid_bottom_z + harness.get("wire_bundle_height_z", wire_h), 3),
+            "z": round(shell_bus_z, 3),
             "length_x": round(right_w, 3),
             "width_y": round(trunk_y2 - shell_trunk_y, 3),
             "height_z": round(wire_h, 3),
@@ -407,7 +647,9 @@ def _lid_sensor_harness_for_layout(
             trunk = trunk_by_name["lid_cover_right_gas_bus"]
             branch_x = float(mount["x"]) + float(mount["length_x"])
             branch_len = max(float(trunk["x"]) - branch_x, 0.0)
-        center_y = float(mount["aperture_y"])
+        # Cable egress is intentionally offset from the sealed gas aperture;
+        # sharing the aperture centerline routes the wire through the gasket.
+        center_y = float(mount.get("cable_center_y", mount["aperture_y"]))
         relief_len = min(harness["strain_relief_length_x"], branch_len)
         relief_x = (
             branch_x
@@ -458,16 +700,16 @@ def _lid_sensor_harness_for_layout(
                 "branch_rect": {
                     "x": round(float(shell_trunk["x"]), 3),
                     "y": round(center_y - wire_w / 2, 3),
-                    "z": round(float(mount["z"]), 3),
+                    "z": round(float(shell_trunk["z"]), 3),
                     "length_x": round(float(shell_trunk["length_x"]), 3),
                     "width_y": round(wire_w, 3),
                     "height_z": round(wire_h, 3),
                 },
                 "strain_relief_rect": {
-                    "x": round(float(mount["x"]) + float(mount["length_x"]) - 1.0, 3),
+                    "x": round(float(shell_trunk["x"]), 3),
                     "y": round(center_y - harness["strain_relief_width_y"] / 2, 3),
-                    "z": round(float(mount["z"]), 3),
-                    "length_x": 1.0,
+                    "z": round(float(shell_trunk["z"]), 3),
+                    "length_x": round(float(shell_trunk["length_x"]), 3),
                     "width_y": round(harness["strain_relief_width_y"], 3),
                     "height_z": round(wire_h, 3),
                     "depth_z": round(harness["strain_relief_depth_z"], 3),
@@ -591,6 +833,8 @@ def _lower_ir_harness_for_layout(
         z=-conn_h,
         params=params,
     )
+    connector["printed_shroud"]["install_axis"] = "+Z_from_below_to_datum"
+    connector["printed_shroud"]["removal_axis"] = "-Z_then_+Y_connector_unmate"
     return {
         "lower_ir_harness_routes": routes,
         "lower_ir_harness_trunk": trunk,
@@ -1095,6 +1339,11 @@ def _sensor_service_connector_spec(
             "height_z": round(shroud_h, 3),
             "wall_xy": round(shroud_wall, 3),
             "open_side": "+Y",
+            "install_axis": "+Z",
+            "removal_axis": "+Z_then_+Y_connector_unmate",
+            "retention_target": "slip_fit_guard_above_carrier_board",
+            "print_orientation": "open_side_up_no_internal_support",
+            "physical_gate": "connector_fit_and_repeated_service_cycle",
         },
         "service_clearance_rect": {
             "x": round(x, 3),
@@ -1283,21 +1532,33 @@ def build_lid_harness_cover(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    layout = row_coupon_layout(params)
-    rects = [*layout["lid_sensor_harness_trunks"]]
-    for route in layout["lid_sensor_harness_routes"]:
-        rects.append(route["branch_rect"])
-        rects.append(route["strain_relief_rect"])
-    z_shift = _harness_z_shift(rects, assembly_position=assembly_position)
-    cover = _harness_cover_from_rectangles(rects, params=params, underside=False, z_shift=z_shift)
-    for trunk in layout["lid_sensor_harness_trunks"]:
-        cover = _add_harness_snap_tabs(
-            cover,
-            trunk,
-            params=params,
-            underside=False,
-            z_shift=z_shift,
-        )
+    """The installed lid harness cover: the union of its canonical per-trunk bodies.
+
+    This used to re-derive the cover here, cutting ONLY the route's owner part.
+    That made it a second, weaker definition of the same object: the canonical
+    bodies additionally cut the gas PCBs, the service connectors, the printed
+    connector shrouds and -- for cover-side routes -- the manifold shell as a
+    second rigid neighbour, then re-assert the exact owner to clear OCCT
+    slivers.  The local version therefore released material that interpenetrated
+    four rigid neighbours (267.008 mm^3, and a fourth solid where the canonical
+    grouping releases three), and it drifted silently because nothing compared
+    the two.
+
+    Delegating to the grouping removes the duplicate definition rather than
+    re-syncing it, so the two cannot diverge again.  The grouping is what
+    ``build_row_coupon_installed_parts`` already consumes, which makes it the
+    installed authority.
+    """
+
+    from ..artifacts import group_row_coupon_physical_artifacts_by_installed_part
+
+    grouped = group_row_coupon_physical_artifacts_by_installed_part(
+        params,
+        assembly_position=assembly_position,
+    )
+    cover = grouped.get("lid_harness_cover")
+    if cover is None:
+        raise ValueError("lid harness cover requires at least one routed trunk")
     return cover
 
 
@@ -1344,7 +1605,8 @@ def build_lower_harness_cover(
     assembly_position: bool = False,
 ) -> cq.Workplane:
     layout = row_coupon_layout(params)
-    rects = [layout["lower_ir_harness_trunk"]]
+    trunk = _lower_cover_trunk(params)
+    rects = [trunk]
     for route in layout["lower_ir_harness_routes"]:
         rects.append(route["branch_rect"])
         rects.append(route["strain_relief_rect"])
@@ -1352,11 +1614,12 @@ def build_lower_harness_cover(
     cover = _harness_cover_from_rectangles(rects, params=params, underside=True, z_shift=z_shift)
     cover = _add_harness_snap_tabs(
         cover,
-        layout["lower_ir_harness_trunk"],
+        trunk,
         params=params,
         underside=True,
         z_shift=z_shift,
     )
+    cover = cover.union(_boxes_from_rectangles(_lower_cover_hook_rectangles(params)))
     return cover
 
 
@@ -1402,17 +1665,17 @@ def build_printed_lid_sensor_connector_shrouds(
     layout = row_coupon_layout(params)
     connectors = layout["lid_service_connector_envelopes"]
     z_shift = _harness_z_shift(connectors, assembly_position=assembly_position)
-    return _build_printed_sensor_connector_shrouds(
+    from .structural import build_lid_cover
+
+    shrouds = _build_printed_sensor_connector_shrouds(
         connectors, z_shift=z_shift, **_shroud_grip_rib_kwargs(params)
     )
+    return shrouds.cut(build_lid_cover(params, assembly_position=assembly_position))
 
 
 def _shroud_grip_rib_kwargs(params: dict[str, Any]) -> dict[str, Any]:
-    """Grip-rib kwargs for shroud builders; default-off keeps geometry byte-identical."""
+    """Grip-rib kwargs for shroud builders."""
 
-    production = params.get("production_assembly", {})
-    if not bool(production.get("export_per_instance_latch_keys", False)):
-        return {}
     shroud = params.get("printed_sensor_connector_shroud", {})
     return {
         "emit_grip_rib": True,
@@ -1429,8 +1692,12 @@ def build_printed_lower_sensor_connector_shroud(
     layout = row_coupon_layout(params)
     connector = layout["lower_ir_connector_envelope"]
     z_shift = _harness_z_shift([connector], assembly_position=assembly_position)
-    return _build_printed_sensor_connector_shrouds(
+    model = _build_printed_sensor_connector_shrouds(
         [connector], z_shift=z_shift, **_shroud_grip_rib_kwargs(params)
+    )
+    model = _cut_lower_shroud_harness_entry(model, params=params, z_shift=z_shift)
+    return model.union(
+        _boxes_from_rectangles(_lower_shroud_mount_rectangles(params), z_shift=z_shift)
     )
 
 

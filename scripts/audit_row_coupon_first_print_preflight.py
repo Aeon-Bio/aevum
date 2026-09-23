@@ -32,9 +32,9 @@ def main() -> None:
         help="Printed-STL-only slicer queue directory.",
     )
     parser.add_argument(
-        "--split-dir",
-        default=ROOT / "outputs" / "cad" / "first_print_y_split_parts",
-        help="Directory containing generated production Y-split STL/STEP files.",
+        "--piece-dir",
+        default=ROOT / "outputs" / "cad" / "final_print_pieces",
+        help="Directory containing generated canonical final-piece STL/STEP files.",
     )
     parser.add_argument(
         "--record",
@@ -56,7 +56,7 @@ def main() -> None:
         params=params,
         out_dir=args.out_dir,
         queue_dir=args.queue_dir,
-        split_dir=args.split_dir,
+        piece_dir=args.piece_dir,
         record_path=args.record,
         root=ROOT,
     )

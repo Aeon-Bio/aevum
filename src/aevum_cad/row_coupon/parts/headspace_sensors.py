@@ -1,10 +1,19 @@
 from __future__ import annotations
-from typing import Any
-import cadquery as cq
+
 import math
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_bodies_from_shape_targets, _boxes_from_rectangles, _harness_z_shift)
-from ._shared_tile import (_well_centers_for_tile)
+from typing import Any
+
+import cadquery as cq
+
+from ..layout import row_coupon_layout
+from ._geom_base import (
+    _bodies_from_shape_targets,
+    _boxes_from_rectangles,
+    _fused_z_box,
+    _harness_z_shift,
+    _integral_feature_fusion_overlap_z,
+)
+from ._shared_tile import _well_centers_for_tile
 
 
 def _add_headspace_sht41_sockets(
@@ -15,6 +24,7 @@ def _add_headspace_sht41_sockets(
 ) -> cq.Workplane:
     layout = row_coupon_layout(params)
     z_shift = 0.0 if assembly_position else -layout["lid_bottom_z"]
+    overlap_z = _integral_feature_fusion_overlap_z(params)
 
     for mount in layout["headspace_sht41_mounts"]:
         shell = shell.union(
@@ -40,10 +50,20 @@ def _add_headspace_sht41_sockets(
                 )
             )
         )
+        key = mount["registration_key_rect"]
+        pocket = mount["protected_pocket_cut_rect"]
+        key_z = float(key["z"]) + z_shift
+        pocket_floor_z = float(pocket["z"]) + z_shift
         shell = shell.union(
-            _boxes_from_rectangles(
-                [mount["registration_key_rect"]],
-                z_shift=z_shift,
+            _fused_z_box(
+                length=float(key["length_x"]),
+                width=float(key["width_y"]),
+                height=float(key["height_z"]) + key_z - pocket_floor_z,
+                x=float(key["x"]),
+                y=float(key["y"]),
+                z=pocket_floor_z,
+                overlap_z=overlap_z,
+                into="down",
             )
         )
         ring = mount["drip_break_ring"]
@@ -462,7 +482,7 @@ def _ir_sensor_mounts_for_layout(
     params: dict[str, Any],
     base_top_z: float,
 ) -> list[dict[str, Any]]:
-    from aevum_cad.row_coupon import (_well_grid_rectangle_for_tile)
+    from aevum_cad.row_coupon import _well_grid_rectangle_for_tile
     mounts = params.get("sensor_mounts", {})
     if not mounts:
         return []

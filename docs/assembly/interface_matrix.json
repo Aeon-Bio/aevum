@@ -1,0 +1,1950 @@
+{
+  "schema_version": 1,
+  "matrix_id": "aevum_one_row_coupon_installed_interface_matrix",
+  "scope": {
+    "installed_builder": "src/aevum_cad/row_coupon/assembly.py::build_row_coupon_installed_parts",
+    "artifact_authority": "docs/assembly/artifact_authority.json",
+    "parameters": "cad/one_row_coupon.params.json",
+    "installed_family_count": 28,
+    "unordered_pair_count": 378,
+    "volume_epsilon_mm3": 0.000001,
+    "runtime_authority": false,
+    "installed_families": [
+      "deck_pods",
+      "plate_support_frame",
+      "ir_thermopiles",
+      "ir_thermopile_face_gaskets",
+      "lower_sensor_harness",
+      "lower_harness_cover",
+      "lower_sensor_service_connector",
+      "printed_lower_sensor_connector_shroud",
+      "lower_sensor_service_cable_pigtail",
+      "lower_gasket",
+      "wet_chamber_frame",
+      "cots_microplates",
+      "cots_septum_mats",
+      "upper_gasket",
+      "lid_manifold_shell",
+      "headspace_sht41_microcarriers",
+      "lid_sensor_harness",
+      "lid_harness_cover",
+      "lid_sensor_service_connectors",
+      "printed_lid_sensor_connector_shrouds",
+      "lid_sensor_service_cable_pigtails",
+      "lid_cover",
+      "cots_gas_service_tubes",
+      "gas_pcb_interface_gaskets",
+      "printed_gas_pcb_keeper_doors",
+      "gas_sensor_pcbs",
+      "printed_sample_relief_cap",
+      "printed_wedge_locks"
+    ]
+  },
+  "policy": {
+    "pair_key": "lexicographically sorted installed-family names joined by ::",
+    "interface_identity": "pair_key plus # plus interface_class",
+    "coverage": "Every unordered installed-family pair appears exactly once as an interface or explicit exclusion.",
+    "exclusion_meaning": "No designed installed contact, constraint, service path, or positive-volume B-rep intersection is present for this family pair.",
+    "positive_intersection": "Every intersection above volume_epsilon_mm3 must be an interface; a forbidden intersection must remain blocked.",
+    "geometry_status_values": [
+      "blocked",
+      "classified_intentional_overlap",
+      "no_positive_overlap"
+    ],
+    "acceptance_boundary": "Digital classification is not assembly acceptance; all nonblocked rows still require their named physical evidence owner."
+  },
+  "source_anchors": [
+    "src/aevum_cad/row_coupon/assembly.py:53",
+    "src/aevum_cad/row_coupon/manifest.py:16",
+    "src/aevum_cad/row_coupon/parts/sealing.py:55",
+    "src/aevum_cad/row_coupon/parts/sealing.py:91",
+    "src/aevum_cad/row_coupon/parts/sealing.py:325",
+    "src/aevum_cad/row_coupon/parts/latches.py:19",
+    "src/aevum_cad/row_coupon/parts/latches.py:488",
+    "cad/one_row_coupon.params.json"
+  ],
+  "current_geometry_summary": {
+    "positive_intersection_pair_count": 7,
+    "blocked_pair_count": 0,
+    "classified_intentional_overlap_pair_count": 7,
+    "known_required_reproduction": null,
+    "assembly_acceptance": "blocked"
+  },
+  "geometry_observations": {
+    "method": "Exact CadQuery B-rep intersection across all 378 unordered installed-family pairs using the 38 final rigid release bodies in installed coordinates.",
+    "captured_state": "frozen final installed release geometry",
+    "positive_intersections_mm3": {
+      "cots_gas_service_tubes::lid_cover": 61.459548515,
+      "cots_septum_mats::lid_manifold_shell": 55.23382798,
+      "gas_pcb_interface_gaskets::gas_sensor_pcbs": 1.728,
+      "gas_pcb_interface_gaskets::lid_cover": 10.7824,
+      "ir_thermopile_face_gaskets::ir_thermopiles": 32.572032632,
+      "lid_cover::printed_sample_relief_cap": 0.721309673,
+      "lid_sensor_harness::lid_sensor_service_connectors": 16.254
+    }
+  },
+  "interfaces": [
+    {
+      "interface_id": "cots_gas_service_tubes::lid_cover#tube",
+      "pair_key": "cots_gas_service_tubes::lid_cover",
+      "parts": [
+        "cots_gas_service_tubes",
+        "lid_cover"
+      ],
+      "interface_class": "tube",
+      "intended_contact_type": "barbed_tube_insertion_interference",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.3,
+      "minimum_clearance_mm": -0.3,
+      "allowed_motion": "axial push-on and pull-off with bend radius",
+      "tolerance_basis": "half of gas_service.barb_flange_diameter minus tube_inner_diameter",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "tube_seating_and_leak_test"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 61.459548515,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "cots_microplates::cots_septum_mats#consumable",
+      "pair_key": "cots_microplates::cots_septum_mats",
+      "parts": [
+        "cots_microplates",
+        "cots_septum_mats"
+      ],
+      "interface_class": "consumable",
+      "intended_contact_type": "replaceable_mat_seated_on_plate",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical peel and replacement",
+      "tolerance_basis": "septum_mat seat and plug assumptions are measurement-gated",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "consumable_metrology_and_dry_fit"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "cots_microplates::plate_support_frame#datum",
+      "pair_key": "cots_microplates::plate_support_frame",
+      "parts": [
+        "cots_microplates",
+        "plate_support_frame"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "planar_seat_with_lateral_locators",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.35,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical install and lift-out",
+      "tolerance_basis": "plate_support.lateral_locator_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "cots_microplates::wet_chamber_frame#consumable",
+      "pair_key": "cots_microplates::wet_chamber_frame",
+      "parts": [
+        "cots_microplates",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "consumable",
+      "intended_contact_type": "skirt_clearance_around_plate",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.35,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical install before wet frame",
+      "tolerance_basis": "consumable metrology plus wet-skirt clearance",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "consumable_metrology_and_dry_fit"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "cots_septum_mats::lid_manifold_shell#seal",
+      "pair_key": "cots_septum_mats::lid_manifold_shell",
+      "parts": [
+        "cots_septum_mats",
+        "lid_manifold_shell"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compliant_septum_compression_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical lid removal",
+      "tolerance_basis": "septum_mat dimensions are measurement-gated",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 55.23382798,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "cots_septum_mats::wet_chamber_frame#seal",
+      "pair_key": "cots_septum_mats::wet_chamber_frame",
+      "parts": [
+        "cots_septum_mats",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compliant_headspace_boundary_contact",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical stack separation",
+      "tolerance_basis": "silicone mat first-build measurement gate",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "deck_pods::lower_sensor_service_connector#collision",
+      "pair_key": "deck_pods::lower_sensor_service_connector",
+      "parts": [
+        "deck_pods",
+        "lower_sensor_service_connector"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "deck_pods::plate_support_frame#datum",
+      "pair_key": "deck_pods::plate_support_frame",
+      "parts": [
+        "deck_pods",
+        "plate_support_frame"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "keyed_slip_fit",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.25,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical assembly and service removal",
+      "tolerance_basis": "production_assembly.pod_frame_key_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "deck_pods::printed_lower_sensor_connector_shroud#collision",
+      "pair_key": "deck_pods::printed_lower_sensor_connector_shroud",
+      "parts": [
+        "deck_pods",
+        "printed_lower_sensor_connector_shroud"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_pcb_interface_gaskets::gas_sensor_pcbs#seal",
+      "pair_key": "gas_pcb_interface_gaskets::gas_sensor_pcbs",
+      "parts": [
+        "gas_pcb_interface_gaskets",
+        "gas_sensor_pcbs"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compliant_gas_cell_gasket_compression",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.2,
+      "minimum_clearance_mm": -0.2,
+      "allowed_motion": "cartridge extraction after keeper release",
+      "tolerance_basis": "sensor_mounts.gas_pcb_interface_gasket_compression_x",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 1.728,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_pcb_interface_gaskets::lid_cover#seal",
+      "pair_key": "gas_pcb_interface_gaskets::lid_cover",
+      "parts": [
+        "gas_pcb_interface_gaskets",
+        "lid_cover"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compliant_gas_cell_gasket_compression",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.2,
+      "minimum_clearance_mm": -0.2,
+      "allowed_motion": "cartridge extraction after keeper release",
+      "tolerance_basis": "sensor_mounts.gas_pcb_interface_gasket_compression_x",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 10.7824,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_pcb_interface_gaskets::lid_sensor_harness#collision",
+      "pair_key": "gas_pcb_interface_gaskets::lid_sensor_harness",
+      "parts": [
+        "gas_pcb_interface_gaskets",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_pcb_interface_gaskets::printed_gas_pcb_keeper_doors#latch",
+      "pair_key": "gas_pcb_interface_gaskets::printed_gas_pcb_keeper_doors",
+      "parts": [
+        "gas_pcb_interface_gaskets",
+        "printed_gas_pcb_keeper_doors"
+      ],
+      "interface_class": "latch",
+      "intended_contact_type": "keeper_applies_gasket_compression",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "release tab then door removal",
+      "tolerance_basis": "sensor_mounts.gas_pcb_compression_pad_height_z",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_latch_cycle_and_removal_test"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_sensor_pcbs::lid_cover#sensor",
+      "pair_key": "gas_sensor_pcbs::lid_cover",
+      "parts": [
+        "gas_sensor_pcbs",
+        "lid_cover"
+      ],
+      "interface_class": "sensor",
+      "intended_contact_type": "rigid_pcb_cartridge_in_socket",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "service lift after keeper release",
+      "tolerance_basis": "sensor_mounts gas PCB socket envelope",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "sensor_install_path_and_function_test"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_sensor_pcbs::lid_harness_cover#collision",
+      "pair_key": "gas_sensor_pcbs::lid_harness_cover",
+      "parts": [
+        "gas_sensor_pcbs",
+        "lid_harness_cover"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_sensor_pcbs::lid_manifold_shell#collision",
+      "pair_key": "gas_sensor_pcbs::lid_manifold_shell",
+      "parts": [
+        "gas_sensor_pcbs",
+        "lid_manifold_shell"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_sensor_pcbs::lid_sensor_harness#cable",
+      "pair_key": "gas_sensor_pcbs::lid_sensor_harness",
+      "parts": [
+        "gas_sensor_pcbs",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "electrical_termination_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "disconnect before cartridge extraction",
+      "tolerance_basis": "simplified harness endpoint overlap only",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "gas_sensor_pcbs::printed_gas_pcb_keeper_doors#latch",
+      "pair_key": "gas_sensor_pcbs::printed_gas_pcb_keeper_doors",
+      "parts": [
+        "gas_sensor_pcbs",
+        "printed_gas_pcb_keeper_doors"
+      ],
+      "interface_class": "latch",
+      "intended_contact_type": "keeper_compression_pad_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.5,
+      "minimum_clearance_mm": -0.5,
+      "allowed_motion": "release tab then cartridge extraction",
+      "tolerance_basis": "sensor_mounts.gas_pcb_compression_pad_height_z",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_latch_cycle_and_removal_test"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "headspace_sht41_microcarriers::lid_harness_cover#service",
+      "pair_key": "headspace_sht41_microcarriers::lid_harness_cover",
+      "parts": [
+        "headspace_sht41_microcarriers",
+        "lid_harness_cover"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "carrier_service_keepout",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "cover removal before carrier extraction",
+      "tolerance_basis": "sensor_mounts.sht41_service_finger_relief dimensions",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "headspace_sht41_microcarriers::lid_manifold_shell#sensor",
+      "pair_key": "headspace_sht41_microcarriers::lid_manifold_shell",
+      "parts": [
+        "headspace_sht41_microcarriers",
+        "lid_manifold_shell"
+      ],
+      "interface_class": "sensor",
+      "intended_contact_type": "keyed_sensor_carrier_socket",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.25,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "lateral service extraction",
+      "tolerance_basis": "sensor_mounts.sht41_carrier_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "sensor_install_path_and_function_test"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "headspace_sht41_microcarriers::lid_sensor_harness#cable",
+      "pair_key": "headspace_sht41_microcarriers::lid_sensor_harness",
+      "parts": [
+        "headspace_sht41_microcarriers",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "electrical_termination_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "disconnect before carrier extraction",
+      "tolerance_basis": "simplified harness endpoint overlaps sensor carrier by intent",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "ir_thermopile_face_gaskets::ir_thermopiles#seal",
+      "pair_key": "ir_thermopile_face_gaskets::ir_thermopiles",
+      "parts": [
+        "ir_thermopile_face_gaskets",
+        "ir_thermopiles"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compliant_face_gasket_compression",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.12,
+      "minimum_clearance_mm": -0.12,
+      "allowed_motion": "sensor vertical service drop",
+      "tolerance_basis": "sensor_mounts.ir_face_gasket_nominal_compression_z",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 32.572032632,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "ir_thermopile_face_gaskets::plate_support_frame#seal",
+      "pair_key": "ir_thermopile_face_gaskets::plate_support_frame",
+      "parts": [
+        "ir_thermopile_face_gaskets",
+        "plate_support_frame"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "gasket_captured_at_aperture_lip",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "sensor vertical service drop",
+      "tolerance_basis": "sensor_mounts.ir_face_gasket_thickness_z and printed lip",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "ir_thermopiles::plate_support_frame#sensor",
+      "pair_key": "ir_thermopiles::plate_support_frame",
+      "parts": [
+        "ir_thermopiles",
+        "plate_support_frame"
+      ],
+      "interface_class": "sensor",
+      "intended_contact_type": "sensor_body_in_printed_pocket",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.2,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical service drop",
+      "tolerance_basis": "half of sensor_mounts.ir_pocket_clearance_diameter",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "sensor_install_path_and_function_test"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::lid_harness_cover#service",
+      "pair_key": "lid_cover::lid_harness_cover",
+      "parts": [
+        "lid_cover",
+        "lid_harness_cover"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "reversible_snap_cover",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "snap-on and peel-off service motion",
+      "tolerance_basis": "cover must sit above cut channel without rigid overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::lid_manifold_shell#datum",
+      "pair_key": "lid_cover::lid_manifold_shell",
+      "parts": [
+        "lid_cover",
+        "lid_manifold_shell"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "tongue_in_groove_closure",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.25,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical assembly and removal",
+      "tolerance_basis": "production_assembly.lid_cover_tongue_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": "lid_cover_shell_installed_overlap"
+    },
+    {
+      "interface_id": "lid_cover::lid_sensor_harness#cable",
+      "pair_key": "lid_cover::lid_sensor_harness",
+      "parts": [
+        "lid_cover",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "wire_bundle_in_lid_cover_channel",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0.4,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "route before cover install",
+      "tolerance_basis": "sensor_harness.channel_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::lid_sensor_service_connectors#collision",
+      "pair_key": "lid_cover::lid_sensor_service_connectors",
+      "parts": [
+        "lid_cover",
+        "lid_sensor_service_connectors"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::printed_gas_pcb_keeper_doors#service",
+      "pair_key": "lid_cover::printed_gas_pcb_keeper_doors",
+      "parts": [
+        "lid_cover",
+        "printed_gas_pcb_keeper_doors"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "reversible_keeper_door_retention",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "release-tab door removal",
+      "tolerance_basis": "sensor_installation.gas_pcb_keeper_door_height_z",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::printed_lid_sensor_connector_shrouds#service",
+      "pair_key": "lid_cover::printed_lid_sensor_connector_shrouds",
+      "parts": [
+        "lid_cover",
+        "printed_lid_sensor_connector_shrouds"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "printed_shroud_mount",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "connector service motion only",
+      "tolerance_basis": "printed shroud installation requires physical fit evidence",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::printed_sample_relief_cap#service",
+      "pair_key": "lid_cover::printed_sample_relief_cap",
+      "parts": [
+        "lid_cover",
+        "printed_sample_relief_cap"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "annular_lip_retention_and_seal",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": -0.15,
+      "minimum_clearance_mm": -0.15,
+      "allowed_motion": "vertical pull-out by grip",
+      "tolerance_basis": "half of production_assembly.port_cap_plug_clearance_diameter",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0.721309673,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::printed_wedge_locks#latch",
+      "pair_key": "lid_cover::printed_wedge_locks",
+      "parts": [
+        "lid_cover",
+        "printed_wedge_locks"
+      ],
+      "interface_class": "latch",
+      "intended_contact_type": "guided_wedge_slide_in_receiver",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.5,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "station slide axis with release detent",
+      "tolerance_basis": "production_assembly.wedge_receiver_clearance_x",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_latch_cycle_and_removal_test"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_cover::wet_chamber_frame#datum",
+      "pair_key": "lid_cover::wet_chamber_frame",
+      "parts": [
+        "lid_cover",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "closed_lid_stack_alignment",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical lid removal after unlatching",
+      "tolerance_basis": "upper gasket and latch stations define stack",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_harness_cover::lid_manifold_shell#service",
+      "pair_key": "lid_harness_cover::lid_manifold_shell",
+      "parts": [
+        "lid_harness_cover",
+        "lid_manifold_shell"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "reversible_snap_cover",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "snap-on and peel-off service motion",
+      "tolerance_basis": "cover must sit above cut channel without rigid overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_harness_cover::lid_sensor_harness#cable",
+      "pair_key": "lid_harness_cover::lid_sensor_harness",
+      "parts": [
+        "lid_harness_cover",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "captured_wire_under_cover",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0.2,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "cover removal then cable lift-out",
+      "tolerance_basis": "channel depth minus wire height",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_harness_cover::lid_sensor_service_connectors#collision",
+      "pair_key": "lid_harness_cover::lid_sensor_service_connectors",
+      "parts": [
+        "lid_harness_cover",
+        "lid_sensor_service_connectors"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_harness_cover::printed_lid_sensor_connector_shrouds#collision",
+      "pair_key": "lid_harness_cover::printed_lid_sensor_connector_shrouds",
+      "parts": [
+        "lid_harness_cover",
+        "printed_lid_sensor_connector_shrouds"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_harness_cover::wet_chamber_frame#collision",
+      "pair_key": "lid_harness_cover::wet_chamber_frame",
+      "parts": [
+        "lid_harness_cover",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_manifold_shell::lid_sensor_harness#cable",
+      "pair_key": "lid_manifold_shell::lid_sensor_harness",
+      "parts": [
+        "lid_manifold_shell",
+        "lid_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "wire_bundle_in_lid_channel",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0.4,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "route before cover install",
+      "tolerance_basis": "sensor_harness.channel_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_manifold_shell::upper_gasket#seal",
+      "pair_key": "lid_manifold_shell::upper_gasket",
+      "parts": [
+        "lid_manifold_shell",
+        "upper_gasket"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compressed_gasket_on_lid_land",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical lid-stack removal",
+      "tolerance_basis": "seal_interface.compressed_gasket_height_z is already the compressed envelope",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_manifold_shell::wet_chamber_frame#datum",
+      "pair_key": "lid_manifold_shell::wet_chamber_frame",
+      "parts": [
+        "lid_manifold_shell",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "upper_seal_land_stack",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical separation after wedge removal",
+      "tolerance_basis": "upper gasket establishes separation",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_harness::lid_sensor_service_connectors#cable",
+      "pair_key": "lid_sensor_harness::lid_sensor_service_connectors",
+      "parts": [
+        "lid_sensor_harness",
+        "lid_sensor_service_connectors"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "electrical_termination_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "disconnect after shroud release",
+      "tolerance_basis": "JST-GH service connector model",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 16.254,
+      "current_geometry_status": "classified_intentional_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_harness::printed_lid_sensor_connector_shrouds#collision",
+      "pair_key": "lid_sensor_harness::printed_lid_sensor_connector_shrouds",
+      "parts": [
+        "lid_sensor_harness",
+        "printed_lid_sensor_connector_shrouds"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_service_cable_pigtails::lid_sensor_service_connectors#service",
+      "pair_key": "lid_sensor_service_cable_pigtails::lid_sensor_service_connectors",
+      "parts": [
+        "lid_sensor_service_cable_pigtails",
+        "lid_sensor_service_connectors"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "mated_connector_cable",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "axial connector mate and unmate",
+      "tolerance_basis": "sensor_harness.service_connector_service_clearance_y",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_service_cable_pigtails::printed_lid_sensor_connector_shrouds#service",
+      "pair_key": "lid_sensor_service_cable_pigtails::printed_lid_sensor_connector_shrouds",
+      "parts": [
+        "lid_sensor_service_cable_pigtails",
+        "printed_lid_sensor_connector_shrouds"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "cable_passage_keepout",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "bend-radius-controlled withdrawal",
+      "tolerance_basis": "sensor_harness.service_cable_bend_radius_y",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_3_ot2_placement",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_service_connectors::printed_lid_sensor_connector_shrouds#service",
+      "pair_key": "lid_sensor_service_connectors::printed_lid_sensor_connector_shrouds",
+      "parts": [
+        "lid_sensor_service_connectors",
+        "printed_lid_sensor_connector_shrouds"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "keyed_snap_retention_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "axial unmating after shroud release",
+      "tolerance_basis": "printed shroud wall/key model requires physical service check",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_service_connectors::printed_wedge_locks#collision",
+      "pair_key": "lid_sensor_service_connectors::printed_wedge_locks",
+      "parts": [
+        "lid_sensor_service_connectors",
+        "printed_wedge_locks"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lid_sensor_service_connectors::wet_chamber_frame#collision",
+      "pair_key": "lid_sensor_service_connectors::wet_chamber_frame",
+      "parts": [
+        "lid_sensor_service_connectors",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_gasket::plate_support_frame#seal",
+      "pair_key": "lower_gasket::plate_support_frame",
+      "parts": [
+        "lower_gasket",
+        "plate_support_frame"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compressed_gasket_on_lower_land",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical peel for replacement",
+      "tolerance_basis": "seal_interface.compressed_gasket_height_z is already the compressed envelope",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_gasket::wet_chamber_frame#seal",
+      "pair_key": "lower_gasket::wet_chamber_frame",
+      "parts": [
+        "lower_gasket",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compressed_gasket_in_capture_groove",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical wet-frame removal",
+      "tolerance_basis": "compressed gasket envelope must not penetrate rigid wet frame",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_harness_cover::lower_sensor_harness#cable",
+      "pair_key": "lower_harness_cover::lower_sensor_harness",
+      "parts": [
+        "lower_harness_cover",
+        "lower_sensor_harness"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "captured_wire_under_cover",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0.2,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "cover removal then cable lift-out",
+      "tolerance_basis": "channel depth minus wire height",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_harness_cover::lower_sensor_service_connector#collision",
+      "pair_key": "lower_harness_cover::lower_sensor_service_connector",
+      "parts": [
+        "lower_harness_cover",
+        "lower_sensor_service_connector"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_harness_cover::plate_support_frame#service",
+      "pair_key": "lower_harness_cover::plate_support_frame",
+      "parts": [
+        "lower_harness_cover",
+        "plate_support_frame"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "reversible_snap_cover",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "snap-on and peel-off service motion",
+      "tolerance_basis": "sensor_harness.cover_overlap_xy is land overlap, not solid overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_harness_cover::printed_lower_sensor_connector_shroud#collision",
+      "pair_key": "lower_harness_cover::printed_lower_sensor_connector_shroud",
+      "parts": [
+        "lower_harness_cover",
+        "printed_lower_sensor_connector_shroud"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_sensor_harness::lower_sensor_service_connector#cable",
+      "pair_key": "lower_sensor_harness::lower_sensor_service_connector",
+      "parts": [
+        "lower_sensor_harness",
+        "lower_sensor_service_connector"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "electrical_termination_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "disconnect only after shroud access",
+      "tolerance_basis": "JST-GH service connector model",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_sensor_harness::plate_support_frame#cable",
+      "pair_key": "lower_sensor_harness::plate_support_frame",
+      "parts": [
+        "lower_sensor_harness",
+        "plate_support_frame"
+      ],
+      "interface_class": "cable",
+      "intended_contact_type": "wire_bundle_in_lower_channel",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0.4,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "route before snap-cover install",
+      "tolerance_basis": "sensor_harness.channel_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "continuity_and_bend_radius_inspection"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_sensor_service_cable_pigtail::lower_sensor_service_connector#service",
+      "pair_key": "lower_sensor_service_cable_pigtail::lower_sensor_service_connector",
+      "parts": [
+        "lower_sensor_service_cable_pigtail",
+        "lower_sensor_service_connector"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "mated_connector_cable",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "axial connector mate and unmate",
+      "tolerance_basis": "sensor_harness.service_connector_service_clearance_y",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_6_sensor_thermal",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_sensor_service_cable_pigtail::printed_lower_sensor_connector_shroud#service",
+      "pair_key": "lower_sensor_service_cable_pigtail::printed_lower_sensor_connector_shroud",
+      "parts": [
+        "lower_sensor_service_cable_pigtail",
+        "printed_lower_sensor_connector_shroud"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "cable_passage_keepout",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "bend-radius-controlled withdrawal",
+      "tolerance_basis": "sensor_harness.service_cable_bend_radius_y",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_3_ot2_placement",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "lower_sensor_service_connector::printed_lower_sensor_connector_shroud#service",
+      "pair_key": "lower_sensor_service_connector::printed_lower_sensor_connector_shroud",
+      "parts": [
+        "lower_sensor_service_connector",
+        "printed_lower_sensor_connector_shroud"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "keyed_snap_retention_proxy",
+      "forbidden_intersection": false,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "axial unmating after shroud release",
+      "tolerance_basis": "printed shroud wall/key model requires physical service check",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "plate_support_frame::printed_lower_sensor_connector_shroud#service",
+      "pair_key": "plate_support_frame::printed_lower_sensor_connector_shroud",
+      "parts": [
+        "plate_support_frame",
+        "printed_lower_sensor_connector_shroud"
+      ],
+      "interface_class": "service",
+      "intended_contact_type": "printed_shroud_mount",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "connector service motion only",
+      "tolerance_basis": "printed shroud installation requires physical fit evidence",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "install_remove_service_cycle"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "plate_support_frame::wet_chamber_frame#datum",
+      "pair_key": "plate_support_frame::wet_chamber_frame",
+      "parts": [
+        "plate_support_frame",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "datum",
+      "intended_contact_type": "lower_seal_land_stack",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical assembly under latch compression",
+      "tolerance_basis": "lower gasket establishes separation",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_fit_and_feeler_gauge"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "printed_lid_sensor_connector_shrouds::printed_wedge_locks#collision",
+      "pair_key": "printed_lid_sensor_connector_shrouds::printed_wedge_locks",
+      "parts": [
+        "printed_lid_sensor_connector_shrouds",
+        "printed_wedge_locks"
+      ],
+      "interface_class": "collision",
+      "intended_contact_type": "none_forbidden_intersection",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "none until resolved",
+      "tolerance_basis": "no declared installed mate permits positive-volume overlap",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "source_pair_visual_section_review"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "printed_wedge_locks::wet_chamber_frame#latch",
+      "pair_key": "printed_wedge_locks::wet_chamber_frame",
+      "parts": [
+        "printed_wedge_locks",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "latch",
+      "intended_contact_type": "wedge_slot_around_latch_post",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0.35,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "station slide axis only",
+      "tolerance_basis": "production_assembly.wedge_lock_post_slot_clearance_xy",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "dry_latch_cycle_and_removal_test"
+      ],
+      "evidence_owner": "gate_2_dry_assembly",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    },
+    {
+      "interface_id": "upper_gasket::wet_chamber_frame#seal",
+      "pair_key": "upper_gasket::wet_chamber_frame",
+      "parts": [
+        "upper_gasket",
+        "wet_chamber_frame"
+      ],
+      "interface_class": "seal",
+      "intended_contact_type": "compressed_gasket_in_upper_capture_groove",
+      "forbidden_intersection": true,
+      "nominal_clearance_mm": 0,
+      "minimum_clearance_mm": 0,
+      "allowed_motion": "vertical lid-stack removal",
+      "tolerance_basis": "compressed gasket envelope must not penetrate posts or rigid wet frame",
+      "inspection_method": [
+        "digital_brep_intersection",
+        "compression_gap_gauge",
+        "wet_dry_witness"
+      ],
+      "evidence_owner": "gate_4_wet_dry_witness",
+      "current_intersection_mm3": 0,
+      "current_geometry_status": "no_positive_overlap",
+      "blocking_reason": null,
+      "known_defect_id": null
+    }
+  ],
+  "explicit_exclusion_pair_keys": [
+    "cots_gas_service_tubes::cots_microplates",
+    "cots_gas_service_tubes::cots_septum_mats",
+    "cots_gas_service_tubes::deck_pods",
+    "cots_gas_service_tubes::gas_pcb_interface_gaskets",
+    "cots_gas_service_tubes::gas_sensor_pcbs",
+    "cots_gas_service_tubes::headspace_sht41_microcarriers",
+    "cots_gas_service_tubes::ir_thermopile_face_gaskets",
+    "cots_gas_service_tubes::ir_thermopiles",
+    "cots_gas_service_tubes::lid_harness_cover",
+    "cots_gas_service_tubes::lid_manifold_shell",
+    "cots_gas_service_tubes::lid_sensor_harness",
+    "cots_gas_service_tubes::lid_sensor_service_cable_pigtails",
+    "cots_gas_service_tubes::lid_sensor_service_connectors",
+    "cots_gas_service_tubes::lower_gasket",
+    "cots_gas_service_tubes::lower_harness_cover",
+    "cots_gas_service_tubes::lower_sensor_harness",
+    "cots_gas_service_tubes::lower_sensor_service_cable_pigtail",
+    "cots_gas_service_tubes::lower_sensor_service_connector",
+    "cots_gas_service_tubes::plate_support_frame",
+    "cots_gas_service_tubes::printed_gas_pcb_keeper_doors",
+    "cots_gas_service_tubes::printed_lid_sensor_connector_shrouds",
+    "cots_gas_service_tubes::printed_lower_sensor_connector_shroud",
+    "cots_gas_service_tubes::printed_sample_relief_cap",
+    "cots_gas_service_tubes::printed_wedge_locks",
+    "cots_gas_service_tubes::upper_gasket",
+    "cots_gas_service_tubes::wet_chamber_frame",
+    "cots_microplates::deck_pods",
+    "cots_microplates::gas_pcb_interface_gaskets",
+    "cots_microplates::gas_sensor_pcbs",
+    "cots_microplates::headspace_sht41_microcarriers",
+    "cots_microplates::ir_thermopile_face_gaskets",
+    "cots_microplates::ir_thermopiles",
+    "cots_microplates::lid_cover",
+    "cots_microplates::lid_harness_cover",
+    "cots_microplates::lid_manifold_shell",
+    "cots_microplates::lid_sensor_harness",
+    "cots_microplates::lid_sensor_service_cable_pigtails",
+    "cots_microplates::lid_sensor_service_connectors",
+    "cots_microplates::lower_gasket",
+    "cots_microplates::lower_harness_cover",
+    "cots_microplates::lower_sensor_harness",
+    "cots_microplates::lower_sensor_service_cable_pigtail",
+    "cots_microplates::lower_sensor_service_connector",
+    "cots_microplates::printed_gas_pcb_keeper_doors",
+    "cots_microplates::printed_lid_sensor_connector_shrouds",
+    "cots_microplates::printed_lower_sensor_connector_shroud",
+    "cots_microplates::printed_sample_relief_cap",
+    "cots_microplates::printed_wedge_locks",
+    "cots_microplates::upper_gasket",
+    "cots_septum_mats::deck_pods",
+    "cots_septum_mats::gas_pcb_interface_gaskets",
+    "cots_septum_mats::gas_sensor_pcbs",
+    "cots_septum_mats::headspace_sht41_microcarriers",
+    "cots_septum_mats::ir_thermopile_face_gaskets",
+    "cots_septum_mats::ir_thermopiles",
+    "cots_septum_mats::lid_cover",
+    "cots_septum_mats::lid_harness_cover",
+    "cots_septum_mats::lid_sensor_harness",
+    "cots_septum_mats::lid_sensor_service_cable_pigtails",
+    "cots_septum_mats::lid_sensor_service_connectors",
+    "cots_septum_mats::lower_gasket",
+    "cots_septum_mats::lower_harness_cover",
+    "cots_septum_mats::lower_sensor_harness",
+    "cots_septum_mats::lower_sensor_service_cable_pigtail",
+    "cots_septum_mats::lower_sensor_service_connector",
+    "cots_septum_mats::plate_support_frame",
+    "cots_septum_mats::printed_gas_pcb_keeper_doors",
+    "cots_septum_mats::printed_lid_sensor_connector_shrouds",
+    "cots_septum_mats::printed_lower_sensor_connector_shroud",
+    "cots_septum_mats::printed_sample_relief_cap",
+    "cots_septum_mats::printed_wedge_locks",
+    "cots_septum_mats::upper_gasket",
+    "deck_pods::gas_pcb_interface_gaskets",
+    "deck_pods::gas_sensor_pcbs",
+    "deck_pods::headspace_sht41_microcarriers",
+    "deck_pods::ir_thermopile_face_gaskets",
+    "deck_pods::ir_thermopiles",
+    "deck_pods::lid_cover",
+    "deck_pods::lid_harness_cover",
+    "deck_pods::lid_manifold_shell",
+    "deck_pods::lid_sensor_harness",
+    "deck_pods::lid_sensor_service_cable_pigtails",
+    "deck_pods::lid_sensor_service_connectors",
+    "deck_pods::lower_gasket",
+    "deck_pods::lower_harness_cover",
+    "deck_pods::lower_sensor_harness",
+    "deck_pods::lower_sensor_service_cable_pigtail",
+    "deck_pods::printed_gas_pcb_keeper_doors",
+    "deck_pods::printed_lid_sensor_connector_shrouds",
+    "deck_pods::printed_sample_relief_cap",
+    "deck_pods::printed_wedge_locks",
+    "deck_pods::upper_gasket",
+    "deck_pods::wet_chamber_frame",
+    "gas_pcb_interface_gaskets::headspace_sht41_microcarriers",
+    "gas_pcb_interface_gaskets::ir_thermopile_face_gaskets",
+    "gas_pcb_interface_gaskets::ir_thermopiles",
+    "gas_pcb_interface_gaskets::lid_harness_cover",
+    "gas_pcb_interface_gaskets::lid_manifold_shell",
+    "gas_pcb_interface_gaskets::lid_sensor_service_cable_pigtails",
+    "gas_pcb_interface_gaskets::lid_sensor_service_connectors",
+    "gas_pcb_interface_gaskets::lower_gasket",
+    "gas_pcb_interface_gaskets::lower_harness_cover",
+    "gas_pcb_interface_gaskets::lower_sensor_harness",
+    "gas_pcb_interface_gaskets::lower_sensor_service_cable_pigtail",
+    "gas_pcb_interface_gaskets::lower_sensor_service_connector",
+    "gas_pcb_interface_gaskets::plate_support_frame",
+    "gas_pcb_interface_gaskets::printed_lid_sensor_connector_shrouds",
+    "gas_pcb_interface_gaskets::printed_lower_sensor_connector_shroud",
+    "gas_pcb_interface_gaskets::printed_sample_relief_cap",
+    "gas_pcb_interface_gaskets::printed_wedge_locks",
+    "gas_pcb_interface_gaskets::upper_gasket",
+    "gas_pcb_interface_gaskets::wet_chamber_frame",
+    "gas_sensor_pcbs::headspace_sht41_microcarriers",
+    "gas_sensor_pcbs::ir_thermopile_face_gaskets",
+    "gas_sensor_pcbs::ir_thermopiles",
+    "gas_sensor_pcbs::lid_sensor_service_cable_pigtails",
+    "gas_sensor_pcbs::lid_sensor_service_connectors",
+    "gas_sensor_pcbs::lower_gasket",
+    "gas_sensor_pcbs::lower_harness_cover",
+    "gas_sensor_pcbs::lower_sensor_harness",
+    "gas_sensor_pcbs::lower_sensor_service_cable_pigtail",
+    "gas_sensor_pcbs::lower_sensor_service_connector",
+    "gas_sensor_pcbs::plate_support_frame",
+    "gas_sensor_pcbs::printed_lid_sensor_connector_shrouds",
+    "gas_sensor_pcbs::printed_lower_sensor_connector_shroud",
+    "gas_sensor_pcbs::printed_sample_relief_cap",
+    "gas_sensor_pcbs::printed_wedge_locks",
+    "gas_sensor_pcbs::upper_gasket",
+    "gas_sensor_pcbs::wet_chamber_frame",
+    "headspace_sht41_microcarriers::ir_thermopile_face_gaskets",
+    "headspace_sht41_microcarriers::ir_thermopiles",
+    "headspace_sht41_microcarriers::lid_cover",
+    "headspace_sht41_microcarriers::lid_sensor_service_cable_pigtails",
+    "headspace_sht41_microcarriers::lid_sensor_service_connectors",
+    "headspace_sht41_microcarriers::lower_gasket",
+    "headspace_sht41_microcarriers::lower_harness_cover",
+    "headspace_sht41_microcarriers::lower_sensor_harness",
+    "headspace_sht41_microcarriers::lower_sensor_service_cable_pigtail",
+    "headspace_sht41_microcarriers::lower_sensor_service_connector",
+    "headspace_sht41_microcarriers::plate_support_frame",
+    "headspace_sht41_microcarriers::printed_gas_pcb_keeper_doors",
+    "headspace_sht41_microcarriers::printed_lid_sensor_connector_shrouds",
+    "headspace_sht41_microcarriers::printed_lower_sensor_connector_shroud",
+    "headspace_sht41_microcarriers::printed_sample_relief_cap",
+    "headspace_sht41_microcarriers::printed_wedge_locks",
+    "headspace_sht41_microcarriers::upper_gasket",
+    "headspace_sht41_microcarriers::wet_chamber_frame",
+    "ir_thermopile_face_gaskets::lid_cover",
+    "ir_thermopile_face_gaskets::lid_harness_cover",
+    "ir_thermopile_face_gaskets::lid_manifold_shell",
+    "ir_thermopile_face_gaskets::lid_sensor_harness",
+    "ir_thermopile_face_gaskets::lid_sensor_service_cable_pigtails",
+    "ir_thermopile_face_gaskets::lid_sensor_service_connectors",
+    "ir_thermopile_face_gaskets::lower_gasket",
+    "ir_thermopile_face_gaskets::lower_harness_cover",
+    "ir_thermopile_face_gaskets::lower_sensor_harness",
+    "ir_thermopile_face_gaskets::lower_sensor_service_cable_pigtail",
+    "ir_thermopile_face_gaskets::lower_sensor_service_connector",
+    "ir_thermopile_face_gaskets::printed_gas_pcb_keeper_doors",
+    "ir_thermopile_face_gaskets::printed_lid_sensor_connector_shrouds",
+    "ir_thermopile_face_gaskets::printed_lower_sensor_connector_shroud",
+    "ir_thermopile_face_gaskets::printed_sample_relief_cap",
+    "ir_thermopile_face_gaskets::printed_wedge_locks",
+    "ir_thermopile_face_gaskets::upper_gasket",
+    "ir_thermopile_face_gaskets::wet_chamber_frame",
+    "ir_thermopiles::lid_cover",
+    "ir_thermopiles::lid_harness_cover",
+    "ir_thermopiles::lid_manifold_shell",
+    "ir_thermopiles::lid_sensor_harness",
+    "ir_thermopiles::lid_sensor_service_cable_pigtails",
+    "ir_thermopiles::lid_sensor_service_connectors",
+    "ir_thermopiles::lower_gasket",
+    "ir_thermopiles::lower_harness_cover",
+    "ir_thermopiles::lower_sensor_harness",
+    "ir_thermopiles::lower_sensor_service_cable_pigtail",
+    "ir_thermopiles::lower_sensor_service_connector",
+    "ir_thermopiles::printed_gas_pcb_keeper_doors",
+    "ir_thermopiles::printed_lid_sensor_connector_shrouds",
+    "ir_thermopiles::printed_lower_sensor_connector_shroud",
+    "ir_thermopiles::printed_sample_relief_cap",
+    "ir_thermopiles::printed_wedge_locks",
+    "ir_thermopiles::upper_gasket",
+    "ir_thermopiles::wet_chamber_frame",
+    "lid_cover::lid_sensor_service_cable_pigtails",
+    "lid_cover::lower_gasket",
+    "lid_cover::lower_harness_cover",
+    "lid_cover::lower_sensor_harness",
+    "lid_cover::lower_sensor_service_cable_pigtail",
+    "lid_cover::lower_sensor_service_connector",
+    "lid_cover::plate_support_frame",
+    "lid_cover::printed_lower_sensor_connector_shroud",
+    "lid_cover::upper_gasket",
+    "lid_harness_cover::lid_sensor_service_cable_pigtails",
+    "lid_harness_cover::lower_gasket",
+    "lid_harness_cover::lower_harness_cover",
+    "lid_harness_cover::lower_sensor_harness",
+    "lid_harness_cover::lower_sensor_service_cable_pigtail",
+    "lid_harness_cover::lower_sensor_service_connector",
+    "lid_harness_cover::plate_support_frame",
+    "lid_harness_cover::printed_gas_pcb_keeper_doors",
+    "lid_harness_cover::printed_lower_sensor_connector_shroud",
+    "lid_harness_cover::printed_sample_relief_cap",
+    "lid_harness_cover::printed_wedge_locks",
+    "lid_harness_cover::upper_gasket",
+    "lid_manifold_shell::lid_sensor_service_cable_pigtails",
+    "lid_manifold_shell::lid_sensor_service_connectors",
+    "lid_manifold_shell::lower_gasket",
+    "lid_manifold_shell::lower_harness_cover",
+    "lid_manifold_shell::lower_sensor_harness",
+    "lid_manifold_shell::lower_sensor_service_cable_pigtail",
+    "lid_manifold_shell::lower_sensor_service_connector",
+    "lid_manifold_shell::plate_support_frame",
+    "lid_manifold_shell::printed_gas_pcb_keeper_doors",
+    "lid_manifold_shell::printed_lid_sensor_connector_shrouds",
+    "lid_manifold_shell::printed_lower_sensor_connector_shroud",
+    "lid_manifold_shell::printed_sample_relief_cap",
+    "lid_manifold_shell::printed_wedge_locks",
+    "lid_sensor_harness::lid_sensor_service_cable_pigtails",
+    "lid_sensor_harness::lower_gasket",
+    "lid_sensor_harness::lower_harness_cover",
+    "lid_sensor_harness::lower_sensor_harness",
+    "lid_sensor_harness::lower_sensor_service_cable_pigtail",
+    "lid_sensor_harness::lower_sensor_service_connector",
+    "lid_sensor_harness::plate_support_frame",
+    "lid_sensor_harness::printed_gas_pcb_keeper_doors",
+    "lid_sensor_harness::printed_lower_sensor_connector_shroud",
+    "lid_sensor_harness::printed_sample_relief_cap",
+    "lid_sensor_harness::printed_wedge_locks",
+    "lid_sensor_harness::upper_gasket",
+    "lid_sensor_harness::wet_chamber_frame",
+    "lid_sensor_service_cable_pigtails::lower_gasket",
+    "lid_sensor_service_cable_pigtails::lower_harness_cover",
+    "lid_sensor_service_cable_pigtails::lower_sensor_harness",
+    "lid_sensor_service_cable_pigtails::lower_sensor_service_cable_pigtail",
+    "lid_sensor_service_cable_pigtails::lower_sensor_service_connector",
+    "lid_sensor_service_cable_pigtails::plate_support_frame",
+    "lid_sensor_service_cable_pigtails::printed_gas_pcb_keeper_doors",
+    "lid_sensor_service_cable_pigtails::printed_lower_sensor_connector_shroud",
+    "lid_sensor_service_cable_pigtails::printed_sample_relief_cap",
+    "lid_sensor_service_cable_pigtails::printed_wedge_locks",
+    "lid_sensor_service_cable_pigtails::upper_gasket",
+    "lid_sensor_service_cable_pigtails::wet_chamber_frame",
+    "lid_sensor_service_connectors::lower_gasket",
+    "lid_sensor_service_connectors::lower_harness_cover",
+    "lid_sensor_service_connectors::lower_sensor_harness",
+    "lid_sensor_service_connectors::lower_sensor_service_cable_pigtail",
+    "lid_sensor_service_connectors::lower_sensor_service_connector",
+    "lid_sensor_service_connectors::plate_support_frame",
+    "lid_sensor_service_connectors::printed_gas_pcb_keeper_doors",
+    "lid_sensor_service_connectors::printed_lower_sensor_connector_shroud",
+    "lid_sensor_service_connectors::printed_sample_relief_cap",
+    "lid_sensor_service_connectors::upper_gasket",
+    "lower_gasket::lower_harness_cover",
+    "lower_gasket::lower_sensor_harness",
+    "lower_gasket::lower_sensor_service_cable_pigtail",
+    "lower_gasket::lower_sensor_service_connector",
+    "lower_gasket::printed_gas_pcb_keeper_doors",
+    "lower_gasket::printed_lid_sensor_connector_shrouds",
+    "lower_gasket::printed_lower_sensor_connector_shroud",
+    "lower_gasket::printed_sample_relief_cap",
+    "lower_gasket::printed_wedge_locks",
+    "lower_gasket::upper_gasket",
+    "lower_harness_cover::lower_sensor_service_cable_pigtail",
+    "lower_harness_cover::printed_gas_pcb_keeper_doors",
+    "lower_harness_cover::printed_lid_sensor_connector_shrouds",
+    "lower_harness_cover::printed_sample_relief_cap",
+    "lower_harness_cover::printed_wedge_locks",
+    "lower_harness_cover::upper_gasket",
+    "lower_harness_cover::wet_chamber_frame",
+    "lower_sensor_harness::lower_sensor_service_cable_pigtail",
+    "lower_sensor_harness::printed_gas_pcb_keeper_doors",
+    "lower_sensor_harness::printed_lid_sensor_connector_shrouds",
+    "lower_sensor_harness::printed_lower_sensor_connector_shroud",
+    "lower_sensor_harness::printed_sample_relief_cap",
+    "lower_sensor_harness::printed_wedge_locks",
+    "lower_sensor_harness::upper_gasket",
+    "lower_sensor_harness::wet_chamber_frame",
+    "lower_sensor_service_cable_pigtail::plate_support_frame",
+    "lower_sensor_service_cable_pigtail::printed_gas_pcb_keeper_doors",
+    "lower_sensor_service_cable_pigtail::printed_lid_sensor_connector_shrouds",
+    "lower_sensor_service_cable_pigtail::printed_sample_relief_cap",
+    "lower_sensor_service_cable_pigtail::printed_wedge_locks",
+    "lower_sensor_service_cable_pigtail::upper_gasket",
+    "lower_sensor_service_cable_pigtail::wet_chamber_frame",
+    "lower_sensor_service_connector::plate_support_frame",
+    "lower_sensor_service_connector::printed_gas_pcb_keeper_doors",
+    "lower_sensor_service_connector::printed_lid_sensor_connector_shrouds",
+    "lower_sensor_service_connector::printed_sample_relief_cap",
+    "lower_sensor_service_connector::printed_wedge_locks",
+    "lower_sensor_service_connector::upper_gasket",
+    "lower_sensor_service_connector::wet_chamber_frame",
+    "plate_support_frame::printed_gas_pcb_keeper_doors",
+    "plate_support_frame::printed_lid_sensor_connector_shrouds",
+    "plate_support_frame::printed_sample_relief_cap",
+    "plate_support_frame::printed_wedge_locks",
+    "plate_support_frame::upper_gasket",
+    "printed_gas_pcb_keeper_doors::printed_lid_sensor_connector_shrouds",
+    "printed_gas_pcb_keeper_doors::printed_lower_sensor_connector_shroud",
+    "printed_gas_pcb_keeper_doors::printed_sample_relief_cap",
+    "printed_gas_pcb_keeper_doors::printed_wedge_locks",
+    "printed_gas_pcb_keeper_doors::upper_gasket",
+    "printed_gas_pcb_keeper_doors::wet_chamber_frame",
+    "printed_lid_sensor_connector_shrouds::printed_lower_sensor_connector_shroud",
+    "printed_lid_sensor_connector_shrouds::printed_sample_relief_cap",
+    "printed_lid_sensor_connector_shrouds::upper_gasket",
+    "printed_lid_sensor_connector_shrouds::wet_chamber_frame",
+    "printed_lower_sensor_connector_shroud::printed_sample_relief_cap",
+    "printed_lower_sensor_connector_shroud::printed_wedge_locks",
+    "printed_lower_sensor_connector_shroud::upper_gasket",
+    "printed_lower_sensor_connector_shroud::wet_chamber_frame",
+    "printed_sample_relief_cap::printed_wedge_locks",
+    "printed_sample_relief_cap::upper_gasket",
+    "printed_sample_relief_cap::wet_chamber_frame",
+    "printed_wedge_locks::upper_gasket"
+  ]
+}

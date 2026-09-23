@@ -1,10 +1,19 @@
 from __future__ import annotations
-from typing import Any
-import cadquery as cq
+
 import math
-from ..layout import (row_coupon_layout)
-from ._geom_base import (_boxes_from_rectangles, _rectangle_intersects_circle, _rounded_box)
-from ._shared_tile import (_lid_port_positions)
+from typing import Any
+
+import cadquery as cq
+
+from ..layout import row_coupon_layout
+from ._geom_base import (
+    _boxes_from_rectangles,
+    _fused_z_box,
+    _integral_feature_fusion_overlap_z,
+    _rectangle_intersects_circle,
+    _rounded_box,
+)
+from ._shared_tile import _lid_port_positions
 
 
 def _add_wedge_receiver_rails(
@@ -27,6 +36,7 @@ def _add_wedge_receiver_rails(
     if rail_w <= 0 or rail_h <= 0:
         return cover
     receiver_z = z0 + lid["duct_height_z"]
+    overlap_z = _integral_feature_fusion_overlap_z(params)
 
     for lock in _wedge_lock_rectangles(layout, params):
         if lock["slide_axis"] == "x":
@@ -44,9 +54,16 @@ def _add_wedge_receiver_rails(
             ]
             for rail_y in y_values:
                 cover = cover.union(
-                    cq.Workplane("XY")
-                    .box(rail_len, rail_w, rail_h, centered=(False, False, False))
-                    .translate((rail_x, rail_y, receiver_z))
+                    _fused_z_box(
+                        length=rail_len,
+                        width=rail_w,
+                        height=rail_h,
+                        x=rail_x,
+                        y=rail_y,
+                        z=receiver_z,
+                        overlap_z=overlap_z,
+                        into="down",
+                    )
                 )
             if lip_w > 0 and lip_h > 0 and lip_len > 0:
                 lip_x = float(lock["capture_lip_x"])
@@ -60,9 +77,16 @@ def _add_wedge_receiver_rails(
                 ]
                 for lip_y in lip_y_values:
                     cover = cover.union(
-                        cq.Workplane("XY")
-                        .box(lip_len_x, lip_w, lip_h, centered=(False, False, False))
-                        .translate((lip_x, lip_y, receiver_z + rail_h))
+                        _fused_z_box(
+                            length=lip_len_x,
+                            width=lip_w,
+                            height=lip_h,
+                            x=lip_x,
+                            y=lip_y,
+                            z=receiver_z + rail_h,
+                            overlap_z=overlap_z,
+                            into="down",
+                        )
                     )
             if stop_h > 0 and float(lock["travel_stop_length_x"]) > 0:
                 stop_y = max(0.0, float(lock["y"]) - clearance - rail_w)
@@ -71,14 +95,16 @@ def _add_wedge_receiver_rails(
                     float(lock["width_y"]) + 2 * (clearance + rail_w),
                 )
                 cover = cover.union(
-                    cq.Workplane("XY")
-                    .box(
-                        float(lock["travel_stop_length_x"]),
-                        stop_w,
-                        stop_h,
-                        centered=(False, False, False),
+                    _fused_z_box(
+                        length=float(lock["travel_stop_length_x"]),
+                        width=stop_w,
+                        height=stop_h,
+                        x=float(lock["travel_stop_x"]),
+                        y=stop_y,
+                        z=receiver_z,
+                        overlap_z=overlap_z,
+                        into="down",
                     )
-                    .translate((float(lock["travel_stop_x"]), stop_y, receiver_z))
                 )
         else:
             rail_y = max(0.0, float(lock["y"]) - length_extra / 2)
@@ -95,9 +121,16 @@ def _add_wedge_receiver_rails(
             ]
             for rail_x in x_values:
                 cover = cover.union(
-                    cq.Workplane("XY")
-                    .box(rail_w, rail_len, rail_h, centered=(False, False, False))
-                    .translate((rail_x, rail_y, receiver_z))
+                    _fused_z_box(
+                        length=rail_w,
+                        width=rail_len,
+                        height=rail_h,
+                        x=rail_x,
+                        y=rail_y,
+                        z=receiver_z,
+                        overlap_z=overlap_z,
+                        into="down",
+                    )
                 )
             if lip_w > 0 and lip_h > 0 and lip_len > 0:
                 lip_y = float(lock["capture_lip_y"])
@@ -111,9 +144,16 @@ def _add_wedge_receiver_rails(
                 ]
                 for lip_x in lip_x_values:
                     cover = cover.union(
-                        cq.Workplane("XY")
-                        .box(lip_w, lip_len_y, lip_h, centered=(False, False, False))
-                        .translate((lip_x, lip_y, receiver_z + rail_h))
+                        _fused_z_box(
+                            length=lip_w,
+                            width=lip_len_y,
+                            height=lip_h,
+                            x=lip_x,
+                            y=lip_y,
+                            z=receiver_z + rail_h,
+                            overlap_z=overlap_z,
+                            into="down",
+                        )
                     )
             if stop_h > 0 and float(lock["travel_stop_width_y"]) > 0:
                 stop_x = max(0.0, float(lock["x"]) - clearance - rail_w)
@@ -122,14 +162,16 @@ def _add_wedge_receiver_rails(
                     float(lock["length_x"]) + 2 * (clearance + rail_w),
                 )
                 cover = cover.union(
-                    cq.Workplane("XY")
-                    .box(
-                        stop_l,
-                        float(lock["travel_stop_width_y"]),
-                        stop_h,
-                        centered=(False, False, False),
+                    _fused_z_box(
+                        length=stop_l,
+                        width=float(lock["travel_stop_width_y"]),
+                        height=stop_h,
+                        x=stop_x,
+                        y=float(lock["travel_stop_y"]),
+                        z=receiver_z,
+                        overlap_z=overlap_z,
+                        into="down",
                     )
-                    .translate((stop_x, float(lock["travel_stop_y"]), receiver_z))
                 )
     return cover
 
@@ -462,9 +504,6 @@ def _cut_latch_post_slot(
 
     if lock_rect["slide_axis"] == "x":
         if lock_rect["insert_from"] == "min":
-            slot_x = float(lock_rect["x"]) - 0.1
-            slot_len = post_x - float(lock_rect["x"]) + slot_w / 2 + 0.1
-        else:
             slot_x = post_x - slot_w / 2
             slot_len = (
                 float(lock_rect["x"])
@@ -473,6 +512,9 @@ def _cut_latch_post_slot(
                 + slot_w / 2
                 + 0.1
             )
+        else:
+            slot_x = float(lock_rect["x"]) - 0.1
+            slot_len = post_x - float(lock_rect["x"]) + slot_w / 2 + 0.1
         cutter = (
             cq.Workplane("XY")
             .box(slot_len, slot_w, slot_h, centered=(False, False, False))
@@ -481,9 +523,6 @@ def _cut_latch_post_slot(
         return lock.cut(cutter)
 
     if lock_rect["insert_from"] == "min":
-        slot_y = float(lock_rect["y"]) - 0.1
-        slot_len = post_y - float(lock_rect["y"]) + slot_w / 2 + 0.1
-    else:
         slot_y = post_y - slot_w / 2
         slot_len = (
             float(lock_rect["y"])
@@ -492,6 +531,9 @@ def _cut_latch_post_slot(
             + slot_w / 2
             + 0.1
         )
+    else:
+        slot_y = float(lock_rect["y"]) - 0.1
+        slot_len = post_y - float(lock_rect["y"]) + slot_w / 2 + 0.1
     cutter = (
         cq.Workplane("XY")
         .box(slot_w, slot_len, slot_h, centered=(False, False, False))
@@ -648,16 +690,9 @@ def _latch_retention_span_check(
     checkpoints = [
         {
             "name": "detent_retention_cycle",
-            "blocks": ["thin_self_lock_margin_unverified"],
+            "blocks": ["printed_latch_retention_cycle_unverified"],
             "source_layout_checks": ["latch_ramp_self_lock"],
             "inspection_method": "five_dry_latch_cycles_plus_tip_upset",
-            "evidence_gate": "Gate 2 dry assembly",
-        },
-        {
-            "name": "omitted_station_span_bow",
-            "blocks": ["omitted_station_span_bow_unmeasured"],
-            "source_layout_checks": ["latch_station_asymmetry"],
-            "inspection_method": "straightedge_or_photo_near_omitted_station",
             "evidence_gate": "Gate 2 dry assembly",
         },
         {
@@ -676,6 +711,20 @@ def _latch_retention_span_check(
             "evidence_gate": "Gate 2 dry assembly",
         },
     ]
+    if (
+        station_asymmetry["omitted_station_count"] > 0
+        or station_asymmetry["exceeds_allowed_span"]
+    ):
+        checkpoints.insert(
+            1,
+            {
+                "name": "omitted_station_span_bow",
+                "blocks": ["omitted_station_span_bow_unmeasured"],
+                "source_layout_checks": ["latch_station_asymmetry"],
+                "inspection_method": "straightedge_or_photo_near_omitted_station",
+                "evidence_gate": "Gate 2 dry assembly",
+            },
+        )
     blockers = sorted(
         {
             block
@@ -698,7 +747,7 @@ def _latch_retention_span_check(
         }
     )
 
-    requires_physical_evidence = bool(
+    cad_risk_flag = bool(
         ramp_self_lock["backdrive_risk_flag"]
         or station_asymmetry["exceeds_allowed_span"]
         or not post_stress_screen["passes_stress_screen"]
@@ -706,10 +755,10 @@ def _latch_retention_span_check(
     )
     return {
         "name": "latch_retention_span_check",
-        "role": "dry_latch_retention_and_omitted_span_evidence_blocker",
+        "role": "dry_latch_retention_and_span_evidence_blocker",
         "validation": "cad_proxy_latch_retention_span_physical_evidence_required",
         "failure_rule": (
-            "thin_self_lock_or_excess_span_blocks_wet_tests_until_gate2_evidence"
+            "failed_cad_screen_or_missing_dry_cycle_evidence_blocks_wet_tests"
         ),
         "evidence_gate": "Gate 2 dry assembly",
         "cad_value": (
@@ -733,7 +782,8 @@ def _latch_retention_span_check(
         "exceeds_allowed_span": station_asymmetry["exceeds_allowed_span"],
         "passes_post_stress_screen": post_stress_screen["passes_stress_screen"],
         "passes_compression_budget": compression_budget["passes_budget"],
-        "requires_physical_evidence": requires_physical_evidence,
+        "cad_risk_flag": cad_risk_flag,
+        "requires_physical_evidence": True,
         "all_checkpoints_block_wet_tests": True,
         "body_rects": [
             {
@@ -1041,7 +1091,17 @@ def build_assembly_state_witness_check(
     *,
     assembly_position: bool = False,
 ) -> cq.Workplane:
-    from aevum_cad.row_coupon import (build_missing_gas_pcb_cartridge_witnesses, build_missing_local_sensor_witnesses, build_missing_microplate_witnesses, build_missing_perimeter_gasket_witnesses, build_missing_sample_relief_cap_witness, build_missing_septum_mat_witnesses, build_missing_service_lead_witnesses, build_unseated_gas_pcb_cartridges_review, build_unseated_side_gas_tubes_review)
+    from aevum_cad.row_coupon import (
+        build_missing_gas_pcb_cartridge_witnesses,
+        build_missing_local_sensor_witnesses,
+        build_missing_microplate_witnesses,
+        build_missing_perimeter_gasket_witnesses,
+        build_missing_sample_relief_cap_witness,
+        build_missing_septum_mat_witnesses,
+        build_missing_service_lead_witnesses,
+        build_unseated_gas_pcb_cartridges_review,
+        build_unseated_side_gas_tubes_review,
+    )
     layout = row_coupon_layout(params)
     review_builders = {
         "missing_microplate_witnesses": build_missing_microplate_witnesses,
@@ -1251,6 +1311,84 @@ def build_printed_wedge_locks(
     if locks is None:
         raise ValueError("printed wedge locks require compression stop positions")
     return locks
+
+
+def build_lid_latch_coupon_pair(
+    params: dict[str, Any],
+    *,
+    assembly_position: bool = False,
+) -> dict[str, cq.Workplane]:
+    """Representative receiver/post fixture and production wedge fit coupon."""
+
+    layout = row_coupon_layout(params)
+    source = _wedge_lock_rectangles(layout, params)[0]
+    production = params.get("production_assembly", {})
+    base_h = 2.0
+    margin = 4.0
+    dx = margin - float(source["x"])
+    dy = margin - float(source["y"])
+    local = dict(source)
+    for key in (
+        "x", "post_x", "bearing_flat_x", "capture_lip_x", "release_tab_x",
+        "witness_mark_x", "detent_x", "travel_stop_x",
+    ):
+        local[key] = float(source[key]) + dx
+    for key in (
+        "y", "post_y", "bearing_flat_y", "capture_lip_y", "release_tab_y",
+        "witness_mark_y", "detent_y", "travel_stop_y",
+    ):
+        local[key] = float(source[key]) + dy
+
+    lock_l = float(local["length_x"])
+    lock_w = float(local["width_y"])
+    fixture_l = lock_l + 2 * margin
+    fixture_w = lock_w + 2 * margin
+    rail_w = float(production.get("wedge_receiver_rail_width_x", 0.0))
+    rail_h = float(production.get("wedge_receiver_rail_height_z", 0.0))
+    lip_w = float(production.get("wedge_receiver_lip_width_y", 0.0))
+    lip_h = float(production.get("wedge_receiver_lip_height_z", 0.0))
+    lip_l = float(production.get("wedge_receiver_lip_length_x", 0.0))
+    clearance = float(production.get("wedge_receiver_clearance_x", 0.0))
+    post_d = float(production.get("latch_post_diameter", 0.0))
+    wedge_h = float(local["height_z"])
+
+    fixture = cq.Workplane("XY").box(
+        fixture_l, fixture_w, base_h, centered=(False, False, False)
+    )
+    rail_x = float(local["x"]) - 1.0
+    rail_l = lock_l + 2.0
+    for rail_y in (
+        float(local["y"]) - clearance - rail_w,
+        float(local["y"]) + lock_w + clearance,
+    ):
+        fixture = fixture.union(
+            cq.Workplane("XY")
+            .box(rail_l, rail_w, rail_h + 0.1, centered=(False, False, False))
+            .translate((rail_x, rail_y, base_h - 0.1))
+        )
+    if min(lip_w, lip_h, lip_l) > 0:
+        for lip_y in (
+            float(local["y"]) - clearance,
+            float(local["y"]) + lock_w + clearance - lip_w,
+        ):
+            fixture = fixture.union(
+                cq.Workplane("XY")
+                .box(lip_l, lip_w, lip_h + 0.1, centered=(False, False, False))
+                .translate((float(local["capture_lip_x"]), lip_y, base_h + rail_h - 0.1))
+            )
+    fixture = fixture.union(
+        cq.Workplane("XY")
+        .circle(post_d / 2)
+        .extrude(wedge_h + 0.5)
+        .translate((float(local["post_x"]), float(local["post_y"]), base_h - 0.1))
+    )
+    wedge = _build_wedge_lock_body(local, params=params, z0=base_h)
+    if not assembly_position:
+        wedge = wedge.translate((fixture_l + 4.0, 0.0, -base_h))
+    return {
+        "lid_latch_receiver_post_coupon": fixture,
+        "lid_latch_wedge_coupon": wedge,
+    }
 
 
 def _printed_wedge_lock_models(

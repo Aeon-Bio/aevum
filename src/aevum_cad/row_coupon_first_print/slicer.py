@@ -30,7 +30,7 @@ from .slicer_queue import (
     first_print_slicer_queue_artifacts,
     first_print_slicer_queue_manifest_items,
     first_print_sliced_output_rows_from_slicer_queue_manifest,
-    first_print_y_split_slicer_queue_items,
+    first_print_final_piece_slicer_queue_items,
 )
 from .models import (
     FirstPrintSlicedOutputRow,
@@ -80,11 +80,11 @@ def first_print_sliced_output_rows(
     return tuple(rows)
 
 
-def first_print_y_split_sliced_output_rows(
+def first_print_final_piece_sliced_output_rows(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     selected_setup_summary: str = "",
@@ -97,10 +97,10 @@ def first_print_y_split_sliced_output_rows(
         return manifest_rows
 
     rows: list[FirstPrintSlicedOutputRow] = []
-    for item in first_print_y_split_slicer_queue_items(
+    for item in first_print_final_piece_slicer_queue_items(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
     ):
@@ -168,11 +168,11 @@ def write_first_print_sliced_outputs(
     return output
 
 
-def write_first_print_y_split_sliced_outputs(
+def write_first_print_final_piece_sliced_outputs(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     output_path: str | Path,
@@ -183,10 +183,10 @@ def write_first_print_y_split_sliced_outputs(
     if output.exists() and not overwrite:
         raise FileExistsError(output)
     output.parent.mkdir(parents=True, exist_ok=True)
-    rows = first_print_y_split_sliced_output_rows(
+    rows = first_print_final_piece_sliced_output_rows(
         params=params,
         out_dir=out_dir,
-        split_dir=split_dir,
+        piece_dir=piece_dir,
         queue_dir=queue_dir,
         slicer_setup_path=slicer_setup_path,
         selected_setup_summary=selected_setup_summary,
@@ -253,11 +253,11 @@ def _run_prusa_slicer_gcode_export(
         raise RuntimeError(f"PrusaSlicer did not create {output_gcode}")
 
 
-def slice_first_print_y_split_slicer_queue(
+def slice_first_print_final_piece_slicer_queue(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     sliced_dir: str | Path,
@@ -268,7 +268,7 @@ def slice_first_print_y_split_slicer_queue(
     selected_setup_summary = _slicer_setup_row_summary(setup_row)
     queue_audit = audit_first_print_slicer_queue_manifest(queue_dir)
     if not queue_audit.ready:
-        raise ValueError("split slicer queue is not ready")
+        raise ValueError("final-piece slicer queue is not ready")
 
     output = Path(output_path)
     if output.exists() and not overwrite:
@@ -351,11 +351,11 @@ def audit_first_print_sliced_outputs(
     )
 
 
-def audit_first_print_y_split_sliced_outputs(
+def audit_first_print_final_piece_sliced_outputs(
     *,
     params: dict[str, Any],
     out_dir: str | Path,
-    split_dir: str | Path,
+    piece_dir: str | Path,
     queue_dir: str | Path,
     slicer_setup_path: str | Path,
     worksheet_path: str | Path,
