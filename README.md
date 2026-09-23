@@ -70,6 +70,13 @@ For the one-row coupon, open:
 cad/view_one_row_coupon.py
 ```
 
+To compare the intact installed assembly with every printed artifact in the
+canonical final-piece first-print queue, open:
+
+```text
+cad/view_one_row_coupon_print_pieces.py
+```
+
 Or run a non-GUI smoke test:
 
 ```bash
@@ -90,3 +97,12 @@ outputs/cad/aevum_p300_poc_fixture_mat_cassette.stl
 
 Prusa MK4 print notes are in
 [docs/engineering/prusa_mk4_printing.md](docs/engineering/prusa_mk4_printing.md).
+
+## License
+
+Hardware design source (CAD generators, parameters, generated geometry,
+engineering dimensions, protocols, measurements) is released under
+**CERN-OHL-S-2.0** ([LICENSE-HARDWARE](LICENSE-HARDWARE)). Control, profile,
+and analysis code is released under **Apache-2.0**
+([LICENSE-CODE](LICENSE-CODE)). The file-by-file split is in
+[LICENSING.md](LICENSING.md).

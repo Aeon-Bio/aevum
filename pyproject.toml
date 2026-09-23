@@ -2,6 +2,9 @@
 name = "aevum"
 version = "0.1.0"
 description = "OT-2 raised plate-mode incubator and inverted photonics engineering workspace"
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE-CODE"]
 requires-python = ">=3.11,<3.13"
 dependencies = [
   "cadquery>=2.5,<3",
@@ -13,6 +16,9 @@ dependencies = [
 dev = [
   "pytest>=8",
   "ruff>=0.7",
+]
+bambu = [
+    "paho-mqtt>=2.1",
 ]
 
 [build-system]
