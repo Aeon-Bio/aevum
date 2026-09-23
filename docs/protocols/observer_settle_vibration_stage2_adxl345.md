@@ -200,7 +200,7 @@ Q1 SINGLE-BEAM SETTLE: shaped t_settle,4× ≤ the scan-cycle settle budget at �
   ↓
 Q2 10× SETTLE: shaped t_settle,10× reaches ±4 µm in budget?
   YES → 10× drill-down stays in the production path (commit the VCM precision).
-  NO  → 10× settle too slow → 4×-ONLY is the safe path (±55 µm DOF is forgiving);
+  NO  → 10× settle too slow → 4×-ONLY is the safe path (55 µm total DOF, ±27 µm, is forgiving);
         keep 10× as a sparse QC-flagged escalation only, accepting longer dwell.
   ↓
 Q3 OT-2 IDLE FLOOR: head idle-floor displacement < ±4 µm with the OT-2 powered+idle?
@@ -288,7 +288,8 @@ granted by the OT-2 bridge lease and hardware-gated by the enable line
   `docs/engineering/observation_module.md` (§2 "Settle forces stop-and-shoot", §3,
   §6 drivers #3/#5, §7 Stage 2, §8 decisions #1/#3)
 - The ±27 µm / ±4 µm hold-still vibration budget and the DOF it derives from
-  (±55 µm @ 4× / ±4 µm @ 10×): `docs/engineering/observer_optical_bench.md`
+  (55 µm total / ±27 µm @ 4×; 8.8 µm total / ±4.4 µm @ 10×):
+  `docs/engineering/observer_optical_bench.md`
   ("What Stage 0 does not prove")
 - The verified bay geometry the moving loop is built against, and the all-aluminum
   focus-loop / 1.4 µm/°C thermal constraint: `docs/engineering/observation_module.md`

@@ -26,6 +26,18 @@ conditions.
 
 ## Progress log
 
+- **2026-09-23 — observer optics/thermal doc pass** (docs only; no `src/`, `tests/`, or
+  `cad/*.json` touched, suite left at 501 passed / 0 failed). Books the open work surfaced by the
+  session's measured geometry/optics/thermal review; closes nothing. New items: **OP-B20**
+  (measure G_obj-ambient — the 50 mW/K estimate the whole thermal gate rests on), **OP-B21**
+  (objective barrel OD 9-11 mm back from the tip, which sets the reachable-well inset), **OP-B22**
+  (borosilicate Raman background through the plate bottom), **OC-A16** (does the carriage body
+  thread the 117.4 mm leg corridor), **OC-A17** (`covered_well_count` reports 384 where the
+  optically reachable set is 128), **OC-A18** (two `aevum_smis/manifest.py` recommendations
+  recorded, deliberately not applied), **SM-4.5** (the throughput / sampling-policy gap), and
+  **IN-C10** (the water-immersion amendment decision, staged as an open proposal in
+  `docs/knowledge/materials_strategy.md`).
+
 - **2026-06-18 — remaining A-queue batch** (11 items, parallel workflow + do→review→fix per item,
   then orchestrator-integrated shared files): **OT-7** MCP agent adapter (policy-allowlisted, routes
   via DaemonClient, no motion authority), **OT-8** MCP/HTTP route-parity / no-silent-canonical-default
@@ -368,8 +380,26 @@ conditions.
   check using guessed cable ODs would manufacture a physical-fit claim without evidence
   (forbidden), so none was added. No code change this cycle.
 - **OC-A15 (MODELED + Stage-0-gated):** the binding constraint is the **standoff-leg scan
-  corridor** (120.4 mm), not the bay or the Ø32 keepout — a multi-agent study + empirical
-  test found the head must thread the legs (footprint ≤ ~21 mm; a Ø25 barrel strikes them).
+  corridor** (117.4 mm live; head budget **15.56 mm**, see the OC-A15 correction of
+  2026-09-21), not the bay or the Ø32 keepout — the head must thread the legs, and at the
+  live 21.0 mm placeholder footprint it strikes the near leg by 2.72 mm. An RMS thread
+  floors near Ø20.32, so **no RMS objective threads this corridor at all**. Three open
+  resolutions: source a sub-15.56 mm head (no RMS train qualifies); re-route the service
+  shroud so `lower_service_foot_inset_x` goes 3.0 → 0.0 (budget 21.24 mm, a Ø20.32 RMS
+  barrel then clears by +0.46 mm); or reshape the corner posts into X-strip rails
+  (budget 24.84 mm at 2.0 mm rails, with 3.2x the bearing area).
+  **Superseded in part 2026-09-23 by OC-A18(a) below** (the same marker OC-A16 already
+  carries): 15.56 mm is the residual for scanning **all 12** well columns, which the 88 mm
+  tile aperture never admitted — it admits **8**, spanning 63.0 mm. Budgeted against the
+  reachable columns the head budget is
+  `min(2 x (42.88 - 17.10), 2 x (134.50 - 105.88))` = **51.56 mm**, at which a Ø20.32 RMS
+  barrel clears by **+31.24 mm** with no geometry moved. **"No RMS objective threads this
+  corridor at all" is withdrawn**, and none of the three resolutions above is required for a
+  catalog head. Which budget applies is coupled to the aperture: enlarging it to ~110 x 74 mm
+  to recover all 384 wells returns the reachable span to 99.0 mm and the budget toward
+  15.56 mm — the wide aperture and the wide head are alternatives, not a package. The frozen
+  SMIS contract deliberately still carries 15.56 (`src/aevum_smis/manifest.py:68`), so a head
+  sourced against 51.56 mm is rejected at dock until that is changed.
   **Done (2026-06-14):** (a) the CAD surfaces the leg corridor as the binding scan wall
   (`scan_corridor_width_mm` / `scan_corridor_margin_mm`) and the bay-Y was resized to the
   wet/dry-bounded extent (`sweep_extra_y` 12.2→17.0); (b) Stage-0 protocol
@@ -404,7 +434,11 @@ agent adapters, and the first live commissioning run (hardware-gated). The
 **row-coupon physical** track is the inverse: every digital scaffold is green
 (`print_start_ready`, six Gate worksheets, 39 validation bodies) but **zero
 physical evidence exists** — the whole Gate-1→6 chain is owed and gated on
-actually printing 21 STLs and sourcing parts. The **observer** splits into
+actually printing 38 rigid print pieces (46 physical artifacts; eight flexible or
+compressible parts sit outside the rigid queue — canonical fabrication contract in
+`one_row_coupon.md`, the paragraph beginning "The canonical fabrication contract
+contains 46 physical artifacts", regeneration witnessed as "38 STEP/STL pairs" at
+`row_coupon_cycle_log.md` RS164) and sourcing parts. The **observer** splits into
 **CAD-hardening** (a rich seam of pure-A do→review cycles), **prototyping** (eight
 missing protocol docs are pure-A; everything downstream is hardware-gated on a
 ~¥40 contrast test and a ¥20 settle log), and the **SMIS platform** (zero
@@ -437,9 +471,9 @@ GX16/HEAD-BUS umbilical, the `observer_scan` bridge lease, and ~9 open decisions
 
 | Item | Produces | Tag |
 |---|---|---|
-| RC-W1 | Print the 21-file split batch (PETG) — precondition for everything downstream | B |
+| RC-W1 | Print the 38-piece final-print-piece batch (PETG) — precondition for everything downstream. *(Corrected 2026-09-23: "21-file split batch" was the retired Y-split count; the canonical queue is `rigid_print_pieces` = 38 per `docs/assembly/artifact_authority.json`.)* | B |
 | RC-W2 | Procure/blank 12 install-inventory items + real sensor PCBs | B/C |
-| RC-W3 | Gate-1 print-QC measurements (21-row worksheet) | B |
+| RC-W3 | Gate-1 print-QC measurements (38-row worksheet — one row per queued print piece) | B |
 | RC-W4 | Gate-2 dry assembly + 5× service cycles | B |
 | RC-W5 | Gate-3 OT-2 placement + real toolhead-envelope measurement | B |
 | RC-W6 | Gate-4 passive leak / wet-dry / condensate challenge | B |
@@ -476,6 +510,9 @@ reconciliation) remain.
 | OC-A13 | Doc reconciliation (fold A1–A12 into RH6/RH15/RP5) — **done 2026-06-18**: the OC-A facts (with the check field names) folded into the RH6/RH15/RP5 hyperedges in `row_coupon_revision_hypergraph.md` (the anchors live there, not realization_hypergraph.md; the staleness was semantic, not line numbers) | A |
 | OC-A14 | Raceway-X clamp by coupon length (live footprint) — **done** (not in the original A1–A13 list) | A |
 | OC-A15 | Barrel-vs-scan-corridor diagnostics surfaced (not gated) — **done** (`test_observer_scan_corridor_strike_is_falsifiable_oc_a15`) | A |
+| OC-A16 | **Open 2026-09-23.** Carriage-body-vs-leg-corridor closure. The live standoff-leg corridor is 117.4 mm clear (inner faces X 17.10 / 134.50, `src/aevum_smis/manifest.py:51-55`); `carriage_length_x` is 100.0 (`cad/one_row_coupon.params.json:137`), but the dry-bay X beam the head rides is 120.2 mm — already wider than the corridor — and the camera arm's own X extent is still unresolved: `front_end_scan_axis_footprint` is a 21 mm bare-objective placeholder that **excludes** the arm, and the arm was held to be unroutable along that 120 mm beam because only ~0.2 mm of X remains after the **99 mm** well span (`observation_module.md`, § *The 44.6 mm carriage-Y-overflow is a CAD artifact, not a physical wall*, the paragraph beginning "But the Y fix relocated its burden onto the X scan axis"; the residual is stated in code at `src/aevum_cad/row_coupon/parts/observer.py:184-193`), which was why the arm had to fold coaxially or go offboard. **Superseded in part 2026-09-23 by OC-A18(a) below:** the 99 mm figure spans all 12 well columns, and the 88 mm tile aperture only ever admitted 8 of them (63.0 mm span, OC-A17). Against the reachable span the bay-wall residual is 120.2 − 63.0 − 21 = **~36 mm** rather than ~0.2 mm, and the binding leg-corridor budget is **51.56 mm** rather than 15.56 mm — so the coaxial-fold-or-offboard conclusion is **no longer forced**, and the camera-routing question reopens. What remains genuinely open is narrower: decide which body actually has to thread the 117.4 mm corridor, and encode it as a falsifiable assert rather than leaving it implied. (The earlier citation here pointed at `observation_module.md:217`/`:225-227`, which is the Y-axis `carriage_traverse_exceeds_dry_bay` blocker — 334.5 + 58 = 392.5 vs 347.9 — not the X residual; retargeted 2026-09-23.) | A (measurement tail B) |
+| OC-A17 | **Open 2026-09-23 — reporting bug, recommendation only.** The observer front-end swept-body check reports `covered_well_count` = 384 (`src/aevum_cad/row_coupon/layout.py:965` passes `len(all_well_centers)` into `src/aevum_cad/row_coupon/parts/observer.py:578`, emitted at `:630`): that is the wells the ROW covers, not the wells the OBSERVER can reach. The optically reachable set is **128 of 384** — the per-tile through-aperture is 88 × 52 mm (`dry_bay.aperture_length_x` / `aperture_width_y`), and either the optical cone at long WD (9.27 mm at the aperture plane at WD 19.90 ⇒ 4.64 mm inset) or the physical nose at short WD (OD 8-20 mm ⇒ 4-10 mm inset) removes the outer well ring; both routes give the same 128. Split or rename the field (row-covered vs observer-reachable) so the check stops over-claiming. Code untouched in the docs-only pass | A |
+| OC-A18 | **Open 2026-09-23 — two `src/aevum_smis/manifest.py` recommendations, recorded and deliberately NOT applied** (docs-only pass; suite at 501 passed / 0 failed). (a) `scan_corridor_footprint_max_mm = 15.56` (`manifest.py:68`) is the residual after a 99 mm scan across all 12 well columns, but the 88 mm tile aperture only ever admitted 8 columns (63.0 mm span); parameterised by the **reachable** columns the budget is min(2×(42.88 - 17.10), 2×(134.50 - 105.88)) = **51.56 mm**, a 3.3× increase with no CAD change. (b) `vertical_required` (`manifest.py:193-200`) is an **additive** sum (front_face_clearance + front_end_height_z + focus_stroke_z + service_margin_z ≤ z_budget), so 8 + 57 + 18 = 83 > 62 rejects every 60 mm-parfocal objective on geometry the solid model says is clear (probe cylinders to Ø25 mm rise unobstructed from z = 0 to z = 11.71 at every tile-aperture centre). Replace with a swept-envelope check that keeps a hard retract-plane assertion | A |
 
 ### Track 4 — Observer prototyping (protocols A; measurements B; forks C)
 
@@ -486,6 +523,9 @@ reconciliation) remain.
 | OP-S1des..S3des, S4evid | **S4evid done** (the observer evidence-packet writer is `observer.py` `mint_observer_scan_evidence`/`observer_scan_evidence_to_packet`/`persist_*`, IN-C4/C5). **S1des..S3des: gated-in-practice by B** — the Stage 1–3 build-drawing CAD depends on the Stage-0/1/2 measured numbers (the next row, OP-B*, is literally "feed numbers to CAD", Bcad→A); authoring build drawings against un-measured focus/WD/settle/dock numbers would bake unproven assumptions into CAD, against the evidence discipline. Defer until the gating measurements land | A |
 | OP-B0..Bcad | Stage-0 bench build + the three gating measurements (focus/WD, contrast, field-flatness) + condensation + feed numbers to CAD | B (Bcad→A) |
 | OP-S1b..S4opt | Stage 1–4 builds (VCM focus, one-plate settle, full-row traverse, dock/soak/interlock) + optical characterization | B |
+| OP-B20 | **Open 2026-09-23 — measure G_obj-ambient** (objective-to-ambient thermal conductance). The 2026-09-23 steady-state model that now gates head selection uses an **estimated** 50 mW/K: at a 37 C bath in a 25 C bay it puts a water 60×/1.20 head at WD 0.31 mm at cells 29.50 C (ΔT 7.50 K), a dry 40×/0.95 at WD 0.18 mm at 1.96 K, a dry 40×/0.60 at WD 3.0 mm at 0.23 K and a dry 20×/0.45 at WD 7.5 mm at 0.15 K. The **ordering** is robust; the **absolute ΔT is not**, and it is what decides whether a 0.3 K sample-plane budget admits anything closer than ~3 mm. Highest-value early measurement | B |
+| OP-B21 | **Open 2026-09-23 — objective barrel OD measured 9-11 mm back from the tip** (not the shoulder Ø, not the catalog barrel figure). At short WD the nose enters the 88 × 52 mm tile aperture, and the nose-to-aperture-edge inset (4-10 mm across OD 8-20 mm) is what sets the optically reachable well count. Feeds OC-A9's barrel-vs-keepout split and OC-A17 | B (→A) |
+| OP-B22 | **Open 2026-09-23 — borosilicate Raman background** of the CellVis plate's glass bottom at 785 nm over 800-1800 cm-1, measured from below through the coverslip. Catalog row #6 is already throughput-limited to sparse spot-checks; if the substrate's own background swamps the fingerprint region, the through-glass Raman path is dead upstream of the corridor question | B |
 | C-OB1..8 | 10× vs 4×, oblique-vs-lid-window, single-vs-split gantry, camera coaxial-vs-offboard, shutter, setpoints, deepen-bay | C |
 
 ### Track 5 — SMIS platform (greenfield)
@@ -500,6 +540,7 @@ reconciliation) remain.
 | SM-4.1..4.4 | `ModuleDriver` Protocol + plugin loader; `acquire(well,lease)→Evidence` on the bridge lease + Evidence model; fail-closed source-enable; semver policy — **done 2026-06-15** | A |
 | SM-B1.4 | **Print the dock, measure ≤5 µm dock-redock repeatability — proves or kills the platform thesis** | B |
 | SM-B2.x, H0..H5 | Blind-mate connector + interlock hardware; head builds brightfield→QPI→fluorescence→2nd(FREEZE)→Raman→NV | B |
+| SM-4.5 | **Open 2026-09-23 — sampling policy is missing from the Evidence contract.** Full-well tiling does not close. At NA 0.60 on a nameplate 40×, against a Ø6.18 mm (~30.0 mm²) well: **~101 tiles/well** at the Olympus f_ref 180 convention (M_eff 11.11×, 0.216 µm/px, field 0.667 × 0.446 mm = 0.298 mm²) or **~82** at the Nikon f_ref 200 convention (M_eff 10.0×, 0.24 µm/px, 0.741 × 0.495 mm = 0.367 mm²) — the costed ELWD head is a Nikon, so the band should be read, not either endpoint. Over the **128 optically reachable wells** of OC-A17 that is **~12,900 / ~10,500 tiles per pass**, **~1.4 h / ~1.2 h** at 0.4 s/tile, **~164 GB / ~133 GB** per pass at 12.7 MB/frame, and **~7.9 TB / ~6.4 TB** across 48 hourly passes — incompatible with an hourly perturbation-response cadence on either convention, and enlarging the aperture to reach all 384 makes it worse, not better (`sensor_module_interface.md`, § *The intervention ledger (CANDIDATE — recorded, not decided)*, the paragraph "A second candidate from the same session: `fields_per_well` as an explicit Evidence sampling parameter"; `observer_optical_bench.md`, § *Tiling: the throughput term nobody has costed*). *(The 192-well basis previously quoted here — 19,200 tiles, ~2.1 h, ~246 GB/pass, ~11.8 TB — is **withdrawn**: 192 is neither the 384-well grid nor the 128 reachable wells, and has no derivation in the repo. See `sensor_module_interface.md`, § Superseded 2026-09-23.)* The fix is **"N random fields per well" as a first-class, recorded Evidence parameter**, not an undocumented operator habit; unrecorded, the sampling rule is a hidden covariate in every downstream model | A |
 | C-SM1..3 | open-vs-closed boundary; the wedge customer; connector scope for un-built modalities | C |
 
 ### Track 6 — Decisions + integration (cross-cutting)
@@ -512,6 +553,7 @@ reconciliation) remain.
 | IN-C5/C6 | `acquire()→Evidence` ABI integration; 16-fiducial registration spine (pose-digest cross-check) — **done 2026-06-16** (`observer.py` evidence path + `aevum_smis/registration.py` `cross_check_observer_pose`; spine closed per realization_hypergraph; reconciled 2026-06-18) | A |
 | IN-C7 | OT-2↔observer two-layer safety interlock — **software half done 2026-06-16** (`core/observer_interlock.py`: lease-held enable-intent + pipetting-lease admission, fail-closed); the hardware enable-line/limit-switch half is B | A |
 | IN-C8/C9 | Cal-vault/counterfeit authentication extended to observer+SMIS parts — **done 2026-06-16** (`aevum_smis.safety`); the A-geometry (raceway envelope / R10 loop-height) is in OC-A3/A14; the binding R10+GX16/M12 cable-bundle fit at the bend radius is B (caliper measurement) | A |
+| IN-C10 | **Open 2026-09-23 — water-immersion amendment decision.** Immersion is recorded as an open proposal against the plate-as-consumable per-well sensing clause (`docs/knowledge/materials_strategy.md`, status note 2026-09-23), **not** as an amendment. Adopting it requires an explicit written amendment to that clause **plus** a `decision_log.md` entry. It buys 28.09% of 4pi collected at NA 1.20 in media n = 1.335 (200× the NA 0.10 path the modality catalog is written around, 5.3× the best dry head) and the least-bad Raman fluid (its dominant band is the OH stretch at ~3000-3800 cm-1, outside the 800-1800 cm-1 fingerprint window, where hydrocarbon oils put strong C-H and C-C bands; its weak ~1640 cm-1 H-O-H bend still overlaps amide I and needs subtracting — uncited, pending OP-B22); it costs a 7.50 K sample-plane deficit without a local 37 C nose heater (OP-B20), meniscus carry-over plate-to-lens-to-plate, and wicking into the ~0.53 mm plate-to-frame seating gap (derived: glass outer z = 11.73 − `plate_support_frame` top z = 11.20; not a caliper measurement) | C |
 
 ## Critical path
 
@@ -557,34 +599,53 @@ then OT-7+OT-8 → OT-12+OT-10 → OT-4/2/5 → OP-S1des..S3des/S4evid.
 
 **B — the true bottleneck.** Two upstream-of-everything buys: the **¥40 WS2812
 matrix** (contrast test — a fail re-architects the lid) and the **¥20 ADXL345**
-(settle log — decides gantry + concurrency). Then the ~¥1,885 bench BOM, the
+(settle log — decides gantry + concurrency). Then the ~¥1,940 bench BOM, the
 observer Stage chain, the SMIS dock print, and the entire row-coupon Gate chain
-(starting with **printing the 21 STLs**). Real-parts lead time: JLCPCB sensor
+(starting with **printing the 38 rigid print pieces** — 46 physical artifacts,
+eight flexible/compressible parts outside the rigid queue,
+`one_row_coupon.md`, § the "46 physical artifacts / 38 rigid print pieces" contract paragraph). Real-parts lead time: JLCPCB sensor
 PCBs, Cole-Parmer mat, tube/cable assemblies.
 
-**C — the two genuinely product-level calls only you can make:** does the biology
+Added 2026-09-23: three more measurements. **OP-B20** (G_obj-ambient) joins the
+contrast and settle buys as upstream-of-architecture, because head selection is
+now thermally gated and that gate rests on a 50 mW/K estimate. **OP-B21** is a
+caliper on the objective barrel 9-11 mm back from the tip. **OP-B22**
+(borosilicate Raman background through the plate bottom) rides on whatever
+spectrometer time the row-#6 fork gets, and can kill the through-glass Raman
+path before any corridor work is spent on it.
+
+**C — the genuinely product-level calls only you can make:** does the biology
 need 10× (sets the focus-tier difficulty), and the wedge customer (gates the third
 head and the freeze width). The rest are measurement-gated forks that default
-conservative until one B measurement resolves them.
+conservative until one B measurement resolves them. **IN-C10** (2026-09-23)
+is a third: water immersion would breach the plate-as-consumable per-well
+sensing clause, so it cannot be adopted by engineering judgement — it needs an
+explicit written amendment to `docs/knowledge/materials_strategy.md` plus a
+decision-log entry.
 
 ## Recommended next 3 cycles
 
-*(Reconciled 2026-06-17. The prior recommendation — OC-A1+A2, OP-P1+P2, SM-3.1 — was stale:
-OC-A1/A2 and OP-P1/P2 are already done, and the SMIS envelope cross-check (OC-A10) is also done.
-The genuinely-open software/CAD-addressable A-queue, with this session's OT-1/OT-3/OT-6 closed,
-is now the OT-2 control-stack translators/adapters and the remaining protocol docs.)*
+*(Reconciled 2026-09-23. The 2026-06-17 recommendation — OT-4, then OT-2, then OT-7+OT-8 — is
+spent: all three landed on 2026-06-17/18 and are marked done in Track 1, as are the OP-P3/P4/P5/P8
+protocol docs it named as the alternative track. The genuinely-open A queue is now the optics /
+thermal reporting-and-budget work opened by the 2026-09-23 review, none of which needs hardware.)*
 
-1. **OT-4 — `move_low_z` dry-target translator.** The gates and revalidation paths already
-   reference `move_low_z`; the translator that turns an approved low-Z step into the Opentrons
-   command is missing. Most cohesive with this session's high-Z / offset-authority work, and the
-   natural sibling of the OT-6 high-Z evidence path.
-2. **OT-2 — `set_offset` validation gate + translator (or formal closure).** Directly consumes
-   the OT-1 offset authority just built; either wire the validated apply-offset path or formally
-   close it as a dead op with a fail-closed guard.
-3. **OT-7 + OT-8 — MCP agent adapter (`adapters/mcp.py`, absent today) + the MCP/HTTP pose
-   route-parity / no-canonical-default ship-gate tests.** The ship-gate for any motion-capable
-   MCP surface.
+1. **OC-A17 — split `covered_well_count`.** The observer swept-body check reports 384 covered
+   wells where 128 are optically reachable; every downstream readiness statement inherits the
+   over-claim. Cheapest possible fix (a field split plus a falsifiable assert), and it is the
+   number the rest of the optics work is measured against.
+2. **OC-A18 — the two `aevum_smis/manifest.py` checks.** The corridor budget is parameterised by
+   12 well columns the aperture never admitted (15.56 vs 51.56 mm), and `vertical_required` is an
+   additive sum that rejects objectives the solid model says fit. Both are pure arithmetic against
+   geometry already measured; both need the existing asserts kept falsifiable, including a hard
+   retract-plane assertion.
+3. **SM-4.5 — sampling policy as a recorded Evidence parameter.** ~10,500-12,900 tiles and
+   ~133-164 GB per pass (Nikon f_ref 200 / Olympus f_ref 180, over the 128 reachable wells of
+   OC-A17) is not a schedule; "N random fields per well" has to be declared and carried in the
+   Evidence record before any head ships, or the sampling rule becomes a hidden covariate.
 
-Each is genuinely open (verified absent in code) and software-addressable with zero hardware.
-Alternative track if protocol docs are preferred: **OP-P3/P4/P5/P8** (condensation purge, ADXL345
-settle, kinematic-dock repeatability, Gate-6 evidence-row schema) — pure-A authoring, P1/P2 done.
+Each is genuinely open (verified against the code on 2026-09-23) and software-addressable with zero
+hardware. Physical critical path is unchanged in shape, with one addition: **OP-B20**
+(G_obj-ambient) now sits alongside the ¥40 contrast and ¥20 settle buys as an upstream-of-
+architecture measurement, because head selection is now thermally gated and the gate currently
+rests on a 50 mW/K estimate.

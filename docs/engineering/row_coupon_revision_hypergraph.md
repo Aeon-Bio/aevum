@@ -148,9 +148,15 @@ RH3 wedge/receiver compression mechanism [CAD-proxy closed; force-cycle pending]
   windows, clears lid service ports, and does not interfere with OT-2 adjacency
   or observer sweep. Current layout data also exposes M0-M3 first-print
   mechanical screens: compression budget, ramp self-lock/backdrive margin,
-  post/cap/root stress, and omitted latch-station span risk. The self-lock
-  margin is positive but below target, and the omitted port-side station creates
-  an explicit span warning. The first-print handoff now requires
+  post/cap/root stress, and latch-station coverage. **Corrected 2026-09-23 against
+  the live `latch_retention_span_check`:** the self-lock margin is **4.61 deg**
+  against a 1.0 deg CAD threshold — *above* target, not below — and there are **12
+  expected, 12 active stations with 0 omitted**, so the maximum active-station span
+  is **77.125 mm** against a 100.0 mm allowance (`exceeds_allowed_span = False`).
+  The earlier "positive but below target" margin and the "omitted port-side
+  station" span warning are both **withdrawn**; `cad_risk_flag = False` and
+  `backdrive_risk_flag = False` today. What stands is unchanged: this is a CAD
+  screen, not physical closure. The first-print handoff still requires
   `latch_retention_span_check`, a validation-only Gate 2 blocker tying those
   risks to dry-cycle detent hold, omitted-station bow, post/cap bearing, and
   gasket-squeeze-after-cycle evidence.
@@ -421,11 +427,16 @@ leak testing, or biology. Those are the RP* cycles in the cycle log.
 
 The latch-specific M0-M3 overlay has now moved RH3 from geometry-only closure
 to CAD mechanical screening. The current production layout reports a bounded
-compression budget, explicit ramp/self-lock margin, simple post/cap/root stress
-screen, and the port-driven latch-station asymmetry. This is still not physical
-closure. M4-M10 remain open: slicer support evidence, a production-matched latch
-coupon, release usability, asymmetry mitigation, bench force/compression
+compression budget, explicit ramp/self-lock margin, and a simple post/cap/root
+stress screen. *(Corrected 2026-09-23: "the port-driven latch-station asymmetry"
+is withdrawn — the live check reports 12 of 12 stations active, 0 omitted.)* This
+is still not physical closure. M4-M10 remain open: slicer support evidence, a production-matched latch
+coupon, release usability, bench force/compression
 protocol, integrated compression-stack testing, and full coupon print release.
+*(The M-item "asymmetry mitigation" is retired with the asymmetry itself — there is
+no omitted station to mitigate. If a port omission is reintroduced by a future lid
+change, `latch_retention_span_check` will surface it as `omitted_station_count > 0`
+and the item comes back with it.)*
 
 RP5 (observer kinematic split) is the productive loop that the OC-A1..A12 and
 A14/A15 observer-CAD hardening advances. It is no longer a single swept-body

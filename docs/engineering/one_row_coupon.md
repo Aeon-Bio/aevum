@@ -25,7 +25,7 @@ cad/one_row_coupon.params.json
 The generator is:
 
 ```text
-src/aevum_cad/row_coupon.py
+src/aevum_cad/row_coupon/
 ```
 
 The print-native path to the real device is:
@@ -121,64 +121,85 @@ Running the viewer file from plain Python prints the installed part bounds.
 
 ## Current Generated Envelope
 
-The current installed assembly envelope is:
+The current installed assembly envelope is as follows. **Regenerated 2026-09-23 from `build_row_coupon_installed_parts(params)` against `cad/one_row_coupon.params.json`** — 15 of the 27 rows this block previously carried had drifted from the model, and the `gas sensor PCBs` row was missing entirely. *(This block is transcribed, not generated: it goes stale whenever the model changes, with no edit to this file. Regenerate it with the builder above — or `uv run python cad/view_one_row_coupon.py`, which prints the same bounds in `name: bounds x=… y=… z=…` form — whenever geometry moves.)*
 
 ```text
-assembly: 219.60 x 405.25 x 140.60 mm
+assembly: 220.60 x 405.25 x 141.60 mm
 deck pods installed: 128.00 x 357.50 x 84.10 mm
 plate support frame installed: 148.60 x 377.25 x 11.20 mm
 IR thermopiles installed: 8.00 x 279.50 x 4.85 mm
 IR thermopile face gaskets installed: 8.00 x 279.50 x 0.45 mm
-lower sensor harness installed: 9.40 x 325.38 x 0.45 mm
-lower harness cover installed: 10.40 x 326.38 x 0.70 mm
+lower sensor harness installed: 9.90 x 325.38 x 0.45 mm
+lower harness cover installed: 10.90 x 314.57 x 1.15 mm
 lower sensor service connector installed: 10.80 x 8.60 x 5.10 mm
-printed lower sensor connector shroud installed: 12.40 x 9.40 x 4.80 mm
+printed lower sensor connector shroud installed: 12.40 x 10.70 x 5.40 mm
 lower sensor service cable pigtail installed: 3.20 x 30.00 x 1.20 mm
-lower gasket installed: 148.60 x 377.25 x 0.80 mm
+lower gasket installed: 146.75 x 375.40 x 0.80 mm
 wet chamber frame installed: 148.60 x 377.25 x 32.10 mm
 COTS microplates installed: 127.60 x 357.25 x 14.30 mm
 COTS septum mats installed: 127.60 x 357.25 x 4.50 mm
-upper gasket installed: 148.60 x 377.25 x 0.80 mm
-lid manifold shell installed: 148.60 x 377.25 x 8.60 mm
+upper gasket installed: 146.75 x 375.40 x 0.80 mm
+lid manifold shell installed: 148.60 x 377.25 x 9.60 mm
 headspace SHT41 microcarriers installed: 12.00 x 283.50 x 4.00 mm
-lid sensor harness installed: 146.00 x 325.38 x 8.05 mm
-lid harness cover installed: 147.00 x 326.38 x 8.30 mm
-lid sensor service connectors installed: 145.60 x 8.60 x 5.10 mm
-printed lid sensor connector shrouds installed: 147.20 x 9.40 x 4.80 mm
-lid sensor service cable pigtails installed: 138.00 x 30.00 x 1.20 mm
-lid cover installed: 162.80 x 377.25 x 26.00 mm
-COTS gas service tubes installed: 219.60 x 262.25 x 5.00 mm
+lid sensor harness installed: 146.00 x 325.38 x 7.05 mm
+lid harness cover installed: 147.00 x 326.38 x 8.45 mm
+lid sensor service connectors installed: 146.60 x 8.60 x 5.10 mm
+printed lid sensor connector shrouds installed: 148.20 x 10.70 x 4.80 mm
+lid sensor service cable pigtails installed: 139.00 x 30.00 x 1.20 mm
+lid cover installed: 163.80 x 357.25 x 25.30 mm
+COTS gas service tubes installed: 220.60 x 262.25 x 5.00 mm
 gas PCB interface gaskets installed: 128.20 x 269.25 x 2.80 mm
 printed gas PCB keeper doors installed: 141.00 x 289.65 x 0.80 mm
+gas sensor PCBs installed: 133.07 x 287.25 x 25.10 mm
 printed sample/relief cap installed: 16.80 x 12.00 x 4.60 mm
-printed wedge locks installed: 148.60 x 377.25 x 3.00 mm
+printed wedge locks installed: 148.60 x 347.25 x 3.00 mm
 ```
 
 The following validation envelopes are checked by tests, retained as CadQuery
 builders, hidden from the default installed viewer scene, and exported as
-separate validation tools:
+separate validation tools. **Regenerated 2026-09-23 from `build_row_coupon_validation_parts(params)`: the full set is 40 checks, of which this block previously listed 20 while reading as exhaustive, and `side gas tube envelope check` carried the retired 219.60 mm X (the gas tubes grew 1.00 mm).**
 
 ```text
+consumable metrology gauge: 143.60 x 101.75 x 3.00 mm
 deck slot footprint check: 130.00 x 359.50 x 0.80 mm
 deck frame keepout check: 148.60 x 377.25 x 2.50 mm
 deck pod seating repeatability check: 70.00 x 58.00 x 0.50 mm
 dry bay envelope check: 120.20 x 357.50 x 80.00 mm
 dry bay boundary check: 132.20 x 357.50 x 3.00 mm
-wet/dry failure path check: 94.40 x 326.30 x 0.45 mm
-observer front-end swept body check: 120.00 x 347.50 x 40.00 mm
-observer carriage envelope check: 100.00 x 58.00 x 62.00 mm
-observer service raceway envelope check: 8.00 x 357.50 x 24.00 mm
-observer infinity port datum check: 120.00 x 347.50 x 0.50 mm
-observer kinematic split check: 58.00 x 78.00 x 0.45 mm
 headspace barrier check: 148.60 x 377.25 x 5.80 mm
 headspace volume check: 138.60 x 367.25 x 5.80 mm
+well cell plane check: 105.18 x 340.68 x 0.20 mm
+IR thermopile FOV spot check: 1.08 x 272.58 x 0.20 mm
+thermal condensation proxy check: 146.60 x 370.85 x 17.05 mm
 pipette puncture swept path check: 101.50 x 337.00 x 41.30 mm
 pipette toolhead swept body check: 250.00 x 445.50 x 45.00 mm
-side gas tube envelope check: 219.60 x 263.25 x 6.00 mm
-operating service dress check: 220.60 x 348.75 x 43.30 mm
-adjacent deck slot keepout check: 395.00 x 359.50 x 110.00 mm
-consumable metrology gauge: 143.60 x 101.75 x 3.00 mm
+observer front end swept body check: 120.00 x 347.50 x 40.00 mm
+observer infinity port datum check: 120.00 x 347.50 x 0.50 mm
+observer carriage envelope check: 100.00 x 58.00 x 62.00 mm
+observer service raceway envelope check: 8.00 x 357.50 x 24.00 mm
+observer fiducial focus target check: 106.00 x 341.50 x 1.00 mm
+observer optical stability check: 56.00 x 72.00 x 0.45 mm
+observer kinematic split check: 58.00 x 78.00 x 0.45 mm
+assembly state witness check: 236.60 x 382.32 x 79.00 mm
+gasket compression gap gauge: 36.00 x 19.00 x 0.80 mm
+latch retention span check: 60.00 x 62.00 x 0.45 mm
+fail closed prerun inspection check: 46.00 x 92.00 x 0.45 mm
 printability support cleanup check: 64.00 x 80.00 x 1.20 mm
+material cleaning witness coupon: 38.00 x 127.00 x 1.55 mm
+wet/dry failure path check: 94.40 x 326.30 x 0.45 mm
+sensor connector service clearance check: 146.60 x 12.00 x 43.30 mm
+sensor service cable envelope check: 141.80 x 30.00 x 43.30 mm
+electrical connector mating state check: 146.60 x 44.60 x 43.75 mm
+operating service dress check: 220.60 x 348.75 x 43.30 mm
+row tiling service clearance check: 395.00 x 405.25 x 120.70 mm
+sensor installation path check: 149.50 x 272.90 x 76.75 mm
+gas PCB flow cell check: 129.20 x 265.25 x 2.00 mm
+side gas tube envelope check: 220.60 x 263.25 x 6.00 mm
+side gas leak witness check: 148.60 x 275.25 x 0.95 mm
+sample/relief leak witness check: 16.30 x 10.00 x 1.40 mm
+gasket tab leak witness check: 14.00 x 360.85 x 17.45 mm
+dry bay ingress audit check: 148.60 x 360.85 x 118.70 mm
+adjacent deck slot keepout check: 395.00 x 359.50 x 110.00 mm
 ```
 
 The coupon is now four SBS-like plate positions along one OT-2 column:
@@ -188,7 +209,7 @@ plate footprint: 127.60 x 85.75 mm
 OT-2 slot opening: 130.00 x 88.00 mm
 OT-2 slot pitch along column: 90.50 mm
 inter-tile gap along Y: 4.75 mm
-X margin: 10.00 mm
+X margin: 10.50 mm
 Y end margin: 10.00 mm
 ```
 
@@ -211,7 +232,9 @@ envelope so the incubated chamber boundary, gasket land, side gas lanes, and
 sensor/service routing all live in the same physical row module. Internal
 divider rails form supply/return side lanes with per-plate upper diffuser
 windows into the shared chamber. The current microplate CAD is no longer a
-solid slab: it includes perimeter sidewalls, a bottom observation window, and a
+solid slab: it includes perimeter sidewalls, the #1.5H coverslip across the
+observation window (0.17 mm, seated at `bottom_height_z` — open air below it,
+corrected 2026-09-21 from a phantom 0.6 mm slab at the plate underside), and a
 published-profile top well deck with 96 openings per plate. The CellVis
 first-build profile now carries 6.80 mm upper well openings, 6.21 mm lower well
 diameter, 6.18 mm well-bottom equivalent diameter, and a 0.47 mm top recess
@@ -300,8 +323,12 @@ captured in printed geometry before it silently routes into the observer bay.
 The deck interface no longer uses a continuous lower baseplate. Each plate
 position has its own lower shoe, inset 1.00 mm per side inside the machined OT-2
 slot opening. The standoff feet are now pushed to the slot-edge perimeter:
-first-slot feet occupy x=9.88..13.88 mm and x=133.88..137.88 mm while the
-observer sweep occupies x=13.88..133.88 mm. That preserves the full modeled
+first-slot feet occupy x=10.30..14.10 mm and x=134.50..138.30 mm while the
+observer swept body occupies x=14.38..134.38 mm, inside the 120.20 mm dry-bay X
+envelope (x=14.20..134.40). *(Corrected 2026-09-23: the retired pair implied a
+4.0 mm foot and a frame centred on 73.88, i.e. the pre-`end_margin_x` 10.5
+geometry; live `deck_engagement_feet` gives `foot_length_x` 3.8 at x = 10.30 and
+x = 134.50.)* That preserves the full modeled
 120.00 mm dry-bay X sweep for the moving observer instead of letting support
 posts consume the bay interior. The generated deck-frame keepout STEP marks
 aluminum rib keepout at the deck plane; no printed deck-contact geometry should
@@ -391,13 +418,12 @@ assembly-state inspection scene, not a production alternative and not a
 validation export.
 
 The lid hard-stop pads are row-axis aware. For the current four-plate OT-2
-column, stop centers sit on the left and right perimeter rails at x=5.00 mm and
-x=142.60 mm, with Y stations at the row ends and inter-plate seams:
-5.00, 98.125, 188.625, 279.125, and 372.25 mm. The right-side station at
-y=188.625 mm is currently omitted because its receiver envelope would overlap a
-lid service-port boss. This replaces the earlier repeated near-front stop
-positions and makes the lid compression structure visible where the gasket and
-removable wet-chamber frame actually need support.
+column, stop centers sit on the left and right perimeter rails at x=7.10 mm and
+x=141.50 mm. Their Y stations are 21.00, 98.125, 164.625, 212.625, 279.125,
+and 356.25 mm. The former central station at y=188.625 mm has been replaced on
+both sides by the 24 mm flanking pair. This moves the small receiver rails away
+from the lid-piece joint, brackets the central service zone symmetrically, and
+clears the right-side sample/relief boss without deleting a clamp.
 
 The CAD now exposes first-pass mechanical screens for the latch. These screens
 use production latch geometry, not the abstract latch demonstrator. Current
@@ -406,29 +432,28 @@ values are:
 - assumptions register: provisional PETG or engineering resin, provisional
   FDM/resin process, 0.15 mm layer height, 2.0..25.0 N insertion-force range,
   and 1.0..15.0 N release-force range for the first bench protocol;
-- compression budget: 2.20 mm ramp rise, 6.40 mm ramp run, 0.45 mm tolerance
+- compression budget: 2.20 mm ramp rise, 8.40 mm ramp run, 0.45 mm tolerance
   allowance, 0.55 mm bounded target squeeze, 0.80 mm hard-stop/max squeeze
   limit;
-- ramp self-lock screen: 18.97 deg ramp angle versus 19.29 deg friction angle
-  at mu=0.35. The geometry has a positive 0.32 deg self-lock margin, but it is
-  below the 1.0 deg minimum margin, so backdrive remains flagged for physical
-  testing;
+- ramp self-lock screen: 14.68 deg ramp angle versus 19.29 deg friction angle
+  at mu=0.35. The geometry has a positive 4.61 deg self-lock margin and clears
+  the 1.0 deg CAD threshold; printed retention still requires dry cycling;
 - post stress screen: 8.0 N assumed clamp force per latch, 2.4 mm post
   diameter, 4.524 mm2 shaft area, 1.768 MPa nominal shaft stress, and 6.786x
   stress safety factor against the provisional 12 MPa wet-polymer allowable;
-- station asymmetry screen: 10 expected stations, 9 active stations, one
-  port-omitted right-side station, and a 181.0 mm maximum active-station span
-  on that side against a 100.0 mm warning limit.
+- station coverage screen: 12 expected stations, 12 active stations, zero
+  port-omitted stations, and a 77.125 mm maximum active-station span against a
+  100.0 mm warning limit.
 
 These are CAD screening gates only. They make the mechanical assumptions
 auditable before printing, but they do not prove insertion force, retained
 compression, creep, wear, wet release, or leak behavior.
 The latch retention/span check is exported as
 `outputs/cad/aevum_one_row_coupon_validation_latch_retention_span_check.step`
-and `.stl`. It is a required validation-only Gate 2 blocker tying the thin
-self-lock margin and omitted-station span warning to dry-cycle detent hold,
-omitted-station bow, post/cap bearing, and gasket-squeeze-after-cycle evidence
-before any wet test can treat the latch as production-retentive.
+and `.stl`. It remains a required validation-only Gate 2 blocker tying the CAD
+screens to dry-cycle detent hold, uniform seating, post/cap bearing, and
+gasket-squeeze-after-cycle evidence before any wet test can treat the latch as
+production-retentive.
 
 The real assemblage avoids metal inserts, metal fasteners, glue, adhesives,
 solvent welding, thermal staking, permanent welds, and hidden bonded authority
@@ -507,8 +532,39 @@ outputs/cad/aevum_one_row_coupon_assembly.step
 ```
 
 The assembly STEP is exported as a multipart assembly so CAD inspection keeps
-part identity. It is not the only source of geometry; the individual part files
-above remain the manufacturing, purchased-consumable, and service units.
+part identity. The grouped part files above are installed-family inspection
+exports: they intentionally include purchased, flexible, and service families
+and are not the rigid slicer queue.
+
+The canonical fabrication contract contains 46 physical artifacts. Eight are
+flexible or compressible parts outside the rigid queue. The rigid queue contains
+38 connected, one-body print pieces: 22 artifacts remain whole and eight
+oversized structural artifacts become 16 bed-fitting bodies. The only permitted
+structural split sources are the plate-support frame, lower harness cover,
+wet-chamber frame, lid manifold shell, three lid-harness-cover bus sections, and
+lid cover. Deck pods, gas-PCB keeper doors, connector shrouds, the sample/relief
+cap, and all 12 wedge locks retain their individual artifact identity and are
+never produced by globally clipping a grouped export.
+
+The plate-support frame, lid manifold shell, and lid cover use printed dovetail
+keys with 0.20 mm XYZ fit clearance. The four 0.7 mm harness covers use
+full-thickness planar fingers, and the wet frame uses a mid-Z labyrinth joint.
+All eight seam pairs remain physically gated: Gate 2 must prove dry fit,
+retention, and repeated removal before this CAD contract is assembly-qualified;
+Gate 4 must separately prove the wet-path seams.
+
+Generate and audit that exact queue with:
+
+```bash
+uv run python scripts/generate_row_coupon.py
+uv run python scripts/audit_row_coupon_print_artifacts.py
+```
+
+The slicer authority is `outputs/cad/final_print_pieces/`. For CQ-Editor, open
+`cad/view_one_row_coupon_print_pieces.py`; its `PRINT_STRUCTURAL_*`,
+`PRINT_WHOLE_*`, and `PRINT_SERVICE_*` objects are the same realized bodies used
+by the package and audit, while the installed assembly remains visible as a
+separate reference.
 The deck and chamber validation checks are exported as
 `outputs/cad/aevum_one_row_coupon_validation_deck_slot_footprint_check.step`,
 `outputs/cad/aevum_one_row_coupon_validation_deck_frame_keepout_check.step`,

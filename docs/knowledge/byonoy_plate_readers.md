@@ -103,7 +103,7 @@ not appear in any pitch or doc.
 Catalog row #3 (multispectral/polarization) lists absorbance as a **free rider**
 on the #1/#2 hardware, < $100, TRL 7-8. That verdict holds, but the recorded
 rationale ("reuses #1/#2 hardware") undersells the real one: absorbance is a
-**ratio** measurement, I/I₀, so the NA²/4 ≈ 0.25 % collection penalty that
+**ratio** measurement, I/I₀, so the ~0.140 % collection penalty that
 dominates the rest of the catalog largely cancels — the same argument the UCNP
 row (#4) already makes for ratiometric thermometry. The NA-0.10 objective is not
 a handicap for absorbance; it is a handicap for the *throughput* of absorbance,
@@ -127,13 +127,40 @@ added 2026-09-21 as the first real Level-3 candidate — reserved, not scheduled
 
 The physics is unusually favorable to the SMIS Level-3 (non-imaging) tier. A
 luminescent sample emits without excitation; the limit is photons collected.
-Through the 4× NA-0.10 objective we collect ~0.25 % of 4π. A large-area SiPM sat
+Through the 4× NA-0.10 objective we collect **~0.140 % of 4π**. A large-area SiPM sat
 directly under the well with a light guide collects one to two orders of
 magnitude more, and needs no objective, no focus, no registration finer than
 "which well am I under". **Luminescence is the modality where deleting the
 objective makes the measurement better, not worse** — the exact inverse of the
 rest of the catalog, and therefore the cleanest possible test case for the
 Level-3 tier the spec already reserves but has never exercised.
+
+
+> **Corrected 2026-09-23 — collection fraction.** Both figures above previously read
+> **~0.25 %**, computed from the small-angle *air-side* form `NA²/4`. The emitter is not in
+> air: it sits in aqueous culture medium, so the collected solid-angle fraction is
+> `η = (1 − cos(asin(NA / n_media))) / 2` with `n_media = 1.335`, which gives **0.140 %** at
+> NA 0.10 — the old figure was **1.8× high**. Neither argument on this page weakens; both
+> strengthen slightly. The absorbance ratio argument is unaffected (the penalty cancels in
+> I/I₀ whatever its size), and the SiPM comparison gains, since the objective path it is
+> being measured against collects less than was claimed.
+>
+> **But the "one to two orders of magnitude" gap above does not survive intact, for a second
+> reason.** `sensor_module_interface.md` re-verdicted catalog row #13 on the same date: the
+> comparison is no longer against the NA 0.10 path at all, because the geometry now admits
+> **NA 0.60 at 5.334 %**, i.e. **38.0×** better collection. Against *that* path the SiPM's
+> residual margin is `100 / 38.0` ≈ **2.6×** at the optimistic end of its own original claim
+> and a **net loss** at the pessimistic (10×) end — and the imaging path keeps spatial
+> information the SiPM structurally cannot produce. The row stays, on different grounds
+> (one number per well with no focus requirement is the right shape for long kinetic runs,
+> it is the only candidate exercising Level-3, and it needs no objective near the well to
+> heat it). **Read the re-verdict, not the bound above:**
+> `sensor_module_interface.md`, catalog row **#13, Luminescence (SiPM, non-imaging)**.
+>
+> Owner of the corrected collection form: `observer_optical_bench.md`, § *What NA actually
+> buys*; the full ladder is tabulated in `sensor_module_interface.md`,
+> § *(1) Collection fraction — the correct, media-side form*.
+
 
 Byonoy's own design also tells us the two hard parts before we spend anything: a
 **shutter** for background/dark-count control and a **phosphorescence-cancelling

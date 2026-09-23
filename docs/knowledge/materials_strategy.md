@@ -125,6 +125,87 @@ The principle applies regardless of subsystem. Any future design
 recommendation that proposes attaching something to the plate must be
 screened against this constraint before being accepted.
 
+Status note, 2026-09-23: water immersion is an open proposal against the
+per-well sensing clause above. The 2026-09-23 observer optics review
+found that an immersion column between the objective and the plate's
+glass underside is the only route to the high-NA end of the modality
+ladder. An immersion column is a fluid contact with the
+consumable, so it does not fit the clause as written ("optical
+(transmission, fluorescence, IR) through the glass ... not contact"). It
+is recorded here as a PROPOSAL, not as an amendment. If immersion is
+adopted, this clause must be amended in writing on this page and the
+change recorded in
+[`docs/engineering/decision_log.md`](../engineering/decision_log.md).
+That is a decision, not an interpretation: until it is recorded, the
+clause stands as written and no downstream document or CAD change may
+assume the amendment has happened.
+
+What immersion buys. The emitter sits in media of n = 1.335, so the
+fraction of 4pi a dry or immersion objective can collect is
+(1 - cos(asin(NA/1.335)))/2:
+
+- **Collection.** Water at NA 1.20 collects 28.09% of 4pi, against
+  0.140% for the NA 0.10 path the modality catalog
+  ([`sensor_module_interface.md`](../engineering/sensor_module_interface.md))
+  is written around, a factor of 200, and 5.3x the best dry head on the
+  ladder (NA 0.60, 5.334%). The ceiling is NA = n = 1.335, i.e.
+  50.0% of 4pi. The same arithmetic is why oil buys nothing here: a
+  nominal 1.40 oil objective looking at cells in media is effectively
+  NA 1.335 -- the media index itself -- so the realizable ladder ends at
+  water 1.20-1.27.
+- **Raman.** Water's dominant Raman band is the OH stretch at
+  ~3000-3800 cm-1, outside the 800-1800 cm-1 fingerprint window; its
+  weak H-O-H bend at ~1640 cm-1 does overlap amide I and would have to
+  be subtracted. Hydrocarbon immersion oils put strong C-H and C-C
+  bands inside the window. On that basis water is the only immersion
+  fluid that keeps catalog row #6 (Raman 785 nm) viable. That
+  comparison is uncited here and should be confirmed against a
+  measured background before it is relied on (see OP-B22
+  in [`remaining_work.md`](../engineering/remaining_work.md), which
+  books the borosilicate background measurement this comparison would
+  sit on top of).
+
+What immersion costs:
+
+- **Thermal.** A close objective is a heat sink into the well. Steady
+  state, 37 C bath in a 25 C bay, a water 60x/1.20 head at WD 0.31 mm
+  pulls the cells to 29.50 C (a 7.50 K deficit) against 0.23 K for a
+  dry 40x/0.60 at WD 3.0 mm. (The model uses an ESTIMATED
+  objective-to-ambient conductance G = 50 mW/K; the ordering across
+  heads is robust, the absolute deficit is not. Measuring G is the
+  highest-value early measurement and is booked in
+  [`remaining_work.md`](../engineering/remaining_work.md).) Immersion is
+  therefore only admissible with a local 37 C nose heater (itself a new
+  authority-bearing part), and not with a 37 C bay, which would raise
+  IMX178 dark current (roughly doubling per 6-7 K) and kill the long
+  integrations Raman and luminescence need.
+- **Cross-contamination.** A meniscus carries fluid from the plate to
+  the lens and back onto the next plate. That is precisely the failure
+  this constraint exists to prevent: the plate is a sterile biology
+  container, and the next experiment's cells inherit whatever the lens
+  carried out of the last one.
+- **Wicking.** The ~0.53 mm plate-to-frame seating gap is a capillary
+  path. *(Derivation corrected 2026-09-23 — this was previously labelled
+  "measured 2026-09-23", which it never was. It is a derived clearance:
+  glass outer surface z = 11.73 minus `plate_support_frame` top
+  z = 11.20 = **0.53 mm**. Both anchors are in
+  `observation_module.md`, § "Vertical motion model — retract to cross
+  tiles, not to cross wells" ("glass outer surface z = 11.73" and "the
+  `plate_support_frame` (z = 0 .. 11.20)"), and in
+  `observer_optical_bench.md`, § "Correction (2026-09-23): the aperture
+  is climbable". No caliper record exists or is claimed.)* Fluid that wicks into it reaches the
+  printed support frame, the dry bay, and the frame's registration
+  features, none of which are designed wet.
+
+Automated water immersion from below through glass-bottom plates is
+established commercial practice (PerkinElmer's Opera Phenix Plus and
+Yokogawa's CellVoyager CV8000 both manage an immersion column and both
+condition/heat the objective), so the open question is not whether it can
+be engineered, but whether Aevum accepts the consumable-contact and
+thermal costs in exchange for the collection and the Raman path. Until
+that is decided and recorded, the dry ladder (NA <= 0.60) is the design
+basis.
+
 The row module can use 3D printing for most of its visible geometry, but not for
 every authority-bearing interface. Printed plastic should create shape,
 packaging, ducts, baffles, carriers, covers, and replaceable fixtures. Datum

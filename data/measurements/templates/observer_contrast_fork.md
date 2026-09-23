@@ -34,8 +34,8 @@ Protocol:
 |---|---|---|---|---|---|
 | Brightfield (center pixels) | corner | | | not_tested |  |
 | Brightfield (center pixels) | center | | | not_tested |  |
-| Oblique (~53° quadrant) | corner | | | not_tested |  |
-| Oblique (~53° quadrant) | center | | | not_tested |  |
+| Oblique (~33.2° quadrant) | corner | | | not_tested |  |
+| Oblique (~33.2° quadrant) | center | | | not_tested |  |
 | Darkfield (ring) | corner | | | not_tested |  |
 | Darkfield (ring) | center | | | not_tested |  |
 | Epi / reflected | corner | | | not_tested |  |

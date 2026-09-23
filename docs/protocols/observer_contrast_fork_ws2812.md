@@ -56,7 +56,7 @@ Record at minimum:
 | Item | Tool | Pass condition |
 |---|---|---|
 | Brightfield (center pixels) Michelson | IMX178 raw frames, line profile | `C = (Imax−Imin)/(Imax+Imin)` on a grid line or cell edge |
-| Oblique (~53° quadrant) Michelson | IMX178 raw frames, line profile | grid/edge `C ≥ 0.15` for FOR-sealed-top win |
+| Oblique (~33.2° quadrant) Michelson | IMX178 raw frames, line profile | grid/edge `C ≥ 0.15` for FOR-sealed-top win |
 | Darkfield (ring) Michelson | IMX178 raw frames, line profile | grid/edge `C` recorded as marginal-recovery option |
 | Epi / reflected Michelson | IMX178 raw frames, line profile | grid/edge `C` recorded; module-side fallback |
 | Transmitted-from-above Michelson | diffused panel above, raw frames | grid/edge `C`; only this passing forces a lid window |
@@ -72,7 +72,7 @@ failure on an unfocused rig is uninterpretable.
 
 1. Build the optical head per `observer_optical_bench.md` Assembly: the **4×**
    infinity plan-achromat → f = 50 mm tube lens → mono IMX178, on the manual XYZ
-   stage pointing up. Use the 4× head only — its ±55 µm DOF removes focus as a
+   stage pointing up. Use the 4× head only — its 55 µm total DOF (±27 µm) removes focus as a
    confound for the contrast question.
 2. Mount the **WS2812 16×16 matrix** on the movable illumination arm above the
    plate, 30–80 mm above the plate top, on a right-angle clamp that slides in Z
@@ -95,7 +95,7 @@ a hemocytometer grid line from **raw frames** (no auto-gain, no post-processing)
 1. **Brightfield** — illuminate the **center pixels** of the matrix through the
    diffuser. Capture corner + center well. Compute `C` on grid line and cell edge.
    Expect this to be weak: unstained cells are near-zero-amplitude phase objects.
-2. **Oblique (~53°)** — illuminate **one quadrant** of the matrix so light enters
+2. **Oblique (~33.2°)** — illuminate **one quadrant** of the matrix so light enters
    the well off-axis. Capture corner + center well. Compute `C`. This is the
    pseudo-phase-gradient mode and the candidate production source.
 3. **Darkfield** — illuminate a **ring** of pixels. Capture corner + center well.
