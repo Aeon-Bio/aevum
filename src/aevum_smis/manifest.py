@@ -42,15 +42,30 @@ class SmisEnvelope(BaseModel):
     # them against drift.
     front_face_clearance_mm: float = 8.0
     objective_keepout_diameter_mm: float = 32.0
-    # OC-A15: the BINDING scan-axis footprint limit is the tightest of the standoff-leg
-    # corridor and the milled dry-bay wall (nearly co-located: the bay hi-wall is ~0.1 mm
-    # inside the leg corridor), NOT the looser Ø32 objective keepout. Every modality head
-    # must thread it, so a head that clears the keepout but exceeds it (e.g. a Ø25 barrel)
-    # still strikes. 21.2 mm is the last footprint clearing EVERY wall in the CAD model
-    # (clears_traverse flips ~21.21 mm; a 21 mm head has ~0.02 mm binding / ~0.12 mm
-    # corridor margin). Placeholder; Stage-0-gated by
-    # observer_leg_corridor_objective_metrology.md.
-    scan_corridor_footprint_max_mm: float = 21.2
+    # OC-A15 (CORRECTED): the BINDING scan-axis footprint limit is the tightest of the
+    # standoff-leg corridor and the milled dry-bay wall, NOT the looser Ø32 objective
+    # keepout. Every modality head must thread it.
+    #
+    # The previous value (21.2) was stale on two counts, both now checked against the
+    # live CAD rather than the decision log:
+    #   1. It assumed a 120.4 mm corridor with leg faces at X 13.6 / 134.0. The live
+    #      corridor is 117.4 mm with faces at X 17.10 / 134.50 -- `lower_service_foot_inset_x`
+    #      (3.0) walks one tile-4 foot inboard, and that foot sets the near wall.
+    #   2. It assumed the well array sits centred in the corridor, so that the budget is
+    #      (corridor - 99.0 mm well span). It does not: live slack is 7.78 near / 10.62 far.
+    #      The objective is on-axis, so the NEAR side binds and the budget is 2 x 7.78.
+    # At 21.2 the head fails BOTH walls (corridor -2.82, bay -0.08); it never cleared
+    # anything. Sweeping the live `carriage_traverse` check, `clears_traverse` flips
+    # between 15.56 and 15.60, so 15.56 is the last footprint clearing every wall.
+    #
+    # CONSEQUENCE, recorded because it is load-bearing: an RMS thread is ~Ø20.32 minimum,
+    # so at 15.56 NO RMS-threaded objective threads the corridor -- including the Ø20
+    # reference 4x head used throughout the SMIS tests. Re-routing the service shroud so
+    # `lower_service_foot_inset_x` returns to 0.0 restores a 120.4 mm corridor and a
+    # 21.24 mm budget, at which Ø20.32 clears by +0.46 mm. That one parameter is the
+    # difference between "no objective fits" and "the current 4x fits".
+    # Placeholder; Stage-0-gated by observer_leg_corridor_objective_metrology.md.
+    scan_corridor_footprint_max_mm: float = 15.56
     swept_body_length_x_mm: float = 120.0
     swept_body_width_y_mm: float = 347.5
     swept_body_height_z_mm: float = 40.0
