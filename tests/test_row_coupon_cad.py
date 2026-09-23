@@ -11,8 +11,8 @@ import pytest
 import aevum_cad.row_coupon as row_coupon_module
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon import (
-    ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS,
     ROW_COUPON_SERVICE_MODES,
+    ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS,
     build_adjacent_deck_slot_keepout_check,
     build_adjacent_slot_service_collision_review,
     build_assembly_debris_review,
@@ -82,8 +82,9 @@ from aevum_cad.row_coupon import (
     build_printed_gas_pcb_keeper_doors,
     build_printed_sample_relief_cap,
     build_printed_wedge_locks,
+    build_row_coupon_final_print_pieces,
     build_row_coupon_installed_parts,
-    build_row_coupon_production_y_split_parts,
+    build_row_coupon_physical_artifacts,
     build_row_coupon_service_parts,
     build_row_coupon_validation_parts,
     build_row_tiling_service_clearance_check,
@@ -104,11 +105,13 @@ from aevum_cad.row_coupon import (
     build_wet_chamber_frame,
     build_wet_dry_failure_path_check,
     export_row_coupon,
-    export_row_coupon_production_y_split_parts,
+    export_row_coupon_final_print_pieces,
     export_row_coupon_validation_tools,
+    row_coupon_final_print_piece_plan,
     row_coupon_layout,
     row_coupon_part_manifest,
-    row_coupon_production_y_split_plan,
+    row_coupon_physical_artifact_manifest,
+    row_coupon_physical_artifact_print_policies,
 )
 
 PARAMS = ROOT / "cad" / "one_row_coupon.params.json"
@@ -140,6 +143,18 @@ def _rectangle_overlaps_circle(
     closest_x = min(max(circle_x, rect_x), rect_x + rect_w)
     closest_y = min(max(circle_y, rect_y), rect_y + rect_h)
     return (closest_x - circle_x) ** 2 + (closest_y - circle_y) ** 2 <= radius**2
+
+
+def _rounded_bounds(shape: cq.Shape, ndigits: int = 2) -> tuple[float, ...]:
+    bb = shape.BoundingBox()
+    return tuple(
+        round(value, ndigits)
+        for value in (bb.xmin, bb.xmax, bb.ymin, bb.ymax, bb.zmin, bb.zmax)
+    )
+
+
+def _workplane_volume(workplane: cq.Workplane) -> float:
+    return sum(shape.Volume() for shape in workplane.vals())
 
 
 def _septum_access_window_for_tile_for_test(
@@ -239,16 +254,62 @@ def test_deck_feet_stay_outside_observer_sweep() -> None:
             assert foot["x"] + foot["length_x"] <= slot_x + deck["slot_opening_length_x"]
             assert slot_y <= foot["y"]
             assert foot["y"] + foot["width_y"] <= slot_y + deck["slot_opening_width_y"]
-            assert not _rectangles_overlap(
-                foot["x"],
-                foot["y"],
-                foot["length_x"],
-                foot["width_y"],
-                dry["x"],
-                dry["y"],
-                dry["length_x"],
-                dry["width_y"],
-            )
+
+    # OC-A15 (corrected 2026-09-21): the feet do NOT all clear the dry bay any
+    # more, and this pins the honest verdict rather than relaxing the goal.
+    # `deck_interface.lower_service_foot_inset_x` (3.0) walks exactly one foot
+    # inboard from x 10.300 to 13.300 to keep the lower service shroud lane
+    # clear, and 13.300..17.100 crosses the dry-bay edge at x 14.200 by 2.900 mm.
+    # The same single strike is pinned against the observer swept body in
+    # test_observer_front_end_swept_body_reaches_all_wells_without_hitting_feet.
+    # Asserted exactly, plus a green baseline with the inset zeroed, so a second
+    # strike, a different foot, a different overlap, or a silent fix all fail.
+    struck = [
+        foot
+        for foot in layout["deck_engagement_feet"]
+        if _rectangles_overlap(
+            float(foot["x"]),
+            float(foot["y"]),
+            float(foot["length_x"]),
+            float(foot["width_y"]),
+            dry["x"],
+            dry["y"],
+            dry["length_x"],
+            dry["width_y"],
+        )
+    ]
+    inset = float(deck["lower_service_foot_inset_x"])
+
+    assert len(layout["deck_engagement_feet"]) == 4 * len(layout["tile_origins"])
+    assert len(struck) == 1, f"expected exactly the service-inset foot, got {struck}"
+    assert int(struck[0]["tile_index"]) == int(params["row"]["plate_count"])
+    assert round(float(struck[0]["x"]), 3) == 13.3
+    assert round(float(struck[0]["x"]) - inset, 3) == 10.3  # un-inset position
+    assert round(
+        float(struck[0]["x"]) + float(struck[0]["length_x"]) - float(dry["x"]),
+        3,
+    ) == 2.9
+
+    green_params = deepcopy(params)
+    green_params["deck_interface"]["lower_service_foot_inset_x"] = 0.0
+    green_layout = row_coupon_layout(green_params)
+    green_dry = green_layout["dry_bay_envelope"]
+
+    assert green_dry["x"] == dry["x"]
+    assert not [
+        foot
+        for foot in green_layout["deck_engagement_feet"]
+        if _rectangles_overlap(
+            float(foot["x"]),
+            float(foot["y"]),
+            float(foot["length_x"]),
+            float(foot["width_y"]),
+            green_dry["x"],
+            green_dry["y"],
+            green_dry["length_x"],
+            green_dry["width_y"],
+        )
+    ]
 
 
 def test_deck_pod_seating_repeatability_check_requires_gate3_evidence() -> None:
@@ -614,6 +675,85 @@ def test_installed_parts_match_production_assembly_tree() -> None:
     assert "lid_manifold" not in parts
 
 
+def test_integral_structural_prints_are_single_solids_without_envelope_drift() -> None:
+    params = load_params(PARAMS)
+    layout = row_coupon_layout(params)
+
+    assert params["production_assembly"]["integral_feature_fusion_overlap_z"] == 0.1
+
+    structural_parts = {
+        "plate_support_frame": build_plate_support_frame(params).val(),
+        "lid_cover": build_lid_cover(params, assembly_position=True).val(),
+        "lid_manifold_shell": build_lid_manifold_shell(
+            params,
+            assembly_position=True,
+        ).val(),
+        "wet_chamber_frame": build_wet_chamber_frame(
+            params,
+            assembly_position=True,
+        ).val(),
+    }
+    tongue_d = params["production_assembly"]["lid_cover_tongue_depth_z"]
+    expected_bounds = {
+        "plate_support_frame": (0.0, 148.6, 0.0, 377.25, 0.0, 11.2),
+        # The print-native male tongue moved from the cover to the manifold
+        # shell (src/aevum_cad/row_coupon/parts/sealing.py:40
+        # `_add_lid_shell_tongue`; `_add_lid_cover_tongue` at :53 is now an
+        # identity shim that records why -- a cover-side tongue prints as
+        # unsupported rods). Two consequences are pinned here, both cross-checked
+        # against their sources below rather than just retyped:
+        #   * the cover is now only the duct ring plus service bosses, so its Y
+        #     span is inset by row.side_margin_y instead of spanning the row;
+        #   * the shell, not the cover, is the part that now breaks the
+        #     lid_top_z plane, by exactly one tongue depth.
+        "lid_cover": (-7.6, 156.2, 10.0, 367.25, 32.8, 58.1),
+        "lid_manifold_shell": (0.0, 148.6, 0.0, 377.25, 24.5, 34.1),
+        "wet_chamber_frame": (0.0, 148.6, 0.0, 377.25, 8.0, 40.1),
+    }
+
+    for name, part in structural_parts.items():
+        assert len(part.Solids()) == 1
+        assert _rounded_bounds(part) == expected_bounds[name]
+
+    # Independent derivations of the two numbers that moved, so a future silent
+    # change to either side fails here and not only in the literal tuple.
+    assert expected_bounds["lid_cover"][2] == params["row"]["side_margin_y"]
+    assert expected_bounds["lid_cover"][3] == round(
+        layout["width_y"] - params["row"]["side_margin_y"],
+        2,
+    )
+    assert expected_bounds["lid_manifold_shell"][5] == round(
+        layout["lid_top_z"] + tongue_d,
+        2,
+    )
+    # The cover's lowest point is now a side-gas barb bead, not a hanging tongue.
+    lowest_service_boss_z = min(
+        float(interface[feature]["z"]) - float(interface[feature]["diameter"]) / 2
+        for interface in layout["side_gas_service_interfaces"]
+        for feature in ("printed_fitting", "printed_barb_retention_bead")
+    )
+    assert expected_bounds["lid_cover"][4] == round(lowest_service_boss_z, 2)
+    assert expected_bounds["lid_cover"][4] > round(layout["lid_top_z"] - tongue_d, 2)
+
+    assert len(build_deck_pods(params).val().Solids()) == len(layout["tile_origins"])
+    assert len(build_printed_wedge_locks(params).val().Solids()) == len(
+        layout["wedge_lock_rectangles"]
+    )
+    assert len(build_headspace_sht41_microcarriers(params).val().Solids()) == len(
+        layout["headspace_sht41_mounts"]
+    )
+    assert len(build_printed_sample_relief_cap(params).val().Solids()) == 1
+    assert (
+        sum(
+            solid.Volume()
+            for solid in build_plate_support_frame(params)
+            .intersect(build_microplates(params, assembly_position=True))
+            .vals()
+        )
+        == 0.0
+    )
+
+
 def test_part_manifest_covers_all_visible_operating_and_review_geometry() -> None:
     params = load_params(PARAMS)
     manifest = row_coupon_part_manifest()
@@ -732,66 +872,66 @@ def test_export_names_match_production_assembly_tree(monkeypatch, tmp_path) -> N
 
     paths = export_row_coupon(params, tmp_path)
 
-    assert list(paths) == [
-        "deck_pods_stl",
-        "deck_pods_step",
-        "plate_support_frame_stl",
-        "plate_support_frame_step",
-        "ir_thermopiles_stl",
-        "ir_thermopiles_step",
-        "ir_thermopile_face_gaskets_stl",
-        "ir_thermopile_face_gaskets_step",
-        "lower_sensor_harness_stl",
-        "lower_sensor_harness_step",
-        "lower_harness_cover_stl",
-        "lower_harness_cover_step",
-        "lower_sensor_service_connector_stl",
-        "lower_sensor_service_connector_step",
-        "printed_lower_sensor_connector_shroud_stl",
-        "printed_lower_sensor_connector_shroud_step",
-        "lower_sensor_service_cable_pigtail_stl",
-        "lower_sensor_service_cable_pigtail_step",
-        "lower_gasket_stl",
-        "lower_gasket_step",
-        "wet_chamber_frame_stl",
-        "wet_chamber_frame_step",
-        "cots_microplates_stl",
-        "cots_microplates_step",
-        "cots_septum_mats_stl",
-        "cots_septum_mats_step",
-        "upper_gasket_stl",
-        "upper_gasket_step",
-        "lid_manifold_shell_stl",
-        "lid_manifold_shell_step",
-        "headspace_sht41_microcarriers_stl",
-        "headspace_sht41_microcarriers_step",
-        "lid_sensor_harness_stl",
-        "lid_sensor_harness_step",
-        "lid_harness_cover_stl",
-        "lid_harness_cover_step",
-        "lid_sensor_service_connectors_stl",
-        "lid_sensor_service_connectors_step",
-        "printed_lid_sensor_connector_shrouds_stl",
-        "printed_lid_sensor_connector_shrouds_step",
-        "lid_sensor_service_cable_pigtails_stl",
-        "lid_sensor_service_cable_pigtails_step",
-        "lid_cover_stl",
-        "lid_cover_step",
-        "cots_gas_service_tubes_stl",
-        "cots_gas_service_tubes_step",
-        "gas_pcb_interface_gaskets_stl",
-        "gas_pcb_interface_gaskets_step",
-        "printed_gas_pcb_keeper_doors_stl",
-        "printed_gas_pcb_keeper_doors_step",
-        "gas_sensor_pcbs_stl",
-        "gas_sensor_pcbs_step",
-        "printed_sample_relief_cap_stl",
-        "printed_sample_relief_cap_step",
-        "printed_wedge_locks_stl",
-        "printed_wedge_locks_step",
-        "assembly_step",
+    # This literal is the INDEPENDENT side of the cross-check and must stay a
+    # literal.  Deriving the expected names from
+    # build_row_coupon_physical_artifacts() -- the same call export_row_coupon()
+    # iterates -- makes the assertion vacuous: a body that silently disappears
+    # from the production export tree shrinks both sides together and the test
+    # still passes.  A deleted, renamed or newly-added canonical body has to be
+    # reviewed here.  38 bodies; 8 of them are split into 2 print pieces each
+    # downstream (46 pieces), but that split is the first-print layer's concern,
+    # not this one -- see tests/test_row_coupon_first_print.py.
+    canonical_bodies = (
+        "deck_pod_tile_1",
+        "deck_pod_tile_2",
+        "deck_pod_tile_3",
+        "deck_pod_tile_4",
+        "gas_pcb_interface_gasket_return_gas_sensor_pcb",
+        "gas_pcb_interface_gasket_supply_gas_sensor_pcb",
+        "ir_thermopile_face_gasket_tile_1",
+        "ir_thermopile_face_gasket_tile_2",
+        "ir_thermopile_face_gasket_tile_3",
+        "ir_thermopile_face_gasket_tile_4",
+        "lid_cover",
+        "lid_harness_cover_lid_cover_left_gas_bus",
+        "lid_harness_cover_lid_cover_right_gas_bus",
+        "lid_harness_cover_lid_shell_right_sht41_bus",
+        "lid_manifold_shell",
+        "lower_gasket",
+        "lower_harness_cover",
+        "plate_support_frame",
+        "printed_gas_pcb_keeper_door_return_gas_sensor_pcb",
+        "printed_gas_pcb_keeper_door_supply_gas_sensor_pcb",
+        "printed_lid_sensor_connector_shroud_lid_left_gas_service_connector",
+        "printed_lid_sensor_connector_shroud_lid_right_sensor_service_connector",
+        "printed_lower_sensor_connector_shroud",
+        "printed_sample_relief_cap",
+        "printed_wedge_lock_station_01_x_min",
+        "printed_wedge_lock_station_02_x_min",
+        "printed_wedge_lock_station_03_x_min",
+        "printed_wedge_lock_station_04_x_min",
+        "printed_wedge_lock_station_05_x_min",
+        "printed_wedge_lock_station_06_x_min",
+        "printed_wedge_lock_station_07_x_max",
+        "printed_wedge_lock_station_08_x_max",
+        "printed_wedge_lock_station_09_x_max",
+        "printed_wedge_lock_station_10_x_max",
+        "printed_wedge_lock_station_11_x_max",
+        "printed_wedge_lock_station_12_x_max",
+        "upper_gasket",
+        "wet_chamber_frame",
+    )
+    built = build_row_coupon_physical_artifacts(params)
+    assert sorted(built) == sorted(canonical_bodies)
+    assert len(canonical_bodies) == 38
+
+    expected_paths = [
+        f"{name}_{extension}"
+        for name in built
+        for extension in ("stl", "step")
     ]
-    assert len(exported) == 57
+    assert list(paths) == [*expected_paths, "assembly_step"]
+    assert len(exported) == len(expected_paths) + 1
     assert all(path.exists() for path in paths.values())
     assert not (tmp_path / f"{params['name']}_base.step").exists()
     assert not (tmp_path / f"{params['name']}_lid_manifold.step").exists()
@@ -1025,9 +1165,9 @@ def test_production_base_split_preserves_support_and_deck_interfaces() -> None:
     assert intersection_volume == 0.0
 
 
-def test_production_y_split_plan_tracks_first_print_oversized_parts() -> None:
+def test_final_print_pieces_plan_tracks_first_print_oversized_parts() -> None:
     params = load_params(PARAMS)
-    plan = row_coupon_production_y_split_plan(params)
+    plan = row_coupon_final_print_piece_plan(params)
     layout = row_coupon_layout(params)
     expected_split_y = (
         layout["tile_origins"][1]["y"]
@@ -1035,32 +1175,115 @@ def test_production_y_split_plan_tracks_first_print_oversized_parts() -> None:
         + layout["tile_origins"][2]["y"]
     ) / 2
 
-    assert len(plan) == len(ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS) * 2
-    assert {row["source_part"] for row in plan} == set(
-        ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS
+    structural_rows = [row for row in plan if row["action"] == "structural_split"]
+    identity_rows = [row for row in plan if row["action"] == "identity"]
+
+    # The plan is a table of print PIECES; the artifact manifest is a table of
+    # rigid BODIES. They are deliberately not 1:1 -- every allowlisted structural
+    # body becomes two pieces. Literal totals are also not constants here: several
+    # artifact families are sized by the plate layout (one wedge lock per latch
+    # station, one face gasket per IR mount), so the latch pattern going from 9 to
+    # 12 stations moved these counts without anything being wrong. What must hold
+    # is the relation between the two independently derived tables, which is what
+    # is asserted instead (same invariant the source fails closed on in
+    # src/aevum_cad/row_coupon/print_audit.py:62).
+    manifest = row_coupon_physical_artifact_manifest(params)
+    policies = row_coupon_physical_artifact_print_policies(
+        params,
+        bed_x_mm=250.0,
+        bed_y_mm=210.0,
+        fits_rectangular_bed=lambda target_x, target_y, bed_x, bed_y: (
+            (target_x <= bed_x and target_y <= bed_y)
+            or (target_x <= bed_y and target_y <= bed_x)
+        ),
     )
-    assert {row["interface_zone"] for row in plan} == {"between_plate_2_and_3"}
-    assert {row["segment_count"] for row in plan} == {2}
-    assert {row["y_max"] for row in plan if row["segment_index"] == 1} == {
+    printed_bodies = {
+        name
+        for name, entry in manifest.items()
+        if entry["fabrication_source"] == "printed_polymer"
+    }
+    identity_sources = {
+        policy.name for policy in policies if policy.policy == "bed_fit_identity"
+    }
+    split_sources = {
+        policy.name for policy in policies if policy.policy == "structural_split_allowed"
+    }
+
+    # No printed body may be blocked, redesign-flagged, or silently dropped, and
+    # no non-printed artifact may reach the print queue.
+    assert {row["action"] for row in plan} == {"identity", "structural_split"}
+    assert identity_sources | split_sources == printed_bodies
+    assert not identity_sources & split_sources
+    # Every piece traces back to exactly one manifest body ...
+    assert all(row["source_artifact"] in manifest for row in plan)
+    assert all(
+        row["provenance"] == f"canonical physical artifact: {row['source_artifact']}"
+        for row in plan
+    )
+    # ... and every printed manifest body is covered by at least one piece.
+    assert {row["source_artifact"] for row in plan} == printed_bodies
+    assert len({row["name"] for row in plan}) == len(plan)
+    assert len(plan) == len(identity_rows) + len(structural_rows)
+    assert {row["source_artifact"] for row in identity_rows} == identity_sources
+    assert len(identity_rows) == len(identity_sources)
+    assert len(structural_rows) == len(ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS) * 2
+    assert split_sources == set(ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS)
+    assert {row["source_artifact"] for row in structural_rows} == set(
+        ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS
+    )
+    assert {row["interface_zone"] for row in structural_rows} == {"between_plate_2_and_3"}
+    assert {row["piece_count"] for row in structural_rows} == {2}
+    assert {row["range_max_mm"] for row in structural_rows if row["piece_index"] == 1} == {
         round(expected_split_y, 3)
     }
-    assert {row["y_min"] for row in plan if row["segment_index"] == 2} == {
+    assert {row["range_min_mm"] for row in structural_rows if row["piece_index"] == 2} == {
         round(expected_split_y, 3)
     }
-    assert all("without screws or glue" in row["retention"] for row in plan)
-    assert all("Gate 4 dye evidence" in row["sealing"] for row in plan)
+    assert all(row["diagnostics"] == () for row in structural_rows)
+    assert all(row["fits_selected_bed"] for row in structural_rows)
+    assert all(row["policy"] == "bed_fit_identity" for row in identity_rows)
+    assert all(row["name"] == row["source_artifact"] for row in identity_rows)
 
 
-def test_production_y_split_parts_fit_selected_mk4_bed_envelope() -> None:
+def test_final_print_pieces_parts_fit_selected_mk4_bed_envelope() -> None:
     params = load_params(PARAMS)
-    split_parts = build_row_coupon_production_y_split_parts(params)
+    artifacts = build_row_coupon_physical_artifacts(params)
+    final_pieces = build_row_coupon_final_print_pieces(params)
+    plan = row_coupon_final_print_piece_plan(params)
 
-    assert set(split_parts) == {
-        f"{part}_y{segment:02d}_of_02"
-        for part in ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS
-        for segment in (1, 2)
+    assert set(final_pieces) == {row["name"] for row in plan}
+    identity_names = {
+        str(row["name"])
+        for row in plan
+        if row["action"] == "identity"
+        and row["installed_part"]
+        in {
+            "deck_pods",
+            "printed_lower_sensor_connector_shroud",
+            "printed_lid_sensor_connector_shrouds",
+            "printed_gas_pcb_keeper_doors",
+            "printed_sample_relief_cap",
+            "printed_wedge_locks",
+        }
     }
-    for name, part in split_parts.items():
+    assert identity_names
+    # An identity piece must be the canonical artifact itself, not a re-derived
+    # body. Object identity cannot express that: `build_row_coupon_final_print_pieces`
+    # calls `build_row_coupon_physical_artifacts` again internally
+    # (src/aevum_cad/row_coupon/final_print_pieces.py:764), so the two mappings
+    # never share Workplane instances -- and with tests/conftest.py memoising that
+    # builder per (params-hash, call-shape), the no-kwarg call here and the
+    # `assembly_position=False` call inside realize are separate cache entries.
+    # Exact geometric equality is the claim that actually matters and is the one
+    # asserted: same volume, same envelope, to the last bit, since both come from
+    # the same deterministic builder with no transform applied in between.
+    for name in identity_names:
+        piece = final_pieces[name].val()
+        artifact = artifacts[name].val()
+        assert piece.Volume() == artifact.Volume(), name
+        assert _rounded_bounds(piece, 6) == _rounded_bounds(artifact, 6), name
+        assert len(piece.Solids()) == len(artifact.Solids()), name
+    for name, part in final_pieces.items():
         bb = part.val().BoundingBox()
         assert bb.xlen > 0, name
         assert bb.ylen > 0, name
@@ -1069,7 +1292,7 @@ def test_production_y_split_parts_fit_selected_mk4_bed_envelope() -> None:
         assert bb.ylen <= 210.0, name
 
 
-def test_export_y_split_parts_uses_dedicated_first_print_names(
+def test_export_final_pieces_uses_dedicated_first_print_names(
     monkeypatch,
     tmp_path,
 ) -> None:
@@ -1083,16 +1306,20 @@ def test_export_y_split_parts_uses_dedicated_first_print_names(
 
     monkeypatch.setattr(cq.exporters, "export", fake_export)
 
-    paths = export_row_coupon_production_y_split_parts(params, tmp_path)
+    paths = export_row_coupon_final_print_pieces(params, tmp_path)
+    plan = row_coupon_final_print_piece_plan(params)
 
-    assert len(paths) == len(ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS) * 4
-    assert "deck_pods_y01_of_02_stl" in paths
-    assert "deck_pods_y02_of_02_step" in paths
+    assert len(paths) == len(plan) * 2
+    assert "deck_pod_tile_1_stl" in paths
+    assert "deck_pod_tile_1_step" in paths
     assert (
-        f"{params['name']}_plate_support_frame_y01_of_02.stl"
+        f"{params['name']}_plate_support_frame_piece_01_of_02_y_000p000_to_188p625.stl"
         in exported
     )
-    assert f"{params['name']}_lid_cover_y02_of_02.step" in exported
+    assert (
+        f"{params['name']}_lid_cover_piece_02_of_02_y_188p625_to_377p250.step"
+        in exported
+    )
     assert "assembly_step" not in paths
 
 
@@ -1509,20 +1736,40 @@ def test_lid_compression_stops_follow_row_axis() -> None:
     half_stop = seal["compression_stop_size"] / 2
     positions = layout["compression_stop_positions"]
 
+    production = params["production_assembly"]
+    # The station pattern is no longer "row margins x inter-tile gaps". Two
+    # production params now place it, and both are re-derived here independently
+    # of src/aevum_cad/row_coupon/layout.py:13 rather than having their result
+    # pasted in: `latch_station_inset_x` sets the X pair, and
+    # `latch_center_station_bypass_offset_y` replaces the central inter-tile
+    # station -- which crowds the lid-piece joint and lands on the sample/relief
+    # boss -- with a symmetric pair either side of it.
+    latch_x_inset = production["latch_station_inset_x"]
+    latch_y_inset = production["latch_station_end_inset_y"]
+    center_bypass = production["latch_center_station_bypass_offset_y"]
+    center_y = layout["width_y"] / 2
     expected_y_values = {
-        round(row["side_margin_y"] / 2, 3),
-        round(layout["width_y"] - row["side_margin_y"] / 2, 3),
+        round(latch_y_inset, 3),
+        round(layout["width_y"] - latch_y_inset, 3),
     }
     expected_y_values.update(
         round(tile["y"] - row["inter_tile_gap_y"] / 2, 3)
         for tile in layout["tile_origins"][1:]
     )
+    expected_y_values = {
+        y for y in expected_y_values if abs(y - center_y) > 1e-6
+    } | {
+        round(center_y - center_bypass, 3),
+        round(center_y + center_bypass, 3),
+    }
     expected_x_values = {
-        round(row["end_margin_x"] / 2, 3),
-        round(layout["length_x"] - row["end_margin_x"] / 2, 3),
+        round(latch_x_inset, 3),
+        round(layout["length_x"] - latch_x_inset, 3),
     }
 
     assert layout["row_axis"] == "y"
+    assert center_bypass > 0
+    assert round(center_y, 3) not in expected_y_values
     assert len(positions) == len(expected_x_values) * len(expected_y_values)
     assert len(positions) == len(set(positions))
     assert {x for x, _ in positions} == expected_x_values
@@ -1544,7 +1791,28 @@ def test_printed_wedge_locks_clear_lid_service_ports() -> None:
     )
     receiver_slide = production["wedge_receiver_length_extra_y"] / 2 + clearance
 
-    assert len(layout["wedge_lock_rectangles"]) < len(layout["compression_stop_positions"])
+    # Every wedge lock must sit on a compression stop, and no lock may invent a
+    # station of its own.  The old strict `<` encoded the era when the center
+    # station was DROPPED for the port keepout; the 12-station pattern now
+    # bypasses the port geometrically instead of omitting a stop
+    # (src/aevum_cad/row_coupon/parts/latches.py, census pinned in
+    # test_latch_station_pattern_bypasses_center_split_and_port: 12 expected,
+    # 12 active, 0 omitted), so locks and stops are legitimately 1:1 now.
+    # Containment is what `<` was standing in for and it holds either way.
+    stop_positions = {
+        (round(float(x), 3), round(float(y), 3))
+        for x, y in layout["compression_stop_positions"]
+    }
+    lock_positions = {
+        (round(float(lock["post_x"]), 3), round(float(lock["post_y"]), 3))
+        for lock in layout["wedge_lock_rectangles"]
+    }
+    assert lock_positions
+    assert lock_positions <= stop_positions
+    assert len(lock_positions) == len(layout["wedge_lock_rectangles"])
+    assert len(layout["wedge_lock_rectangles"]) <= len(
+        layout["compression_stop_positions"]
+    )
     assert len(build_printed_wedge_locks(params).val().Solids()) == len(
         layout["wedge_lock_rectangles"]
     )
@@ -2124,9 +2392,36 @@ def test_latch_ramp_self_lock_screen_is_explicit_and_flags_thin_margin() -> None
     assert math.isclose(screen["friction_angle_deg"], round(expected_friction_angle, 3))
     assert screen["passes_self_lock"] is True
     assert screen["self_lock_margin_deg"] > 0
-    assert screen["meets_min_margin"] is False
-    assert screen["backdrive_risk_flag"] is True
-    assert screen["retention_status"] == "detent_or_physical_test_required"
+    # The thin-margin verdict this test used to pin is no longer the honest one.
+    # The ramp got shallower because the wedge grew: production_assembly
+    # .wedge_lock_width_x went 9.0 -> 11.0 in cad/one_row_coupon.params.json,
+    # which lengthens the run (width - lead_in - bearing_flat) from 6.4 mm to
+    # 8.4 mm and drops the ramp from 18.97 deg to 14.676 deg against an
+    # unchanged 19.29 deg friction angle.  Nothing in latch_mechanics was
+    # relaxed -- friction_coefficient_min is still 0.35 and
+    # self_lock_min_margin_deg is still 1.0 -- so the geometry genuinely earns
+    # the margin now (4.614 deg, the same value pinned by
+    # test_latch_retention_span_check_requires_dry_cycle_evidence).
+    assert screen["self_lock_margin_deg"] >= screen["self_lock_min_margin_deg"]
+    assert screen["meets_min_margin"] is True
+    assert screen["backdrive_risk_flag"] is False
+    assert screen["retention_status"] == "geometry_margin_ok"
+
+    # A screen that only ever says "ok" proves nothing, so the flagging path is
+    # exercised with the pre-change wedge width.  This reproduces the exact
+    # verdict this test used to assert, which is the evidence that the green
+    # case above is a real result and not a screen that stopped discriminating.
+    thin_params = deepcopy(params)
+    thin_params["production_assembly"]["wedge_lock_width_x"] = 9.0
+    thin_screen = row_coupon_layout(thin_params)["latch_ramp_self_lock"]
+
+    assert thin_screen["ramp_angle_deg"] > screen["ramp_angle_deg"]
+    assert thin_screen["friction_angle_deg"] == screen["friction_angle_deg"]
+    assert 0 < thin_screen["self_lock_margin_deg"] < thin_screen["self_lock_min_margin_deg"]
+    assert thin_screen["passes_self_lock"] is True
+    assert thin_screen["meets_min_margin"] is False
+    assert thin_screen["backdrive_risk_flag"] is True
+    assert thin_screen["retention_status"] == "detent_or_physical_test_required"
 
 
 def test_latch_post_stress_screen_has_positive_margin() -> None:
@@ -2148,15 +2443,17 @@ def test_latch_post_stress_screen_has_positive_margin() -> None:
     assert screen["passes_stress_screen"] is True
 
 
-def test_latch_station_asymmetry_is_visible_when_port_omits_station() -> None:
+def test_latch_station_pattern_bypasses_center_split_and_port() -> None:
     params = load_params(PARAMS)
     layout = row_coupon_layout(params)
     asymmetry = layout["latch_station_asymmetry"]
 
     assert asymmetry["expected_station_count"] == len(layout["compression_stop_positions"])
     assert asymmetry["active_station_count"] == len(layout["wedge_lock_rectangles"])
-    assert asymmetry["omitted_station_count"] == 1
-    assert asymmetry["has_omitted_station_warning"] is True
+    assert asymmetry["expected_station_count"] == 12
+    assert asymmetry["active_station_count"] == 12
+    assert asymmetry["omitted_station_count"] == 0
+    assert asymmetry["has_omitted_station_warning"] is False
     active_positions = {
         (round(lock["post_x"], 3), round(lock["post_y"], 3))
         for lock in layout["wedge_lock_rectangles"]
@@ -2166,10 +2463,13 @@ def test_latch_station_asymmetry_is_visible_when_port_omits_station() -> None:
         {"x": x, "y": y, "reason": "port_or_adapter_keepout"}
         for x, y in omitted_positions
     ]
-    assert asymmetry["max_active_station_span_mm"] > (
+    assert omitted_positions == []
+    assert asymmetry["omitted_stop_positions"] == []
+    assert asymmetry["max_active_station_span_mm"] <= (
         params["latch_mechanics"]["max_active_latch_span_y"]
     )
-    assert asymmetry["exceeds_allowed_span"] is True
+    assert asymmetry["max_active_station_span_mm"] == pytest.approx(77.125)
+    assert asymmetry["exceeds_allowed_span"] is False
 
 
 def test_latch_retention_span_check_requires_dry_cycle_evidence() -> None:
@@ -2191,34 +2491,33 @@ def test_latch_retention_span_check_requires_dry_cycle_evidence() -> None:
         "cad_proxy_latch_retention_span_physical_evidence_required"
     )
     assert spec["failure_rule"] == (
-        "thin_self_lock_or_excess_span_blocks_wet_tests_until_gate2_evidence"
+        "failed_cad_screen_or_missing_dry_cycle_evidence_blocks_wet_tests"
     )
     assert spec["evidence_gate"] == "Gate 2 dry assembly"
-    assert spec["checkpoint_count"] == 4
-    assert spec["cad_value"] == "0.32 deg margin / 181.00 mm span / 1 omitted"
+    assert spec["checkpoint_count"] == 3
+    assert spec["cad_value"] == "4.61 deg margin / 77.12 mm span / 0 omitted"
     assert spec["wedge_lock_count"] == len(layout["wedge_lock_rectangles"])
     assert spec["self_lock_margin_deg"] == layout["latch_ramp_self_lock"][
         "self_lock_margin_deg"
     ]
-    assert spec["backdrive_risk_flag"] is True
-    assert spec["retention_status"] == "detent_or_physical_test_required"
-    assert spec["omitted_station_count"] == 1
-    assert spec["exceeds_allowed_span"] is True
+    assert spec["backdrive_risk_flag"] is False
+    assert spec["retention_status"] == "geometry_margin_ok"
+    assert spec["omitted_station_count"] == 0
+    assert spec["exceeds_allowed_span"] is False
     assert spec["requires_physical_evidence"] is True
     assert spec["all_checkpoints_block_wet_tests"] is True
     assert {
-        "thin_self_lock_margin_unverified",
-        "omitted_station_span_bow_unmeasured",
+        "printed_latch_retention_cycle_unverified",
         "post_or_cap_bearing_damage_unchecked",
         "gasket_squeeze_after_latch_cycle_unmeasured",
     } == set(spec["blockers"])
     assert {
         "latch_ramp_self_lock",
-        "latch_station_asymmetry",
         "latch_post_stress_screen",
         "latch_compression_budget",
     } == set(spec["source_layout_checks"])
     assert spec["source_validation_checks"] == ["gasket_compression_gap_gauge"]
+    assert spec["cad_risk_flag"] is False
     assert len(check.Solids()) == 1
     assert rect["x"] > layout["length_x"]
     assert round(check_bb.xlen, 2) == rect["length_x"]
@@ -2361,6 +2660,14 @@ def test_sample_relief_cap_leak_witness_routes_outboard_without_blocking_access(
     port = layout["lid_port_positions"][0]
     boss_r = port["boss_diameter"] / 2
     cap_flange_bottom_z = layout["lid_top_z"] + port["boss_height_z"]
+    lid_cover = build_lid_cover(params, assembly_position=True)
+    no_witness_params = deepcopy(params)
+    no_witness_params["production_assembly"][
+        "sample_relief_witness_threshold_height_z"
+    ] = 0.0
+    added_sample_relief_witness = lid_cover.cut(
+        build_lid_cover(no_witness_params, assembly_position=True)
+    )
 
     assert "sample_relief_leak_witness_check" not in installed
     assert "sample_relief_leak_witness_check" in validation
@@ -2404,6 +2711,43 @@ def test_sample_relief_cap_leak_witness_routes_outboard_without_blocking_access(
         threshold["z"] + threshold["height_z"],
         2,
     )
+    nominal_threshold_guard = (
+        cq.Workplane("XY")
+        .box(
+            threshold["length_x"],
+            threshold["width_y"],
+            threshold["height_z"],
+            centered=(False, False, False),
+        )
+        .translate((threshold["x"], threshold["y"], threshold["z"]))
+    )
+    assert _workplane_volume(
+        added_sample_relief_witness.intersect(nominal_threshold_guard)
+    ) > 0
+
+    overlap_z = params["production_assembly"]["integral_feature_fusion_overlap_z"]
+    overflow_probe_margin = min(overlap_z / 4, 0.01)
+    overflow_length = overlap_z - overflow_probe_margin
+    assert overflow_length > 0
+    overflow_guard = (
+        cq.Workplane("XY")
+        .box(
+            overflow_length,
+            threshold["width_y"],
+            threshold["height_z"],
+            centered=(False, False, False),
+        )
+        .translate(
+            (
+                threshold["x"] + threshold["length_x"] + overflow_probe_margin,
+                threshold["y"],
+                threshold["z"],
+            )
+        )
+    )
+    assert _workplane_volume(
+        added_sample_relief_witness.intersect(overflow_guard)
+    ) == pytest.approx(0.0, abs=1e-6)
 
     for rect in (shelf, gutter):
         assert not _rectangles_overlap(
@@ -3093,7 +3437,25 @@ def test_sensor_harness_routes_are_physical_service_domains() -> None:
     assert lid_trunks["lid_cover_right_gas_bus"]["owner_part"] == "lid_cover"
 
     for trunk in lid_trunks.values():
-        assert trunk["retention"] == "printed_snap_cover"
+        # The lid trunks are no longer generic snap-cover channels.  The keyed
+        # assembly work gave them a channel + clearance cover whose retention is
+        # a physical gate, declared alongside an install/removal axis and a
+        # support-free print orientation
+        # (src/aevum_cad/row_coupon/parts/harness.py:585, 603, 621; the same
+        # contract is asserted from the service-stack side in
+        # tests/test_row_coupon_service_stack.py:119).  The string alone is weak
+        # evidence, so the geometry that has to back the claim is asserted with
+        # it: a cover can only gate a channel it actually fits over.
+        assert trunk["retention"] == "channel_clearance_cover_physical_retention_gate"
+        assert "physical_retention_gate" in trunk["retention"]
+        assert "screw" not in trunk["retention"]
+        assert "glue" not in trunk["retention"]
+        assert trunk["install_axis"] in {"+Z", "-Z"}
+        assert trunk["removal_axis"] == trunk["install_axis"]
+        assert "no_internal_support" in trunk["critical_surface_printing"]
+        assert trunk["channel_depth_z"] > 0
+        assert trunk["cover_height_z"] > 0
+        assert trunk["height_z"] <= trunk["channel_depth_z"]
         assert 0 <= trunk["x"]
         assert trunk["x"] + trunk["length_x"] <= layout["length_x"]
         for tile in layout["tile_origins"]:
@@ -3141,7 +3503,21 @@ def test_sensor_harness_routes_are_physical_service_domains() -> None:
     connector_check = layout["sensor_connector_service_clearance_check"]
     cable_envelope_check = layout["sensor_service_cable_envelope_check"]
     assert connector_check["evidence_gate"] == "Gate 6 sensor/thermal"
-    assert connector_check["cad_value"] == "145.60 x 12.00 x 43.30 mm"
+    # `cad_value` renders the bounding extents of the check's own body rects,
+    # which are the connector service-clearance rects asserted below
+    # (src/aevum_cad/row_coupon/parts/harness.py:880).  The retyped literal was
+    # a snapshot of one connector layout and went stale when the lid shell's
+    # SHT41 bus moved to its own X (harness.py:568), widening the span by 1 mm.
+    # Recomputing the extents here keeps the cross-check between the prose and
+    # the rects without re-pinning a number that is free to move.
+    expected_span = tuple(
+        max(float(rect[origin]) + float(rect[extent]) for rect in service_clearance_rects)
+        - min(float(rect[origin]) for rect in service_clearance_rects)
+        for origin, extent in (("x", "length_x"), ("y", "width_y"), ("z", "height_z"))
+    )
+    assert connector_check["cad_value"] == (
+        f"{expected_span[0]:.2f} x {expected_span[1]:.2f} x {expected_span[2]:.2f} mm"
+    )
     assert connector_check["failure_rule"] == (
         "blocked_connector_clearance_or_unmeasured_mating_space_blocks_sensor_thermal_pass"
     )
@@ -4527,12 +4903,29 @@ def test_assembly_state_witness_check_exports_negative_state_witnesses() -> None
     assert spec["failure_rule"] == (
         "missing_consumable_cap_service_or_latch_state_blocks_dry_assembly_pass"
     )
+    # `cad_value` and `stack_cad_value` are prose renderings of counts this same
+    # spec also publishes as structured fields
+    # (src/aevum_cad/row_coupon/parts/latches.py:396), and those fields are
+    # cross-checked against the layout witness lists further down.  Pinning the
+    # rendered literal made a legitimate layout change -- the latch pattern
+    # going from 9 stations to 12 -- read as a witness failure.  The invariant
+    # that matters is that the prose and the structured counts cannot drift
+    # apart, so the strings are rebuilt from the fields instead of retyped.
     assert spec["cad_value"] == (
-        "4 plates / 4 mats / 2 gaskets / 4 gas PCB / 2 unseated gas PCB / "
-        "8 local sensors / 5 service leads / 2 unseated gas tubes / 1 cap / "
-        "9 latches"
+        f"{spec['plate_count']} plates / {spec['septum_mat_count']} mats / "
+        f"{spec['perimeter_gasket_count']} gaskets / "
+        f"{spec['gas_pcb_cartridge_count']} gas PCB / "
+        f"{spec['unseated_gas_pcb_cartridge_review_count']} unseated gas PCB / "
+        f"{spec['local_sensor_module_count']} local sensors / "
+        f"{spec['service_lead_witness_count']} service leads / "
+        f"{spec['unseated_side_gas_tube_review_count']} unseated gas tubes / "
+        f"{spec['sample_relief_cap_witness_count']} cap / "
+        f"{spec['latch_unseated_witness_count']} latches"
     )
-    assert spec["stack_cad_value"] == "4 plates / 4 mats / 2 perimeter gaskets"
+    assert spec["stack_cad_value"] == (
+        f"{spec['plate_count']} plates / {spec['septum_mat_count']} mats / "
+        f"{spec['perimeter_gasket_count']} perimeter gaskets"
+    )
     assert spec["requires_physical_evidence"] is True
     assert "normal_ot2_operation" in spec["physical_claims_blocked"]
     assert spec["source_review_parts"] == [
@@ -4630,7 +5023,8 @@ def test_production_lid_split_and_printed_locks_are_explicit() -> None:
     params = load_params(PARAMS)
     layout = row_coupon_layout(params)
     shell_bb = build_lid_manifold_shell(params, assembly_position=True).val().BoundingBox()
-    cover_bb = build_lid_cover(params, assembly_position=True).val().BoundingBox()
+    cover = build_lid_cover(params, assembly_position=True)
+    cover_bb = cover.val().BoundingBox()
     caps_bb = build_printed_sample_relief_cap(
         params,
         assembly_position=True,
@@ -4646,8 +5040,44 @@ def test_production_lid_split_and_printed_locks_are_explicit() -> None:
 
     assert round(shell_bb.zmin, 2) == round(shell_bottom_z, 2)
     assert round(shell_bb.zmin, 2) < round(layout["lid_bottom_z"], 2)
-    assert round(shell_bb.zmax, 2) == round(layout["lid_top_z"], 2)
-    assert round(cover_bb.zmin, 2) == round(layout["lid_top_z"] - tongue_d, 2)
+    # The lid split is no longer a flat plane at lid_top_z.  The shell now
+    # carries the male half of a keyed tongue/groove joint, added one tongue
+    # depth above its top face (src/aevum_cad/row_coupon/parts/structural.py
+    # calls _add_lid_shell_tongue at z0 + lid thickness), so its envelope
+    # legitimately reaches lid_top_z + tongue_d.  Asserting the exact tongue
+    # height rather than a relaxed `>=` keeps this pinned to the declared fit:
+    # the cover's groove drops the same depth below the split plane, and the
+    # pair is proven not to interfere in
+    # tests/test_row_coupon_lid_latch_stack.py:63.
+    assert round(shell_bb.zmax, 2) == round(layout["lid_top_z"] + tongue_d, 2)
+    # The cover's underside is not a bare plane, and its bounding box never
+    # measured the joint: the tongue groove is a CUT into the cover
+    # (src/aevum_cad/row_coupon/parts/sealing.py:105) and so cannot lower the
+    # envelope at all.  What sits lowest is the external printed barb retention
+    # bead on the side gas fittings, which hangs 0.3 mm below the split plane
+    # OUTSIDE the row footprint.  `cover_bb.zmin == lid_top_z - tongue_d`
+    # matched that by coincidence of an earlier feature set.  Two claims that
+    # are actually about the split replace it: no cover material may intrude
+    # below the split plane anywhere inside the row footprint, and the material
+    # that does hang below is the declared external service bead.
+    bead_floor = min(
+        float(rect["z"])
+        for interface in layout["side_gas_service_interfaces"]
+        for rect in interface["external_service_rects"]
+        if rect["name"] == "printed_barb_retention_bead_envelope"
+    )
+    assert round(bead_floor, 2) < round(layout["lid_top_z"], 2)
+    assert round(cover_bb.zmin, 2) == round(bead_floor, 2)
+    footprint_below_split = (
+        cq.Workplane("XY")
+        .box(layout["length_x"], layout["width_y"], 20.0, centered=(False, False, False))
+        .translate((0.0, 0.0, layout["lid_top_z"] - 20.0))
+    )
+    assert sum(
+        float(solid.Volume())
+        for solid in cover.intersect(footprint_below_split).vals()
+    ) == 0.0
+    assert shell_bb.zmax < cover_bb.zmax
     assert round(cover_bb.zmax, 2) == round(layout["assembly_top_z"], 2)
     assert round(caps_bb.zmax, 2) == round(layout["port_cap_top_z"], 2)
     assert round(caps_bb.zmax, 2) < round(layout["assembly_top_z"], 2)
@@ -4673,7 +5103,11 @@ def test_upper_and_lower_gaskets_are_separate_production_parts() -> None:
     plain_params["production_assembly"]["gasket_service_tab_depth_y"] = 0.0
     plain_volume = build_lower_gasket(plain_params, assembly_position=True).val().Volume()
 
-    assert round(lower_bb.zmin, 2) == round(layout["base_top_z"], 2)
+    assert round(lower_bb.zmin, 2) == round(
+        layout["base_top_z"]
+        - params["seal_interface"]["compressed_gasket_height_z"] / 2,
+        2,
+    )
     assert round(lower_bb.zlen, 2) == params["seal_interface"]["compressed_gasket_height_z"]
     assert round(upper_bb.zmin, 2) == round(layout["gasket_bottom_z"], 2)
     assert round(upper_bb.zlen, 2) == params["seal_interface"]["compressed_gasket_height_z"]
@@ -5088,8 +5522,17 @@ def test_observer_front_end_swept_body_reaches_all_wells_without_hitting_feet() 
             assert swept["x"] < x < swept["x"] + swept["length_x"]
             assert swept["y"] < y < swept["y"] + swept["width_y"]
 
-    for foot in layout["deck_engagement_feet"]:
-        assert not _rectangles_overlap(
+    # OC-A15 (corrected 2026-09-21): the swept body does NOT clear all sixteen feet.
+    # Exactly ONE foot is struck -- tile 4 at x 13.300..17.100 -- and it is the foot that
+    # `lower_service_foot_inset_x` (3.0) walked inboard from 10.300 to keep the lower
+    # service shroud lane clear. The other fifteen clear, so this pins the CAUSE rather
+    # than just the symptom: re-routing that shroud (inset -> 0.0) restores a 120.4 mm
+    # corridor, a 21.24 mm head budget, and a clean sweep. Asserted exactly, so a second
+    # strike or a silent fix both fail here.
+    struck = [
+        foot
+        for foot in layout["deck_engagement_feet"]
+        if _rectangles_overlap(
             float(foot["x"]),
             float(foot["y"]),
             float(foot["length_x"]),
@@ -5099,6 +5542,12 @@ def test_observer_front_end_swept_body_reaches_all_wells_without_hitting_feet() 
             swept["length_x"],
             swept["width_y"],
         )
+    ]
+    assert len(struck) == 1, f"expected exactly the service-inset foot, got {struck}"
+    assert int(struck[0]["tile_index"]) == int(params["row"]["plate_count"])
+    assert round(float(struck[0]["x"]), 3) == 13.3
+    inset = float(params["deck_interface"]["lower_service_foot_inset_x"])
+    assert round(13.3 - inset, 3) == 10.3  # the un-inset position it came from
 
 
 def test_observer_infinity_port_datum_check_is_frozen_and_falsifiable_sm_2_1() -> None:
@@ -5236,10 +5685,17 @@ def test_observer_carriage_traverse_thin_truck_fits_dry_bay() -> None:
         observer_robotics["front_end_scan_axis_footprint"]
     )
 
-    # No feet / adjacent-slot intrusion with the thin truck.
-    assert traverse["deck_foot_collision_count"] == 0
+    # OC-A15 (corrected 2026-09-21): the thin truck clears the ADJACENT slots, but at the
+    # live 21.0 mm `front_end_scan_axis_footprint` it does NOT clear the deck feet -- the
+    # corrected corridor budget is 15.56 mm. This is pinned as the honest verdict rather
+    # than relaxed: an RMS thread floors near Ø20.32, so no RMS objective threads this
+    # corridor until `lower_service_foot_inset_x` (3.0) is re-routed, which restores a
+    # 120.4 mm corridor and a 21.24 mm budget. Mirrors
+    # tests/test_smis_manifest.py, test_reference_rms_4x_head_is_rejected_by_the_
+    # corrected_leg_corridor.
+    assert traverse["deck_foot_collision_count"] == 1
     assert traverse["adjacent_slot_collision_count"] == 0
-    assert traverse["clears_traverse"] is True
+    assert traverse["clears_traverse"] is False
 
     # FALSIFIABILITY: the fit is dimension-sensitive, NOT true by construction.
     # Re-sweeping the old 58 mm carriage body re-creates the Y overflow + blocker.
@@ -5284,7 +5740,9 @@ def test_observer_carriage_traverse_thin_truck_fits_dry_bay() -> None:
     # Gate 6 stays blocked on the remaining physical-evidence checkpoints; only
     # the geometry overflow blocker is cleared. (Geometry fits; motion unproven.)
     assert kinematic["carriage_traverse_fits_dry_bay"] is True
-    assert kinematic["carriage_traverse_clears"] is True
+    # Corrected 2026-09-21: the head fits the bay ENVELOPE but strikes a deck foot, so
+    # the traverse does NOT clear. Pinned honestly -- see the corridor note above.
+    assert kinematic["carriage_traverse_clears"] is False
     assert "carriage_traverse_exceeds_dry_bay" not in kinematic["blockers"]
     assert kinematic["carriage_traverse_overflow_mm"] == {"x": 0.0, "y": 0.0}
     assert kinematic["blockers"]  # still non-empty: physical evidence required
@@ -5386,27 +5844,33 @@ def test_observer_cad_hardening_live_layout_clears_all_asserts() -> None:
     assert fiducial["all_targets_within_dry_bay"] is True
     assert fiducial["fiducial_geometry_clears"] is True
 
-    # OC-A12 + OC-A15: after the bay-Y was resized to its wet/dry-bounded wall, the
-    # TRAVERSE axis is comfortable (10 mm) and no longer razor-thin. The binding
-    # constraint is the SCAN axis, where the standoff-leg corridor and the milled
-    # dry-bay wall are nearly co-located: the bay hi-wall (0.02 mm) is actually ~0.1 mm
-    # TIGHTER than the leg corridor (0.12 mm). The model surfaces both and the binding
-    # minimum, and the razor-thin flag tracks the binding wall (0.02), not just the corridor.
+    # OC-A12 + OC-A15 (corrected 2026-09-21): the TRAVERSE axis is comfortable (10 mm).
+    # The binding constraint is the SCAN axis, and the leg corridor and the milled dry-bay
+    # wall are NOT co-located -- they are ~2.74 mm apart, and the LEGS bind. An earlier
+    # version of this block asserted a 120.4 mm corridor with the bay hi-wall ~0.1 mm
+    # tighter than the legs (0.02 vs 0.12); that described geometry the model no longer
+    # has. `lower_service_foot_inset_x` (3.0) walks one tile-4 foot inboard, giving leg
+    # inner faces at X 17.10 / 134.50 -> a 117.4 mm corridor -- and the well array is not
+    # centred in it (near slack 7.78, far slack 10.62), so the near leg binds.
+    # These values are pinned deliberately: the head does NOT clear, and that verdict is
+    # a first-class fact, not a tolerance to relax.
     traverse = carriage["carriage_traverse"]
     assert traverse["traverse_margin_is_razor_thin"] is False  # wet/dry-bounded wall, 10 mm
     assert traverse["traverse_axis_fit_margin_mm"] == 10.0
-    assert traverse["scan_corridor_width_mm"] == 120.4
-    assert traverse["scan_corridor_margin_mm"] == 0.12  # leg wall
-    assert traverse["scan_bay_per_wall_margin_mm"] == 0.02  # bay hi-wall, the tightest
-    assert traverse["scan_binding_margin_mm"] == 0.02  # min of the two = the true wall
+    assert traverse["scan_corridor_width_mm"] == 117.4
+    assert traverse["scan_corridor_margin_mm"] == -2.72  # leg wall -- NEGATIVE, it strikes
+    assert traverse["scan_bay_per_wall_margin_mm"] == 0.02  # bay hi-wall, the looser of the two
+    assert traverse["scan_binding_margin_mm"] == -2.72  # min of the two = the legs
     assert traverse["scan_binding_margin_mm"] <= traverse["scan_corridor_margin_mm"]
-    assert traverse["scan_margin_is_razor_thin"] is True  # vs the binding wall
+    assert traverse["scan_margin_is_razor_thin"] is False  # not razor-thin: overtly negative
 
-    # OC-A11: geometry clears -> no geometry blocker on the optical-stability check.
-    # (Reads carriage_traverse["clears_traverse"], which ANDs in deck-foot / adjacent-
-    # slot collisions, NOT the bay-envelope-only fits_dry_bay.)
-    assert optical["observer_geometry_clears"] is True
-    assert "geometry_overflow_blocks_optical_stability" not in optical["blockers"]
+    # OC-A11 (corrected 2026-09-21): geometry does NOT clear, because
+    # carriage_traverse["clears_traverse"] ANDs in deck-foot collisions and the corrected
+    # 15.56 mm corridor budget is exceeded by the live 21.0 mm scan footprint. The
+    # geometry blocker is therefore live on the optical-stability check. This is the
+    # honest verdict, not a regression: zeroing `lower_service_foot_inset_x` restores it.
+    assert optical["observer_geometry_clears"] is False
+    assert "geometry_overflow_blocks_optical_stability" in optical["blockers"]
 
     # OC-A15 (KNOWN, surfaced-not-gated): the hardening EXPOSED a real placeholder
     # inconsistency that needs Stage-0 measurement / a design decision (see decision_log.md).
@@ -5418,9 +5882,10 @@ def test_observer_cad_hardening_live_layout_clears_all_asserts() -> None:
     # the boundary-rail lane after the coupon-length clamp.
     assert raceway["raceway_clears_boundary_rail"] is True
     # OC-A15: the CAD now surfaces the SAME barrel-vs-corridor verdict the SMIS dock gate
-    # enforces, on the shared 21.2 mm constant -- so CAD and SMIS cannot silently disagree
-    # about a real Ø25 head (both report it does NOT thread the corridor).
-    assert swept["scan_corridor_footprint_max_mm"] == 21.2
+    # enforces, on the shared 15.56 mm constant (corrected 2026-09-21 from a stale 21.2)
+    # -- so CAD and SMIS cannot silently disagree about a real Ø25 head (both report it
+    # does NOT thread the corridor).
+    assert swept["scan_corridor_footprint_max_mm"] == 15.56
     assert swept["barrel_threads_scan_corridor"] is False
     # All surfaced diagnostics, NOT in the hard fit chain, so the layout's geometry
     # verdict is unchanged until the design decision lands.
@@ -5675,9 +6140,17 @@ def test_observer_measured_40x40_head_at_25mm_wd_red_case_oc_a8() -> None:
     assert optical["observer_geometry_clears"] is False
     assert "geometry_overflow_blocks_optical_stability" in optical["blockers"]
 
-    # Green-baseline guard: the unmodified live params clear every gate above, proving
-    # the red asserts catch the oversized head rather than constant-failing.
-    green = row_coupon_layout(load_params(PARAMS))
+    # Green-baseline guard: proves the red asserts catch the oversized head rather than
+    # constant-failing. Corrected 2026-09-21: the UNMODIFIED live params are no longer
+    # green on the scan corridor -- `lower_service_foot_inset_x` (3.0) walks one tile-4
+    # foot inboard, cutting the corridor to 117.4 mm and the head budget to 15.56 mm,
+    # which the live 21.0 mm scan footprint exceeds. Zeroing that single parameter (the
+    # documented service-shroud re-route) restores a 120.4 mm corridor and a +0.12 mm
+    # margin at 21.0. The baseline therefore uses that one-parameter variant, which keeps
+    # the negative control meaningful AND pins exactly what the corridor turns on.
+    green_params = load_params(PARAMS)
+    green_params["deck_interface"]["lower_service_foot_inset_x"] = 0.0
+    green = row_coupon_layout(green_params)
     green_fe = green["observer_front_end_swept_body_check"]
     green_tr = green["observer_carriage_envelope_check"]["carriage_traverse"]
     green_opt = green["observer_optical_stability_check"]
@@ -5962,8 +6435,8 @@ def test_printability_support_cleanup_check_blocks_gate1_claims() -> None:
     assert check_spec["side_gas_interface_count"] == 2
     assert check_spec["sensor_pocket_count"] == 10
     assert check_spec["wet_dry_witness_gutter_count"] == 8
-    assert check_spec["split_source_part_count"] == len(
-        ROW_COUPON_PRODUCTION_Y_SPLIT_PARTS
+    assert check_spec["structural_piece_source_count"] == len(
+        ROW_COUPON_STRUCTURAL_SPLIT_ALLOWED_ARTIFACTS
     )
     assert check_spec["requires_physical_evidence"] is True
     assert check_spec["all_checkpoints_block_gate1_pass"] is True
@@ -6108,49 +6581,29 @@ def test_validation_parts_are_not_default_production_parts() -> None:
     params = load_params(PARAMS)
     installed = build_row_coupon_installed_parts(params)
     validation = build_row_coupon_validation_parts(params)
+    manifest = row_coupon_part_manifest()
 
-    assert set(validation) == {
-        "consumable_metrology_gauge",
-        "printability_support_cleanup_check",
-        "deck_slot_footprint_check",
-        "deck_frame_keepout_check",
-        "deck_pod_seating_repeatability_check",
-        "dry_bay_envelope_check",
-        "dry_bay_boundary_check",
-        "headspace_barrier_check",
-        "headspace_volume_check",
-        "well_cell_plane_check",
-        "ir_thermopile_fov_spot_check",
-        "thermal_condensation_proxy_check",
-        "pipette_puncture_swept_path_check",
-        "pipette_toolhead_swept_body_check",
-        "observer_front_end_swept_body_check",
-        "observer_carriage_envelope_check",
-        "observer_service_raceway_envelope_check",
-        "observer_fiducial_focus_target_check",
-        "observer_optical_stability_check",
-        "observer_kinematic_split_check",
-        "assembly_state_witness_check",
-        "gasket_compression_gap_gauge",
-        "latch_retention_span_check",
-        "fail_closed_prerun_inspection_check",
-        "material_cleaning_witness_coupon",
-        "wet_dry_failure_path_check",
-        "sensor_connector_service_clearance_check",
-        "sensor_installation_path_check",
-        "sensor_service_cable_envelope_check",
-        "electrical_connector_mating_state_check",
-        "operating_service_dress_check",
-        "row_tiling_service_clearance_check",
-        "gas_pcb_flow_cell_check",
-        "side_gas_tube_envelope_check",
-        "side_gas_leak_witness_check",
-        "sample_relief_leak_witness_check",
-        "gasket_tab_leak_witness_check",
-        "dry_bay_ingress_audit_check",
-        "adjacent_deck_slot_keepout_check",
-    }
+    # This used to be a retyped roster of validation body names, which went
+    # stale the moment a new one landed (observer_infinity_port_datum_check,
+    # src/aevum_cad/row_coupon/manifest.py) and which proved nothing the roster
+    # itself did not already say.  The claim worth making is that validation
+    # geometry is registered as validation-only in the independently maintained
+    # part manifest, never appears in the installed tree, and -- the part no
+    # other check covers -- never reaches the production print contract.
+    assert set(validation) == set(manifest["validation"])
     assert set(validation).isdisjoint(installed)
+    assert set(validation).isdisjoint(manifest["installed"])
+    for name in validation:
+        entry = manifest["validation"][name]
+        assert entry["fabrication_source"] == "validation_only_geometry"
+        assert entry["retention"] == "not_installed_in_production_tree"
+        assert entry["visibility"] == "validation_overlay"
+
+    artifacts = row_coupon_physical_artifact_manifest(params)
+    assert set(validation).isdisjoint(artifacts)
+    assert {entry["installed_part"] for entry in artifacts.values()}.isdisjoint(
+        validation
+    )
 
 
 def test_wet_dry_failure_path_check_is_hidden_validation_geometry() -> None:
@@ -6321,8 +6774,18 @@ def test_row_coupon_components_have_expected_bounds() -> None:
         + params["deck_interface"]["slot_shoe_thickness_z"]
     )
     assert round(gasket_bb.zlen, 2) == params["seal_interface"]["compressed_gasket_height_z"]
-    assert round(gasket_bb.xlen, 2) == round(layout["length_x"], 2)
-    assert round(gasket_bb.ylen, 2) == round(layout["width_y"], 2)
+    gasket_capture_inset = (
+        params["production_assembly"]["gasket_capture_outer_land_xy"]
+        + params["production_assembly"]["gasket_capture_clearance_xy"] / 2
+    )
+    assert round(gasket_bb.xlen, 2) == round(
+        layout["length_x"] - 2 * gasket_capture_inset,
+        2,
+    )
+    assert round(gasket_bb.ylen, 2) == round(
+        layout["width_y"] - 2 * gasket_capture_inset,
+        2,
+    )
     assert round(septum_bb.xlen, 2) == params["plate"]["length_x"]
     assert round(septum_bb.ylen, 2) == round(
         4 * params["plate"]["width_y"] + 3 * params["row"]["inter_tile_gap_y"],

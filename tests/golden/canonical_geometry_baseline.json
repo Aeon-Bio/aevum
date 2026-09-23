@@ -1,0 +1,133 @@
+{
+  "builder_sigs": {
+    "build_deck_pods": [
+      128.0,
+      357.5,
+      84.1,
+      4
+    ],
+    "build_deck_slot_footprint_check": [
+      130.0,
+      359.5,
+      0.8,
+      4
+    ],
+    "build_dry_bay_envelope_check": [
+      120.2,
+      357.5,
+      80.0,
+      1
+    ],
+    "build_gas_sensor_pcbs": [
+      133.07,
+      287.25,
+      25.1,
+      4
+    ],
+    "build_headspace_sht41_microcarriers": [
+      12.0,
+      283.5,
+      4.0,
+      4
+    ],
+    "build_ir_thermopiles": [
+      8.0,
+      279.5,
+      4.85,
+      4
+    ],
+    "build_lid_cover": [
+      163.8,
+      357.25,
+      25.3,
+      1
+    ],
+    "build_lid_gasket": [
+      146.75,
+      375.4,
+      0.8,
+      1
+    ],
+    "build_lid_manifold_shell": [
+      148.6,
+      377.25,
+      9.6,
+      1
+    ],
+    "build_lid_sensor_harness": [
+      146.0,
+      325.375,
+      7.05,
+      4
+    ],
+    "build_lower_sensor_harness": [
+      9.9,
+      325.375,
+      0.45,
+      1
+    ],
+    "build_microplates": [
+      127.6,
+      357.25,
+      14.3,
+      8
+    ],
+    "build_missing_microplate_witnesses": [
+      127.6,
+      357.25,
+      0.7,
+      4
+    ],
+    "build_operating_service_dress_check": [
+      220.6,
+      348.75,
+      43.3,
+      5
+    ],
+    "build_plate_support_frame": [
+      148.6,
+      377.25,
+      11.2,
+      1
+    ],
+    "build_printed_gas_pcb_keeper_doors": [
+      141.0,
+      289.65,
+      0.8,
+      2
+    ],
+    "build_printed_sample_relief_cap": [
+      16.8,
+      12.0,
+      4.6,
+      1
+    ],
+    "build_printed_wedge_locks": [
+      148.6,
+      347.25,
+      3.0,
+      12
+    ],
+    "build_septum_mat_inserts": [
+      127.6,
+      357.25,
+      4.5,
+      4
+    ],
+    "build_upper_gasket": [
+      146.75,
+      375.4,
+      0.8,
+      1
+    ],
+    "build_wet_chamber_frame": [
+      148.6,
+      377.25,
+      32.1,
+      1
+    ]
+  },
+  "layout_hash": "6675c51efad1e481",
+  "manifest_hash": "6381ab3c6655f36e",
+  "note": "canonical shipped geometry golden; regenerate only on an intentional reviewed diff. 2026-09-22 regeneration: 6 of 21 builders, each attributed to a parameter-visible deliberate change. (1) build_lid_gasket / build_upper_gasket -1.85mm in X and Y: sealing.py now insets the gasket into its capture groove by 2*(gasket_capture_outer_land_xy 0.8 + gasket_capture_clearance_xy 0.25/2) = 1.85; previously the gasket spanned the full part footprint and overhung its own groove. (2) build_printed_wedge_locks 9->12 solids, Y 377.25->347.25: latch_center_station_bypass_offset_y replaces the colliding centre station with a symmetric pair, and 377.25 - 2*latch_station_end_inset_y(21.0) + wedge_lock_length_y(12.0) = 347.25. (3) build_lid_sensor_harness 3->4 solids: new lid_shell_right_trunk_x(133.4) fourth trunk (release body lid_harness_cover_lid_shell_right_sht41_bus). (4) build_lid_cover Z 26.0->25.3 and build_lid_manifold_shell Z 8.6->9.6: the lid tongue-and-groove joint INVERTED -- build_lid_cover swapped _add_lid_cover_tongue for _cut_lid_cover_tongue_groove while build_lid_manifold_shell gained _add_lid_shell_tongue, so the manifold grows by lid_cover_tongue_depth_z(1.0) and the cover drops lid_shell_cover_gasket_clearance_z(0.7). The other 15 builders are unchanged, which is the evidence that this was a scoped joint/seal refactor and not a broad geometry regression."
+}

@@ -27,11 +27,16 @@ def _manifest(safety_class: SafetyClass = SafetyClass.led, **overrides) -> Modul
         safety_class=safety_class,
         driver="aevum_modules.head",
         mass_g=350.0,
-        front_end_length_x_mm=21.0,
+        # Scan-axis footprint kept inside the CORRECTED 15.56 mm leg corridor (OC-A15)
+        # so these tests exercise SAFETY logic rather than re-litigating the envelope.
+        # Not physically realizable with an RMS thread (~Ø20.32 min) -- the real head's
+        # corridor rejection is owned by tests/test_smis_manifest.py, in
+        # test_reference_rms_4x_head_is_rejected_by_the_corrected_leg_corridor.
+        front_end_length_x_mm=15.0,
         front_end_width_y_mm=13.0,
         front_end_height_z_mm=28.0,
         focus_stroke_z_mm=12.0,
-        barrel_diameter_mm=20.0,  # slim RMS 4x that threads the leg corridor (OC-A15)
+        barrel_diameter_mm=15.0,
     )
     base.update(overrides)
     return ModuleManifest(**base)
