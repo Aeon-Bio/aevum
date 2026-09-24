@@ -68,8 +68,15 @@ MK4_PRINTER = {
 
 LAYOUTS: tuple[dict[str, str], ...] = (
     {
+        "key": "h2s_mat",
+        "label": "Bambu H2S · ASA + PETG",
+        "dir": "bambu_h2s_asa_petg",
+        "note": "One material per plate, from materials.py: ASA for the dry datum parts, PETG for "
+        "wet, headspace and snapping parts. Each plate prints one filament.",
+    },
+    {
         "key": "h2s",
-        "label": "Bambu H2S",
+        "label": "Bambu H2S · PLA",
         "dir": "bambu_h2s_pla",
         "note": "Fewest-plates packing; bodies of any disposition share a plate.",
     },
@@ -567,6 +574,8 @@ def read_slicer_package(package_dir: Path) -> dict[str, Any]:
                     "estimated_seconds": s.get("estimated_seconds"),
                     "filament_g": s.get("filament_g"),
                     "support_markers": None,
+                    "material": plate.get("material", "PLA"),
+                    "filament_preset": plate.get("filament_preset", printer.get("filament_preset")),
                 }
             )
             for b in plate["bodies"]:
@@ -605,6 +614,8 @@ def read_slicer_package(package_dir: Path) -> dict[str, Any]:
                     "estimated_seconds": None,
                     "filament_g": None,
                     "support_markers": markers if isinstance(markers, int) else None,
+                    "material": "PLA",
+                    "filament_preset": None,
                 }
             )
             for body_id in plate["body_ids"]:
@@ -686,6 +697,7 @@ def build_layout(
                 "plate_id": plate["plate_id"],
                 "plate_name": plate["plate_name"],
                 "disposition": b.disposition,
+                "material": plate["material"],
                 "rgb": rgb,
                 "rotation_z_deg": b.rotation_z_deg,
                 "piece_index": idx,

@@ -12,6 +12,11 @@ Pipeline per plate:
      MK4 package needed a support-review plate
   4. BambuStudio CLI pass 2: slice the patched project -> <plate>.gcode.3mf
 
+With --materials, bodies are grouped by the print material assigned to their installed
+part (src/aevum_cad/row_coupon/materials.py) and each group is packed onto its own plates,
+because a plate prints one filament. Each group is sliced with that material's Bambu
+system filament preset at the preset's own temperatures.
+
 The Bambu CLI does not resolve preset `inherits` chains, so machine/process/
 filament presets are flattened from the app bundle before use.  The flattened
 presets (with our overrides) are written next to the outputs for review.
@@ -85,6 +90,7 @@ class Body:
     disposition: str
     source_artifact: str
     needs_support: bool
+    material: str | None = None
 
     @property
     def width(self) -> float:
@@ -113,13 +119,15 @@ class Placement:
 class Plate:
     index: int
     placements: list[Placement] = field(default_factory=list)
+    material: str | None = None
 
     @property
     def name(self) -> str:
         anchor = max(self.placements, key=lambda p: p.footprint_x * p.footprint_y).body.body_id
         extra = len(self.placements) - 1
         suffix = f"_plus_{extra:02d}_more" if extra else ""
-        return f"{self.index:02d}_{anchor}{suffix}"
+        tag = f"{self.material.lower()}_" if self.material else ""
+        return f"{self.index:02d}_{tag}{anchor}{suffix}"
 
 
 # ---------------------------------------------------------------- presets
@@ -279,8 +287,15 @@ def _write_placed_stl(src: Path, dst: Path, placement: Placement) -> None:
     dst.write_bytes(bytes(out))
 
 
-def load_bodies(input_dir: Path, authority: Path, mk4_manifest: Path) -> list[Body]:
+def load_bodies(
+    input_dir: Path, authority: Path, mk4_manifest: Path, *, materials: bool = False
+) -> list[Body]:
     registry = json.loads(authority.read_text())
+    material_of: dict[str, str] = {}
+    if materials:
+        from aevum_cad.row_coupon.materials import release_body_materials
+
+        material_of = release_body_materials(registry)
     rigid = [b for b in registry["release_bodies"] if b["body_class"] == "rigid_print_piece"]
     if len(rigid) != RIGID_BODY_COUNT:
         raise ValueError(f"authority lists {len(rigid)} rigid bodies, expected {RIGID_BODY_COUNT}")
@@ -322,6 +337,7 @@ def load_bodies(input_dir: Path, authority: Path, mk4_manifest: Path) -> list[Bo
                 disposition=mk4["a2_disposition"],
                 source_artifact=entry["source_artifact_id"],
                 needs_support=mk4["plate_id"] in supported_plates,
+                material=material_of.get(body_id),
             )
         )
     return bodies
@@ -565,21 +581,29 @@ def _fmt_hms(seconds: float | None) -> str:
 
 def write_readme(out_dir: Path, manifest: dict[str, Any]) -> None:
     p = manifest["printer"]
+    mats = manifest["filament"].get("materials")
+    material_title = " + ".join(mats) if mats else "PLA"
     lines = [
-        f"# Aevum row coupon — Bambu Lab {p['model']} / PLA, fewest-plates packing",
+        f"# Aevum row coupon — Bambu Lab {p['model']} / {material_title}, fewest-plates packing",
         "",
         f"- Machine preset: `{p['machine_preset']}` (bed {p['bed_x_mm']:.0f} x {p['bed_y_mm']:.0f} x {p['bed_z_mm']:.0f} mm; "
         f"packed into x {p['usable_area_mm'][0]:.0f}-{p['usable_area_mm'][2]:.0f}, y {p['usable_area_mm'][1]:.0f}-{p['usable_area_mm'][3]:.0f}, "
         f"the area every nozzle can reach, minus {len(p['exclusion_zones_mm'])} exclusion zone(s))",
         f"- Process base: `{p['process_preset']}` with overrides: 0.20 mm layers, 3 walls, 20% gyroid, 5 top / 4 bottom, 3 mm auto brim, no global support",
-        f"- Filament base: `{p['filament_preset']}` with overrides: {manifest['filament']['nozzle_c']} C nozzle, "
-        f"{manifest['filament']['first_layer_nozzle_c']} C first layer, {manifest['filament']['bed_c']} C bed on {manifest['filament']['bed_type']}, "
-        f"volumetric cap {manifest['filament']['max_volumetric_mm3_s']} mm³/s (≈{manifest['filament']['equivalent_speed_mm_s']:.0f} mm/s at 0.42 x 0.2)",
+        (
+            f"- Filament base: `{p['filament_preset']}` with overrides: {manifest['filament']['nozzle_c']} C nozzle, "
+            f"{manifest['filament']['first_layer_nozzle_c']} C first layer, {manifest['filament']['bed_c']} C bed on {manifest['filament']['bed_type']}, "
+            f"volumetric cap {manifest['filament']['max_volumetric_mm3_s']} mm³/s (≈{manifest['filament']['equivalent_speed_mm_s']:.0f} mm/s at 0.42 x 0.2)"
+            if not mats else
+            "- Materials (src/aevum_cad/row_coupon/materials.py), one per plate, each at its own preset temperatures, "
+            f"volumetric cap {manifest['filament']['max_volumetric_mm3_s']} mm³/s: "
+            + "; ".join(f"{m} `{v['preset']}` {v['nozzle_c']:.0f} C nozzle / {v['bed_c']:.0f} C bed, {v['bodies']} bodies" for m, v in mats.items())
+        ),
         f"- Packing: {manifest['packing']['margin_mm']:.0f} mm bed margin, {manifest['packing']['gap_mm']:.0f} mm object gap, 0/90° rotation only, "
         "functional Z axis preserved",
         f"- Sliced by BambuStudio {manifest['slicer']['version']} headless; presets flattened from the app bundle and stored beside this file",
         f"- Identity: every STL hashed against `docs/assembly/artifact_authority.json`; dispositions from `{manifest['authority']['mk4_manifest']}`",
-        f"- {manifest['counts']['plates']} plates carry all {manifest['counts']['rigid_bodies']} rigid PLA bodies. "
+        f"- {manifest['counts']['plates']} plates carry all {manifest['counts']['rigid_bodies']} rigid {material_title} bodies. "
         f"Auto build-plate-only support is enabled per object for the {len(manifest['support_bodies'])} bodies the MK4 package sliced with support "
         "(structural halves, deck pods, relief cap, lid shrouds); the 23 fine harness/service bodies stay support-free.",
         "- Dispositions are carried over unchanged from the MK4 package: `hold` bodies are still HOLD, they are just co-packed. "
@@ -587,20 +611,20 @@ def write_readme(out_dir: Path, manifest: dict[str, Any]) -> None:
         "- Send `<plate>.gcode.3mf` to the printer (Bambu Studio, Handy, or SD card). `<plate>.3mf` is the un-sliced project for edits.",
         "- Not covered: 8 flexible gaskets, COTS plates/mats, electronics, tubing, cables.",
         "",
-        "| Plate | Bodies | Est. time | Filament | Dispositions | Files |",
-        "|---|---:|---:|---:|---|---|",
+        "| Plate | Material | Bodies | Est. time | Filament | Dispositions | Files |",
+        "|---|---|---:|---:|---:|---|---|",
     ]
     for plate in manifest["plates"]:
         dispositions = sorted({b["disposition"] for b in plate["bodies"]})
         lines.append(
-            f"| `{plate['plate_name']}` | {len(plate['bodies'])} | {_fmt_hms(plate['slice']['estimated_seconds'])} | "
+            f"| `{plate['plate_name']}` | {plate.get('material', 'PLA')} | {len(plate['bodies'])} | {_fmt_hms(plate['slice']['estimated_seconds'])} | "
             f"{plate['slice']['filament_g']:.0f} g | {', '.join(dispositions)} | `{plate['slice']['gcode_3mf']}` |"
         )
         for b in plate["bodies"]:
             rot = " · rotated 90°" if b["rotation_z_deg"] else ""
             sup = " · support" if b["support"] else ""
             lines.append(
-                f"| &nbsp;&nbsp;`{b['release_body_id']}` |  |  |  | {b['disposition']} | "
+                f"| &nbsp;&nbsp;`{b['release_body_id']}` |  |  |  |  | {b['disposition']} | "
                 f"{b['footprint_mm'][0]:.1f} x {b['footprint_mm'][1]:.1f} mm at ({b['x_min_mm']:.1f}, {b['y_min_mm']:.1f}){rot}{sup} |"
             )
     (out_dir / "README.md").write_text("\n".join(lines) + "\n")
@@ -623,10 +647,16 @@ def main() -> None:
     parser.add_argument("--max-speed", type=float, default=70.0, help="MK4-equivalent speed cap, mm/s, applied as a volumetric limit")
     parser.add_argument("--bed-type", default="Textured PEI Plate", help="Bambu plate type written into the project (bed temp is forced to --bed-c for every plate type)")
     parser.add_argument("--plan-only", action="store_true", help="print the packing plan and exit without slicing")
+    parser.add_argument(
+        "--materials", action="store_true",
+        help="slice each body in its assigned material (materials.py): one material per plate, "
+        "each material's Bambu preset at its own temperatures; default output bambu_<printer>_asa_petg",
+    )
     args = parser.parse_args()
 
     printer = PRINTERS[args.printer]
-    out_dir = args.output_dir or ROOT / "outputs" / "sliced" / f"bambu_{args.printer}_pla"
+    suffix = "asa_petg" if args.materials else "pla"
+    out_dir = args.output_dir or ROOT / "outputs" / "sliced" / f"bambu_{args.printer}_{suffix}"
     if not args.plan_only:
         if out_dir.exists():
             stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
@@ -635,35 +665,59 @@ def main() -> None:
 
     machine = flatten_preset(args.bambu_app, printer["machine"])
     process = flatten_preset(args.bambu_app, printer["process"])
-    filament = flatten_preset(args.bambu_app, printer["filament"])
     process.update(PROCESS_OVERRIDES)
     volumetric = round(0.42 * 0.2 * args.max_speed, 1)
-    bed_temp_keys = [
-        k for k in filament
-        if k.endswith("_plate_temp") or k.endswith("_plate_temp_initial_layer")
-    ]
-    def _override(key: str, value: Any) -> None:
+
+    def _override(filament: dict[str, Any], key: str, value: Any) -> None:
         # Multi-extruder presets (H2D/H2S) carry one entry per extruder
         # variant; keep the list length so the filament still maps.
         current = filament.get(key)
         width = len(current) if isinstance(current, list) and current else 1
         filament[key] = [str(value)] * width
 
-    for key in bed_temp_keys:
-        _override(key, args.bed_c)
-    _override("nozzle_temperature", args.nozzle_c)
-    _override("nozzle_temperature_initial_layer", args.first_layer_nozzle_c)
-    _override("filament_max_volumetric_speed", volumetric)
+    def _first_float(value: Any) -> float:
+        return float(value[0] if isinstance(value, list) else value)
+
+    # material key (None = the PLA default) -> (preset name, flattened preset)
+    filaments: dict[str | None, tuple[str, dict[str, Any]]] = {}
+    if args.materials:
+        from aevum_cad.row_coupon.materials import MATERIALS
+
+        for key, spec in MATERIALS.items():
+            name = spec["bambu_filament"].get(args.printer)
+            if name is None:
+                raise SystemExit(f"no Bambu {key} filament preset recorded for {args.printer} in materials.py")
+            preset = flatten_preset(args.bambu_app, name)
+            # Keep the material's own temperatures; only cap flow at the MK4-parity limit.
+            if _first_float(preset.get("filament_max_volumetric_speed", volumetric)) > volumetric:
+                _override(preset, "filament_max_volumetric_speed", volumetric)
+            filaments[key] = (name, preset)
+    else:
+        preset = flatten_preset(args.bambu_app, printer["filament"])
+        for key in [k for k in preset if k.endswith("_plate_temp") or k.endswith("_plate_temp_initial_layer")]:
+            _override(preset, key, args.bed_c)
+        _override(preset, "nozzle_temperature", args.nozzle_c)
+        _override(preset, "nozzle_temperature_initial_layer", args.first_layer_nozzle_c)
+        _override(preset, "filament_max_volumetric_speed", volumetric)
+        filaments[None] = (printer["filament"], preset)
     process["curr_bed_type"] = args.bed_type
     bed = _bed_from_machine(machine)
     bed_x, bed_y, bed_z = bed["bed_x"], bed["bed_y"], bed["bed_z"]
     usable = bed["usable"]
 
-    bodies = load_bodies(args.input_dir, args.authority, args.mk4_manifest)
-    plates = pack_bodies(
-        bodies, usable=usable, bed_z=bed_z, margin=args.margin, gap=args.gap,
-        support_gap=args.support_gap, excludes=bed["excludes"],
-    )
+    bodies = load_bodies(args.input_dir, args.authority, args.mk4_manifest, materials=args.materials)
+    plates: list[Plate] = []
+    for material in filaments:  # one material per plate
+        group = [b for b in bodies if b.material == material]
+        for plate in pack_bodies(
+            group, usable=usable, bed_z=bed_z, margin=args.margin, gap=args.gap,
+            support_gap=args.support_gap, excludes=bed["excludes"],
+        ):
+            plate.index = len(plates) + 1
+            plate.material = material
+            plates.append(plate)
+    if sum(len(p.placements) for p in plates) != len(bodies):
+        raise AssertionError("a body has no material group")
     print(
         f"{args.printer}: bed {bed_x:.0f} x {bed_y:.0f} mm, usable x {usable[0]:.0f}-{usable[2]:.0f} y {usable[1]:.0f}-{usable[3]:.0f}"
         f" ({bed['extruders']} extruder{'s' if bed['extruders'] > 1 else ''}, {len(bed['excludes'])} exclusion zones), "
@@ -672,7 +726,7 @@ def main() -> None:
     for plate in plates:
         print(f"  {plate.name}: {len(plate.placements)} bodies")
         for pl in plate.placements:
-            print(f"    {pl.body.body_id:<75} {pl.footprint_x:6.1f} x {pl.footprint_y:6.1f} at ({pl.x_min:6.1f}, {pl.y_min:6.1f}) rot {pl.rotation_z_deg:>2} {pl.body.disposition}")
+            print(f"    {pl.body.body_id:<75} {pl.footprint_x:6.1f} x {pl.footprint_y:6.1f} at ({pl.x_min:6.1f}, {pl.y_min:6.1f}) rot {pl.rotation_z_deg:>2} {pl.body.disposition} {pl.body.material or ''}")
     if args.plan_only:
         return
 
@@ -680,10 +734,13 @@ def main() -> None:
     preset_dir.mkdir()
     machine_path = preset_dir / "machine.json"
     process_path = preset_dir / "process.json"
-    filament_path = preset_dir / "filament.json"
     machine_path.write_text(json.dumps(machine, indent=1))
     process_path.write_text(json.dumps(process, indent=1))
-    filament_path.write_text(json.dumps(filament, indent=1))
+    filament_paths: dict[str | None, Path] = {}
+    for material, (_, preset) in filaments.items():
+        path = preset_dir / (f"filament_{material.lower()}.json" if material else "filament.json")
+        path.write_text(json.dumps(preset, indent=1))
+        filament_paths[material] = path
 
     plate_records: list[dict[str, Any]] = []
     with tempfile.TemporaryDirectory(prefix="aevum-bambu-") as tmp:
@@ -692,11 +749,13 @@ def main() -> None:
             print(f"slicing {plate.name} ...", flush=True)
             slice_info = slice_plate(
                 app=args.bambu_app, plate=plate, out_dir=out_dir,
-                settings=[machine_path, process_path], filament=filament_path, work=work, machine=machine,
+                settings=[machine_path, process_path], filament=filament_paths[plate.material], work=work, machine=machine,
             )
             plate_records.append({
                 "plate_id": f"plate_{plate.index:02d}",
                 "plate_name": plate.name,
+                "material": plate.material or "PLA",
+                "filament_preset": filaments[plate.material][0],
                 "bodies": [
                     {
                         "release_body_id": pl.body.body_id,
@@ -717,7 +776,7 @@ def main() -> None:
 
     manifest = {
         "schema_version": 1,
-        "package_id": f"row_coupon_bambu_{args.printer}_pla",
+        "package_id": f"row_coupon_bambu_{args.printer}_{suffix}",
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "authority": {
             "artifact_registry": str(args.authority.relative_to(ROOT)) if args.authority.is_relative_to(ROOT) else str(args.authority),
@@ -733,7 +792,7 @@ def main() -> None:
             "model": machine.get("printer_model"),
             "machine_preset": printer["machine"],
             "process_preset": printer["process"],
-            "filament_preset": printer["filament"],
+            "filament_preset": " + ".join(name for name, _ in filaments.values()),
             "bed_x_mm": bed_x, "bed_y_mm": bed_y, "bed_z_mm": bed_z,
             "usable_area_mm": list(usable),
             "exclusion_zones_mm": [list(e) for e, _ in bed["excludes"]],
@@ -742,6 +801,17 @@ def main() -> None:
         "filament": {
             "bed_type": args.bed_type, "nozzle_c": args.nozzle_c, "first_layer_nozzle_c": args.first_layer_nozzle_c, "bed_c": args.bed_c,
             "max_volumetric_mm3_s": volumetric, "equivalent_speed_mm_s": args.max_speed,
+        } if not args.materials else {
+            "bed_type": args.bed_type, "max_volumetric_mm3_s": volumetric, "equivalent_speed_mm_s": args.max_speed,
+            "materials": {
+                m: {
+                    "preset": name,
+                    "nozzle_c": _first_float(preset.get("nozzle_temperature", 0)),
+                    "bed_c": _first_float(preset.get("textured_plate_temp", preset.get("hot_plate_temp", 0))),
+                    "bodies": sum(1 for b in bodies if b.material == m),
+                }
+                for m, (name, preset) in filaments.items()
+            },
         },
         "packing": {"margin_mm": args.margin, "gap_mm": args.gap, "support_gap_mm": args.support_gap, "rotations_deg": [0, 90]},
         "counts": {"plates": len(plates), "rigid_bodies": len(bodies)},

@@ -29,6 +29,7 @@ from aevum_cad.row_coupon.assembly import (
 )
 from aevum_cad.row_coupon.final_print_pieces import realize_row_coupon_final_print_pieces
 from aevum_cad.row_coupon.layout import row_coupon_layout
+from aevum_cad.row_coupon.materials import MATERIALS, PART_MATERIALS
 from aevum_cad.row_coupon.parts.microplate_detail import (
     build_microplates_96_detailed,
     slas_384_footprints,
@@ -132,6 +133,8 @@ def main() -> int:
                 "printed": classes[name] == "printed",
                 "class": classes[name],
                 "install_state": states.get(name),
+                "material": PART_MATERIALS[name][0] if name in PART_MATERIALS else None,
+                "material_reason": PART_MATERIALS[name][1] if name in PART_MATERIALS else None,
             }
         )
         print(f"  {name:42s} {classes[name]:11s} {len(mesh.triangles):7d} tris", flush=True)
@@ -297,6 +300,10 @@ def main() -> int:
         ],
         "envelopes": envelope_meta,
         "consumables": consumables,
+        "materials": {
+            k: {"label": v["label"], "zh": v["zh"], "softening_c": v["softening_c"]}
+            for k, v in MATERIALS.items()
+        },
         "plates_per_row": len(row_coupon_layout(params)["tile_origins"]),
         "assembly": assembly_meta,
         "layouts": layouts,

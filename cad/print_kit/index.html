@@ -50,7 +50,7 @@ aside{border-right:1px solid var(--line);background:var(--panel);display:flex;fl
 .presets button:hover,.btn:hover{border-color:var(--accent);color:var(--ink)}
 .count{color:var(--ink-3);font-size:11.5px}
 .list{overflow:auto;flex:1;padding:6px 0}
-.row{display:grid;grid-template-columns:18px 12px 1fr auto;align-items:center;gap:8px;padding:4px 12px;cursor:pointer;border-left:3px solid transparent}
+.row{display:grid;grid-template-columns:18px 12px minmax(0,1fr) auto;align-items:center;gap:8px;padding:4px 12px;cursor:pointer;border-left:3px solid transparent}
 .row:hover{background:var(--panel-2)}
 .row.sel{border-left-color:var(--sel);background:var(--accent-soft)}
 .row input{margin:0;accent-color:var(--accent)}
@@ -61,11 +61,12 @@ aside{border-right:1px solid var(--line);background:var(--panel);display:flex;fl
 .tag.printed{background:var(--accent-soft);color:var(--accent-ink)}
 .tag.seal,.tag.electronics,.tag.consumable,.tag.hardware{background:var(--panel-2);color:var(--ink-2)}
 .tag.consumable{font-style:italic}
+.tag.mat{background:transparent;border:1px solid var(--line-2);color:var(--ink)}
 .tag.hold{background:var(--hold-soft);color:var(--hold)}
 .tag.coupon-first{background:var(--warn-soft);color:var(--warn)}
 .tag.print-now-test-article{background:var(--ok-soft);color:var(--ok)}
 .plate{margin-top:8px}
-.plate-h{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;padding:6px 12px 4px;cursor:pointer;border-top:1px solid var(--line)}
+.plate-h{display:grid;grid-template-columns:18px minmax(0,1fr) auto;gap:8px;align-items:center;padding:6px 12px 4px;cursor:pointer;border-top:1px solid var(--line)}
 .plate-h:hover{background:var(--panel-2)}
 .plate-h .t{font-weight:600;font-size:12.5px}
 .plate-h .f{color:var(--ink-3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -438,7 +439,7 @@ let current = 'asm', selected = null, currentLayout = meta.layouts[0].key;
 const list = $('list'), info = $('info');
 const short = (s) => s.replace(/_y_(\d+)p(\d+)_to_(\d+)p(\d+)$/, (m, a, b, c, d) => ` y${a}.${b.slice(0,1)}–${c}.${d.slice(0,1)}`).replace(/_piece_(\d+)_of_(\d+)/, ' · $1/$2').replaceAll('_', ' ');
 const fmt = (n) => n.toFixed(1);
-const CLASS_TEXT = { printed: 'printed PLA', seal: 'compliant seal (cast or cut)', electronics: 'COTS electronics: sensor, PCB, harness or connector', consumable: 'consumable: microplate or septum mat', hardware: 'COTS hardware: tubing' };
+const CLASS_TEXT = { printed: 'printed part', seal: 'compliant seal (cast or cut)', electronics: 'COTS electronics: sensor, PCB, harness or connector', consumable: 'consumable: microplate or septum mat', hardware: 'COTS hardware: tubing' };
 
 function setVisible(key, name, on) { for (const m of meshes[key].get(name) || []) m.visible = on; }
 function highlight(key, name) {
@@ -675,7 +676,7 @@ function renderAssemblyList() {
     const g = document.createElement('div'); g.className = 'grp';
     g.innerHTML = `<b>${s.state_id.split('_')[0]}</b> ${s.label}<span class="st ${statusKind(s.status)}">${statusKind(s.status) === 'entry' ? '' : statusKind(s.status)}</span>`;
     g.title = statusText(s.status); list.appendChild(g);
-    for (const a of parts) list.appendChild(asmRowEl(a.name, a.rgb, [a.class, a.class], pretty(a.name), 'part'));
+    for (const a of parts) list.appendChild(asmRowEl(a.name, a.rgb, [a.class, a.material || a.class], pretty(a.name), 'part'));
   });
   if (envelopes.length) {
     const g = document.createElement('div'); g.className = 'grp';
@@ -712,6 +713,7 @@ function renderPlatesList() {
     const est = p.estimated_seconds ? ` · ${fmtHms(p.estimated_seconds)} · ${Math.round(p.filament_g)} g` : '';
     t.innerHTML = `<div class="t">${p.plate_id.replace('plate_', 'Plate ')} <span class="p">· ${p.body_ids.length} bodies${est}</span></div><div class="f mono">${p.gcode}</div>`;
     const tags = document.createElement('div'); tags.style.display = 'flex'; tags.style.gap = '4px';
+    if (p.material) { const mt = document.createElement('span'); mt.className = 'tag mat'; mt.textContent = p.material; mt.title = p.filament_preset || p.material; tags.appendChild(mt); }
     for (const d of new Set(p.dispositions)) { const sp = document.createElement('span'); sp.className = 'tag ' + d; sp.textContent = d.replace('-test-article', ''); tags.appendChild(sp); }
     h.append(cb, t, tags);
     h.onclick = () => { showPlateInfo(p); fitTo(views[currentLayout].children.filter(o => o.userData.bed === p.plate_id).concat(p.body_ids.flatMap(n => meshes[currentLayout].get(n) || [])), true, 1.05); highlight(currentLayout, null); };
@@ -741,6 +743,7 @@ function showInfo(key, name) {
     const pieces = layoutByKey.get(currentLayout).pieces.filter(p => p.source === name);
     info.innerHTML = `<h3>${name}</h3><dl>
       <dt>Class</dt><dd>${CLASS_TEXT[a.class] || a.class}</dd>
+      ${a.material ? `<dt>Material</dt><dd><b>${a.material}</b> · ${a.material_reason}</dd>` : ''}
       ${a.install_state ? `<dt>Installed at</dt><dd><span class="mono">${a.install_state.split('_')[0]}</span> ${states[partIdx.get(name)].label} · <span class="st">${statusText(states[partIdx.get(name)].status)}</span></dd>` : ''}
       ${a.lenses ? `<dt>Lenses</dt><dd>${a.lenses.map(k => lensByKey.get(k).label).join(' · ')}</dd>` : ''}
       ${consumableInfo(name)}
@@ -764,6 +767,7 @@ function showInfo(key, name) {
       <dt>Layout</dt><dd>${lay.label}</dd>
       <dt>Plate</dt><dd>${p.plate_id.replace('plate_', 'Plate ')} · <span class="mono">${plate.gcode}</span></dd>
       <dt>Disposition</dt><dd><span class="tag ${p.disposition}">${p.disposition}</span></dd>
+      ${p.material ? `<dt>Material</dt><dd>${p.material}${plate.filament_preset ? ` · <span class="mono">${plate.filament_preset}</span>` : ''}</dd>` : ''}
       <dt>Source part</dt><dd>${p.source.replaceAll('_', ' ')}${p.piece_count > 1 ? ` · piece ${p.piece_index} of ${p.piece_count}` : ''}</dd>
       <dt>Bed footprint</dt><dd class="mono">${fmt(f[0])} × ${fmt(f[1])} mm · ${fmt(f[2])} mm tall${p.rotation_z_deg ? ' · rotated 90°' : ''}</dd>
     </dl>`;
@@ -788,6 +792,7 @@ function showPlateInfo(p) {
     <dt>G-code</dt><dd class="mono">${p.gcode}</dd>
     <dt>Project</dt><dd class="mono">${p.project}</dd>
     <dt>Bodies</dt><dd>${p.body_ids.length}</dd>
+    ${p.material ? `<dt>Material</dt><dd>${p.material}${p.filament_preset ? ` · <span class="mono">${p.filament_preset}</span>` : ''}</dd>` : ''}
     ${p.estimated_seconds ? `<dt>Estimate</dt><dd>${fmtHms(p.estimated_seconds)} · ${Math.round(p.filament_g)} g</dd>` : ''}
     <dt>Support</dt><dd>${p.support ? (p.support_markers ? `present · ${p.support_markers} decoded markers` : 'per-object auto, build plate only') : 'none'}</dd>
     <dt>Profile</dt><dd>${p.profile.replaceAll('_', ' ')}</dd>
