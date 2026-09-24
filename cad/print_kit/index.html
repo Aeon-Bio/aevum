@@ -1,0 +1,507 @@
+<title>Row Coupon Print Kit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#eef0f3;--panel:#f7f8fa;--panel-2:#e6e9ee;--line:#cfd5dd;--line-2:#b8c0ca;
+  --ink:#1c2128;--ink-2:#4a5561;--ink-3:#7a8694;
+  --accent:#c2681a;--accent-ink:#8a4610;--accent-soft:#f4e3d2;
+  --ok:#2c7a4b;--ok-soft:#dcefe3;--warn:#9a6a10;--warn-soft:#f6ead0;--hold:#a4353a;--hold-soft:#f5dcdd;
+  --canvas:#e3e6ea;--grid:#c5cbd3;--bed:#d8dde4;
+  --sel:#c2681a;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15181c;--panel:#1c2026;--panel-2:#242a31;--line:#2f3741;--line-2:#3f4954;
+    --ink:#e6eaef;--ink-2:#aab4bf;--ink-3:#77828e;
+    --accent:#e08a3c;--accent-ink:#f0b47a;--accent-soft:#3a2a1a;
+    --ok:#5cc084;--ok-soft:#1c3326;--warn:#dcb050;--warn-soft:#382d14;--hold:#e26b70;--hold-soft:#3b1f21;
+    --canvas:#1a1e23;--grid:#2c333c;--bed:#232930;
+    --sel:#e08a3c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15181c;--panel:#1c2026;--panel-2:#242a31;--line:#2f3741;--line-2:#3f4954;
+  --ink:#e6eaef;--ink-2:#aab4bf;--ink-3:#77828e;
+  --accent:#e08a3c;--accent-ink:#f0b47a;--accent-soft:#3a2a1a;
+  --ok:#5cc084;--ok-soft:#1c3326;--warn:#dcb050;--warn-soft:#382d14;--hold:#e26b70;--hold-soft:#3b1f21;
+  --canvas:#1a1e23;--grid:#2c333c;--bed:#232930;
+  --sel:#e08a3c;
+}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;line-height:1.45}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr;padding-inline:0}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:15px;font-weight:600;margin:0;letter-spacing:-.01em}
+header h1 small{font-weight:400;color:var(--ink-3);margin-left:8px}
+.tabs{display:flex;gap:2px;background:var(--panel-2);border-radius:6px;padding:2px}
+.tabs button{border:0;background:transparent;color:var(--ink-2);font:inherit;font-weight:500;padding:5px 12px;border-radius:4px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.tabs button:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.prov{margin-left:auto;color:var(--ink-3);font-size:11.5px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.prov b{color:var(--ink-2);font-weight:500}
+main{display:grid;grid-template-columns:320px 1fr;min-height:0}
+aside{border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;min-height:0}
+.side-head{padding:10px 12px 8px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button,.btn{border:1px solid var(--line-2);background:var(--panel);color:var(--ink-2);font:inherit;font-size:12px;padding:3px 9px;border-radius:4px;cursor:pointer}
+.presets button:hover,.btn:hover{border-color:var(--accent);color:var(--ink)}
+.count{color:var(--ink-3);font-size:11.5px}
+.list{overflow:auto;flex:1;padding:6px 0}
+.row{display:grid;grid-template-columns:18px 12px 1fr auto;align-items:center;gap:8px;padding:4px 12px;cursor:pointer;border-left:3px solid transparent}
+.row:hover{background:var(--panel-2)}
+.row.sel{border-left-color:var(--sel);background:var(--accent-soft)}
+.row input{margin:0;accent-color:var(--accent)}
+.sw{width:12px;height:12px;border-radius:2px;border:1px solid rgba(0,0,0,.25)}
+.row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px}
+.row .nm.mono{font-size:11.5px}
+.tag{font-size:10px;letter-spacing:.04em;text-transform:uppercase;padding:1px 6px;border-radius:3px;font-weight:500;white-space:nowrap}
+.tag.printed{background:var(--accent-soft);color:var(--accent-ink)}
+.tag.seal,.tag.electronics,.tag.consumable,.tag.hardware{background:var(--panel-2);color:var(--ink-2)}
+.tag.consumable{font-style:italic}
+.tag.hold{background:var(--hold-soft);color:var(--hold)}
+.tag.coupon-first{background:var(--warn-soft);color:var(--warn)}
+.tag.print-now-test-article{background:var(--ok-soft);color:var(--ok)}
+.plate{margin-top:8px}
+.plate-h{display:grid;grid-template-columns:18px 1fr auto;gap:8px;align-items:center;padding:6px 12px 4px;cursor:pointer;border-top:1px solid var(--line)}
+.plate-h:hover{background:var(--panel-2)}
+.plate-h .t{font-weight:600;font-size:12.5px}
+.plate-h .f{color:var(--ink-3);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plate-h .p{font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.04em}
+.plate .row{padding-left:30px}
+.info{border-top:1px solid var(--line);padding:10px 12px;font-size:12px;min-height:88px;max-height:34%;overflow:auto}
+.info h3{margin:0 0 4px;font-size:12.5px;font-weight:600;word-break:break-all}
+.info dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0}
+.info dt{color:var(--ink-3)}
+.info dd{margin:0}
+.stage{position:relative;min-height:0;background:var(--canvas)}
+canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:12px;bottom:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.hud .tip{background:var(--panel);border:1px solid var(--line);padding:4px 8px;border-radius:4px;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.hud .legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--ink-2)}
+.hud .legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.legend .l-ok::before{background:var(--ok)}.legend .l-cf::before{background:var(--warn)}.legend .l-hold::before{background:var(--hold)}
+.ctl{position:absolute;right:12px;top:12px;display:flex;gap:6px}
+.ctl .btn{background:var(--panel)}
+.loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-2);font-size:13px;background:var(--canvas)}
+.loading .bar{width:220px;height:4px;background:var(--panel-2);border-radius:2px;overflow:hidden;margin-top:8px}
+.loading .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+.side-toggle{display:none}
+@media (max-width:760px){
+  main{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  aside{order:2;border-right:0;border-top:1px solid var(--line);max-height:46vh}
+  header{padding-inline:16px}
+  .prov{margin-left:0;width:100%}
+}
+@media (prefers-reduced-motion:reduce){.loading .bar i{transition:none}}
+</style>
+
+<div class="app">
+  <header>
+    <h1>Row Coupon Print Kit <small>aevum_one_row_coupon · 4-tile prototype · H2S · H2D · P1S · MK4</small></h1>
+    <div class="tabs" role="tablist">
+      <button role="tab" id="tab-asm" aria-selected="true" data-tab="asm">Installed assembly</button>
+      <button role="tab" id="tab-plates" aria-selected="false" data-tab="plates">Print plates</button>
+    </div>
+    <div class="tabs" id="layouts" role="tablist" aria-label="Slicer layout" hidden></div>
+    <div class="prov" id="prov"></div>
+  </header>
+  <main>
+    <aside>
+      <div class="side-head">
+        <div class="presets" id="presets"></div>
+        <div class="count" id="count"></div>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="info" id="info"><h3>Nothing selected</h3><div class="count">Click a part to fit the camera to it. Checkboxes hide or show. Drag to orbit, right-drag to pan, wheel to zoom.</div></div>
+    </aside>
+    <div class="stage" id="stage">
+      <div class="ctl">
+        <button class="btn" id="fit">Fit view</button>
+        <button class="btn" id="top">Top</button>
+        <button class="btn" id="iso">Iso</button>
+      </div>
+      <div class="hud">
+        <div class="tip" id="tip" hidden></div>
+        <div class="legend" id="legend" hidden><span class="l-ok">print-now test article</span><span class="l-cf">coupon-first</span><span class="l-hold">hold</span></div>
+      </div>
+      <div class="loading" id="loading"><div>Loading meshes<div class="bar"><i id="bar"></i></div></div></div>
+    </div>
+  </main>
+</div>
+
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $ = (id) => document.getElementById(id);
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const fail = (msg) => { const el = document.getElementById('loading'); el.hidden = false; el.innerHTML = '<div style="max-width:460px;padding:0 16px"><b>Could not load the model.</b><br>' + msg + '<br><br>Reload the page. If it persists, the published files may be out of date.</div>'; };
+window.addEventListener('error', (e) => fail(String(e.message || e.error)));
+window.addEventListener('unhandledrejection', (e) => fail(String(e.reason && e.reason.message || e.reason)));
+const metaResp = await fetch('meta.json', { cache: 'no-store' });
+if (!metaResp.ok) throw new Error('meta.json ' + metaResp.status);
+const meta = await metaResp.json();
+if (!Array.isArray(meta.layouts)) throw new Error('meta.json is an older version without layouts');
+
+// ---------- provenance ----------
+function renderProv(lay) {
+  $('prov').innerHTML = lay
+    ? `<span><b>G-code</b> <span class="mono">${lay.sliced_dir}/</span></span>` +
+      `<span><b>Sliced</b> ${lay.generated_at_utc.slice(0,16).replace('T',' ')}Z · ${lay.slicer}</span>` +
+      `<span><b>Plates</b> ${lay.plates.length} · <b>rigid bodies</b> ${lay.pieces.length}</span>` +
+      (lay.slice_verified ? `<span><b>Slice check</b> ${lay.slice_verified.bodies_matching_live_model}/${lay.slice_verified.bodies} STLs match the model</span>` : '')
+    : `<span><b>Params</b> <span class="mono">${meta.params_sha256.slice(0,12)}</span></span>` +
+      `<span><b>Source</b> <span class="mono">${meta.source_revision || '?'}</span> · built ${meta.generated_at_utc.slice(0,16).replace('T',' ')}Z</span>` +
+      `<span><b>Rigid bodies</b> ${meta.counts.rigid_bodies} · ${meta.layouts.map(l => l.label).join(' · ')}</span>`;
+}
+renderProv(null);
+
+// ---------- three setup ----------
+const stage = $('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(38, 1, 1, 20000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true; controls.dampingFactor = 0.12;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x556070, 1.35));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(300, -400, 600); scene.add(sun);
+const fill = new THREE.DirectionalLight(0xffffff, 0.5); fill.position.set(-400, 300, 200); scene.add(fill);
+
+const views = { asm: new THREE.Group() };
+for (const lay of meta.layouts) { views[lay.key] = new THREE.Group(); views[lay.key].visible = false; }
+scene.add(...Object.values(views));
+
+function applyTheme() {
+  scene.background = new THREE.Color(css('--canvas'));
+  for (const g of Object.values(views)) g.traverse(o => { if (o.userData.themed) o.material.color.set(css(o.userData.themed)); });
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+
+// ---------- loading ----------
+const meshes = { asm: new Map() };
+const progress = { asm: 0 };
+for (const lay of meta.layouts) { meshes[lay.key] = new Map(); progress[lay.key] = 0; }
+// Minimal glTF reader for the viewer's own export: one embedded base64 buffer,
+// float32 POSITION accessors, uint32 indices, one TRIANGLES + one LINES primitive per named node.
+// (The artifact sandbox blocks fetch() of data: URLs, so three's GLTFLoader cannot be used here.)
+function decodeBase64(b64) {
+  const bin = atob(b64), out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out.buffer;
+}
+function parseGltf(text) {
+  const j = JSON.parse(text);
+  const uri = j.buffers[0].uri;
+  const buf = decodeBase64(uri.slice(uri.indexOf(',') + 1));
+  const accessor = (i) => {
+    const a = j.accessors[i], v = j.bufferViews[a.bufferView];
+    const off = (v.byteOffset || 0) + (a.byteOffset || 0);
+    const n = a.type === 'VEC3' ? 3 : 1;
+    if (a.componentType === 5126) return new THREE.BufferAttribute(new Float32Array(buf, off, a.count * n), n);
+    if (a.componentType === 5125) return new THREE.BufferAttribute(new Uint32Array(buf, off, a.count * n), n);
+    if (a.componentType === 5123) return new THREE.BufferAttribute(new Uint16Array(buf, off, a.count * n), n);
+    throw new Error('unsupported accessor componentType ' + a.componentType);
+  };
+  const out = [];
+  for (const node of j.nodes) {
+    if (node.mesh == null) continue;
+    const entry = { name: node.name, tris: null, lines: null };
+    for (const prim of j.meshes[node.mesh].primitives) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', accessor(prim.attributes.POSITION));
+      if (prim.indices != null) geo.setIndex(accessor(prim.indices));
+      if ((prim.mode ?? 4) === 4) entry.tris = geo; else if (prim.mode === 1) entry.lines = geo;
+    }
+    out.push(entry);
+  }
+  return out;
+}
+
+async function load(key, url, meta_by_name) {
+  const resp = await fetch(url, { cache: 'no-store' });
+  if (!resp.ok) throw new Error('failed to load ' + url + ': HTTP ' + resp.status);
+  const text = await resp.text();
+  let entries;
+  try { entries = parseGltf(text); } catch (err) { throw new Error('failed to parse ' + url + ': ' + (err && err.message || err)); }
+  for (const e of entries) {
+    const m = meta_by_name.get(e.name);
+    if (!m || !e.tris) continue;
+    const rgb = m.rgb, alpha = m.alpha != null ? m.alpha : 1;
+    e.tris.computeVertexNormals();
+    const mesh = new THREE.Mesh(e.tris, new THREE.MeshStandardMaterial({
+      color: new THREE.Color(rgb[0], rgb[1], rgb[2]), roughness: 0.62, metalness: 0.05,
+      transparent: alpha < 1, opacity: alpha, depthWrite: alpha >= 0.7, side: THREE.DoubleSide,
+      polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1,
+    }));
+    mesh.name = e.name; mesh.userData.name = e.name;
+    if (e.lines) {
+      const edges = new THREE.LineSegments(e.lines, new THREE.LineBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.28 }));
+      edges.raycast = () => {};
+      mesh.add(edges);
+    }
+    views[key].add(mesh);
+    meshes[key].set(e.name, [mesh]);
+  }
+  progress[key] = 1;
+  const vals = Object.values(progress); $('bar').style.width = (vals.reduce((a, b) => a + b, 0) / vals.length * 100) + '%';
+}
+
+const asmByName = new Map(meta.assembly.map(a => [a.name, a]));
+const layoutByKey = new Map(meta.layouts.map(l => [l.key, l]));
+const pieceMaps = new Map(meta.layouts.map(l => [l.key, new Map(l.pieces.map(p => [p.name, p]))]));
+await load('asm', 'assembly.gltf.json', asmByName);
+$('loading').hidden = true;
+const layoutsReady = Promise.all(meta.layouts.map(l => load(l.key, l.file, pieceMaps.get(l.key)))).then(() => { layoutsLoaded = true; if (current !== 'asm') switchTab('plates'); });
+let layoutsLoaded = false;
+
+// ---------- ground / beds ----------
+{
+  const b = new THREE.Box3().setFromObject(views.asm);
+  const grid = new THREE.GridHelper(600, 60, 0x000000, 0x000000);
+  grid.rotation.x = Math.PI / 2; grid.position.set((b.min.x + b.max.x) / 2, (b.min.y + b.max.y) / 2, b.min.z - 0.5);
+  grid.material.transparent = true; grid.material.opacity = 0.35; grid.material.color.set(css('--grid')); grid.userData.themed = '--grid';
+  views.asm.add(grid);
+}
+for (const lay of meta.layouts) {
+  const [bx, by] = lay.bed;
+  for (const p of lay.plates) {
+    const [ox, oy] = p.origin;
+    const bed = new THREE.Mesh(new THREE.PlaneGeometry(bx, by), new THREE.MeshBasicMaterial({ color: css('--bed') }));
+    bed.position.set(ox + bx / 2, oy + by / 2, -0.6); bed.userData.themed = '--bed'; bed.userData.bed = p.plate_id;
+    views[lay.key].add(bed);
+    const outline = new THREE.LineSegments(new THREE.EdgesGeometry(bed.geometry), new THREE.LineBasicMaterial({ color: css('--grid') }));
+    outline.position.copy(bed.position); outline.position.z = -0.4; outline.userData.themed = '--grid';
+    views[lay.key].add(outline);
+    const [ux0, uy0, ux1, uy1] = lay.usable;
+    if (ux1 - ux0 < bx - 0.5 || uy1 - uy0 < by - 0.5) {
+      const u = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(ux1 - ux0, uy1 - uy0)), new THREE.LineDashedMaterial({ color: css('--hold'), dashSize: 4, gapSize: 3 }));
+      u.position.set(ox + (ux0 + ux1) / 2, oy + (uy0 + uy1) / 2, -0.3); u.computeLineDistances(); views[lay.key].add(u);
+    }
+    for (const [ex0, ey0, ex1, ey1] of lay.excludes) {
+      const z = new THREE.Mesh(new THREE.PlaneGeometry(ex1 - ex0, ey1 - ey0), new THREE.MeshBasicMaterial({ color: css('--hold'), transparent: true, opacity: 0.18 }));
+      z.position.set(ox + (ex0 + ex1) / 2, oy + (ey0 + ey1) / 2, -0.35); views[lay.key].add(z);
+    }
+    const c = document.createElement('canvas'); c.width = 512; c.height = 96;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#000'; ctx.globalAlpha = 0.55; ctx.font = '600 44px IBM Plex Mono, monospace'; ctx.fillText(p.plate_id.replace('plate_', 'PLATE '), 8, 60);
+    const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+    const label = new THREE.Mesh(new THREE.PlaneGeometry(80, 15), new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false }));
+    label.position.set(ox + 44, oy + by + 11, 0); views[lay.key].add(label);
+  }
+}
+applyTheme();
+
+// ---------- camera ----------
+function fitTo(objs, iso = true, pad = 1.15) {
+  const box = new THREE.Box3();
+  for (const o of objs) box.expandByObject(o);
+  if (box.isEmpty()) return;
+  const size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  const r = Math.max(size.x, size.y, size.z) * 0.5 * pad;
+  const dist = r / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2));
+  const dir = iso ? new THREE.Vector3(1, -1.1, 0.75).normalize() : new THREE.Vector3(0, -0.0001, 1).normalize();
+  camera.position.copy(c).addScaledVector(dir, dist);
+  camera.near = dist / 200; camera.far = dist * 20; camera.updateProjectionMatrix();
+  controls.target.copy(c); controls.update();
+}
+function visibleMeshes(key) { const out = []; for (const arr of meshes[key].values()) for (const m of arr) if (m.visible) out.push(m); return out; }
+$('fit').onclick = () => fitTo(visibleMeshes(current));
+$('iso').onclick = () => fitTo(visibleMeshes(current), true);
+$('top').onclick = () => fitTo(visibleMeshes(current), false);
+
+// ---------- sidebar ----------
+let current = 'asm', selected = null, currentLayout = meta.layouts[0].key;
+const list = $('list'), info = $('info');
+const short = (s) => s.replace(/_y_(\d+)p(\d+)_to_(\d+)p(\d+)$/, (m, a, b, c, d) => ` y${a}.${b.slice(0,1)}–${c}.${d.slice(0,1)}`).replace(/_piece_(\d+)_of_(\d+)/, ' · $1/$2').replaceAll('_', ' ');
+const fmt = (n) => n.toFixed(1);
+const CLASS_TEXT = { printed: 'printed PLA', seal: 'compliant seal (cast or cut)', electronics: 'COTS electronics: sensor, PCB, harness or connector', consumable: 'consumable: microplate or septum mat', hardware: 'COTS hardware: tubing' };
+
+function setVisible(key, name, on) { for (const m of meshes[key].get(name) || []) m.visible = on; }
+function highlight(key, name) {
+  for (const [n, arr] of meshes[key]) for (const m of arr) {
+    const on = n === name;
+    m.material.emissive = m.material.emissive || new THREE.Color();
+    m.material.emissive.set(on ? css('--sel') : '#000000'); m.material.emissiveIntensity = on ? 0.35 : 0;
+  }
+  selected = name;
+  for (const r of list.querySelectorAll('.row')) r.classList.toggle('sel', r.dataset.name === name);
+}
+function updateCount() {
+  const total = meshes[current].size, vis = [...meshes[current].values()].filter(a => a[0].visible).length;
+  $('count').textContent = current === 'asm' ? `${vis} of ${total} installed parts shown` : `${vis} of ${total} print bodies shown`;
+}
+
+function renderAssemblyList() {
+  list.innerHTML = '';
+  $('legend').hidden = true;
+  $('presets').innerHTML = '';
+  const presets = [
+    ['Show all', () => meta.assembly.forEach(a => setVisible('asm', a.name, true))],
+    ['Printed only', () => meta.assembly.forEach(a => setVisible('asm', a.name, a.printed))],
+    ['Remove lid stack', () => meta.assembly.forEach(a => setVisible('asm', a.name, !/^lid_|^printed_lid|^upper_gasket|^headspace|^cots_septum|^cots_gas/.test(a.name)))],
+    ['Deck + pods', () => meta.assembly.forEach(a => setVisible('asm', a.name, /^deck_pods|^plate_support_frame|^ir_therm/.test(a.name)))],
+  ];
+  for (const [label, fn] of presets) { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { fn(); syncChecks(); updateCount(); }; $('presets').appendChild(b); }
+  for (const a of meta.assembly) list.appendChild(rowEl('asm', a.name, a.rgb, [a.class, a.class], a.name.replaceAll('_', ' ')));
+  updateCount();
+}
+function renderPlatesList() {
+  const lay = layoutByKey.get(currentLayout), pieceByName = pieceMaps.get(currentLayout);
+  list.innerHTML = '';
+  $('legend').hidden = false;
+  $('presets').innerHTML = '';
+  const presets = [
+    ['Show all', () => lay.pieces.forEach(p => setVisible(currentLayout, p.name, true))],
+    ['Print-now only', () => lay.pieces.forEach(p => setVisible(currentLayout, p.name, p.disposition.startsWith('print-now')))],
+    ['Hide held', () => lay.pieces.forEach(p => setVisible(currentLayout, p.name, p.disposition !== 'hold'))],
+  ];
+  for (const [label, fn] of presets) { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { fn(); syncChecks(); updateCount(); }; $('presets').appendChild(b); }
+  for (const p of lay.plates) {
+    const wrap = document.createElement('div'); wrap.className = 'plate';
+    const h = document.createElement('div'); h.className = 'plate-h';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = true; cb.id = 'cb_' + currentLayout + '_' + p.plate_id;
+    cb.onclick = (e) => { e.stopPropagation(); p.body_ids.forEach(n => setVisible(currentLayout, n, cb.checked)); syncChecks(); updateCount(); };
+    const t = document.createElement('div');
+    const est = p.estimated_seconds ? ` · ${fmtHms(p.estimated_seconds)} · ${Math.round(p.filament_g)} g` : '';
+    t.innerHTML = `<div class="t">${p.plate_id.replace('plate_', 'Plate ')} <span class="p">· ${p.body_ids.length} bodies${est}</span></div><div class="f mono">${p.gcode}</div>`;
+    const tags = document.createElement('div'); tags.style.display = 'flex'; tags.style.gap = '4px';
+    for (const d of new Set(p.dispositions)) { const sp = document.createElement('span'); sp.className = 'tag ' + d; sp.textContent = d.replace('-test-article', ''); tags.appendChild(sp); }
+    h.append(cb, t, tags);
+    h.onclick = () => { showPlateInfo(p); fitTo(views[currentLayout].children.filter(o => o.userData.bed === p.plate_id).concat(p.body_ids.flatMap(n => meshes[currentLayout].get(n) || [])), true, 1.05); highlight(currentLayout, null); };
+    wrap.appendChild(h);
+    for (const n of p.body_ids) { const pc = pieceByName.get(n); wrap.appendChild(rowEl(currentLayout, n, pc.rgb, [pc.disposition, pc.disposition.replace('-test-article', '')], short(n), true)); }
+    list.appendChild(wrap);
+  }
+  updateCount();
+}
+const fmtHms = (sec) => `${Math.floor(sec / 3600)}h${String(Math.floor(sec % 3600 / 60)).padStart(2, '0')}m`;
+function rowEl(key, name, rgb, [tagCls, tagTxt], label, mono = false) {
+  const r = document.createElement('div'); r.className = 'row'; r.dataset.name = name;
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = (meshes[key].get(name) || [{ visible: true }])[0].visible; cb.id = 'cb_' + key + '_' + name;
+  cb.onclick = (e) => { e.stopPropagation(); setVisible(key, name, cb.checked); updateCount(); };
+  const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = `rgb(${rgb.map(v => Math.round(v * 255)).join(',')})`;
+  const nm = document.createElement('span'); nm.className = 'nm' + (mono ? ' mono' : ''); nm.textContent = label; nm.title = name;
+  const tg = document.createElement('span'); tg.className = 'tag ' + tagCls; tg.textContent = tagTxt;
+  r.append(cb, sw, nm, tg);
+  r.onclick = () => { setVisible(key, name, true); cb.checked = true; highlight(key, name); fitTo(meshes[key].get(name) || [], true, 1.4); showInfo(key, name); updateCount(); };
+  return r;
+}
+function syncChecks() { for (const r of list.querySelectorAll('.row')) { const cb = r.querySelector('input'); cb.checked = (meshes[current].get(r.dataset.name) || [{ visible: true }])[0].visible; } }
+
+function showInfo(key, name) {
+  if (key === 'asm') {
+    const a = asmByName.get(name), b = a.bbox;
+    const pieces = layoutByKey.get(currentLayout).pieces.filter(p => p.source === name);
+    info.innerHTML = `<h3>${name}</h3><dl>
+      <dt>Class</dt><dd>${CLASS_TEXT[a.class] || a.class}</dd>
+      ${a.install_state ? `<dt>Installed at</dt><dd class="mono">${a.install_state}</dd>` : ''}
+      <dt>Extent</dt><dd class="mono">${fmt(b[3]-b[0])} × ${fmt(b[4]-b[1])} × ${fmt(b[5]-b[2])} mm</dd>
+      <dt>Z range</dt><dd class="mono">${fmt(b[2])} → ${fmt(b[5])} mm</dd>
+      ${pieces.length ? `<dt>Print bodies</dt><dd>${pieces.map(p => `<span class="mono">${p.plate_id.replace('plate_','P')}</span> ${short(p.name)} <span class="tag ${p.disposition}">${p.disposition.replace('-test-article','')}</span>`).join('<br>')}<div class="count">plates per ${layoutByKey.get(currentLayout).label}</div></dd>` : '<dt>Print bodies</dt><dd>none · outside the rigid-PLA queue</dd>'}
+    </dl>`;
+  } else {
+    const lay = layoutByKey.get(key), p = pieceMaps.get(key).get(name), f = p.footprint_mm;
+    const plate = lay.plates.find(pl => pl.plate_id === p.plate_id);
+    info.innerHTML = `<h3>${name}</h3><dl>
+      <dt>Layout</dt><dd>${lay.label}</dd>
+      <dt>Plate</dt><dd>${p.plate_id.replace('plate_', 'Plate ')} · <span class="mono">${plate.gcode}</span></dd>
+      <dt>Disposition</dt><dd><span class="tag ${p.disposition}">${p.disposition}</span></dd>
+      <dt>Source part</dt><dd>${p.source.replaceAll('_', ' ')}${p.piece_count > 1 ? ` · piece ${p.piece_index} of ${p.piece_count}` : ''}</dd>
+      <dt>Bed footprint</dt><dd class="mono">${fmt(f[0])} × ${fmt(f[1])} mm · ${fmt(f[2])} mm tall${p.rotation_z_deg ? ' · rotated 90°' : ''}</dd>
+    </dl>`;
+  }
+}
+function showPlateInfo(p) {
+  const lay = layoutByKey.get(currentLayout);
+  info.innerHTML = `<h3>${p.plate_id.replace('plate_', 'Plate ')} · ${lay.label}</h3><dl>
+    <dt>G-code</dt><dd class="mono">${p.gcode}</dd>
+    <dt>Project</dt><dd class="mono">${p.project}</dd>
+    <dt>Bodies</dt><dd>${p.body_ids.length}</dd>
+    ${p.estimated_seconds ? `<dt>Estimate</dt><dd>${fmtHms(p.estimated_seconds)} · ${Math.round(p.filament_g)} g</dd>` : ''}
+    <dt>Support</dt><dd>${p.support ? (p.support_markers ? `present · ${p.support_markers} decoded markers` : 'per-object auto, build plate only') : 'none'}</dd>
+    <dt>Profile</dt><dd>${p.profile.replaceAll('_', ' ')}</dd>
+  </dl>`;
+}
+
+// ---------- tabs ----------
+function renderLayoutTabs() {
+  const box = $('layouts'); box.innerHTML = '';
+  for (const lay of meta.layouts) {
+    const b = document.createElement('button'); b.setAttribute('role', 'tab'); b.dataset.layout = lay.key; b.textContent = lay.label;
+    b.setAttribute('aria-selected', String(lay.key === currentLayout));
+    b.onclick = () => switchLayout(lay.key);
+    box.appendChild(b);
+  }
+}
+function switchLayout(key) {
+  currentLayout = key;
+  for (const b of $('layouts').querySelectorAll('[role=tab]')) b.setAttribute('aria-selected', String(b.dataset.layout === key));
+  try { localStorage.setItem('rc_layout', key); } catch (e) {}
+  if (current !== 'asm') switchTab('plates');
+}
+function switchTab(tab) {
+  if (tab !== 'asm' && !layoutsLoaded) {
+    for (const b of document.querySelectorAll('#tab-asm, #tab-plates')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+    current = currentLayout; $('layouts').hidden = false; list.innerHTML = ''; $('presets').innerHTML = '';
+    $('count').textContent = 'Loading plate layouts…'; info.innerHTML = '<h3>Print plates</h3><div class="count">Plate meshes are still downloading. The view switches over as soon as they are ready.</div>';
+    for (const [k, g] of Object.entries(views)) g.visible = false;
+    return;
+  }
+  const key = tab === 'asm' ? 'asm' : currentLayout;
+  current = key;
+  for (const b of document.querySelectorAll('#tab-asm, #tab-plates')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+  for (const [k, g] of Object.entries(views)) g.visible = k === key;
+  $('layouts').hidden = tab === 'asm';
+  highlight(key, null);
+  const lay = layoutByKey.get(currentLayout);
+  renderProv(tab === 'asm' ? null : lay);
+  if (tab === 'asm') renderAssemblyList(); else renderPlatesList();
+  fitTo(visibleMeshes(key));
+  info.innerHTML = tab === 'asm'
+    ? '<h3>Installed assembly</h3><div class="count">Every part in the installed one-row coupon, printed and COTS. Click a part to see which slicer plate its print bodies land on.</div>'
+    : `<h3>${lay.label}</h3><div class="count">${lay.note} Bodies sit where the project places them on the ${lay.bed[0]} × ${lay.bed[1]} mm bed. Dashed outline: area every nozzle can reach. Red zones: printer exclusion areas. Click a plate header to fit it.</div>`;
+  try { localStorage.setItem('rc_tab', tab); } catch (e) {}
+}
+for (const b of document.querySelectorAll('#tab-asm, #tab-plates')) b.onclick = () => switchTab(b.dataset.tab);
+let startTab = 'asm'; try { startTab = localStorage.getItem('rc_tab') || 'asm'; const l = localStorage.getItem('rc_layout'); if (l && layoutByKey.has(l)) currentLayout = l; } catch (e) {}
+renderLayoutTabs();
+resize(); switchTab(startTab);
+
+// ---------- hover ----------
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let hoverTimer = 0;
+renderer.domElement.addEventListener('pointermove', (e) => {
+  const r = renderer.domElement.getBoundingClientRect();
+  ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  cancelAnimationFrame(hoverTimer);
+  hoverTimer = requestAnimationFrame(() => {
+    ray.setFromCamera(ptr, camera);
+    const hit = ray.intersectObjects(visibleMeshes(current), false)[0];
+    $('tip').hidden = !hit; if (hit) $('tip').textContent = hit.object.userData.name;
+  });
+});
+renderer.domElement.addEventListener('click', () => {
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObjects(visibleMeshes(current), false)[0];
+  if (!hit) return;
+  const name = hit.object.userData.name; highlight(current, name); showInfo(current, name);
+  const row = list.querySelector(`.row[data-name="${CSS.escape(name)}"]`); if (row) row.scrollIntoView({ block: 'nearest' });
+});
+
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>
