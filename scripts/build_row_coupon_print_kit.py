@@ -20,15 +20,24 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
+
 from aevum_cad.params import ROOT, load_params
 from aevum_cad.row_coupon.assembly import (
     build_row_coupon_installed_parts,
     build_row_coupon_validation_parts,
 )
 from aevum_cad.row_coupon.final_print_pieces import realize_row_coupon_final_print_pieces
+from aevum_cad.row_coupon.layout import row_coupon_layout
+from aevum_cad.row_coupon.parts.microplate_detail import (
+    build_microplates_96_detailed,
+    slas_384_footprints,
+    slas_384_well_rings,
+)
 from aevum_cad.row_coupon.print_kit import (
     LAYOUTS,
     GltfWriter,
+    Mesh,
     build_layout,
     classify_parts,
     install_states,
@@ -148,6 +157,70 @@ def main() -> int:
             lens["key"] for lens in lenses if entry["name"] in (*lens["parts"], *lens["envelopes"])
         ]
 
+    # ---- consumable switch: detailed 96-well, and the 384-well standard-only placeholder
+    print("building consumables ...", flush=True)
+    cons = GltfWriter(f"{params['name']}_consumables")
+    plate_opt = options["cots_microplates"]
+    cons.add(
+        "plate_96_detailed",
+        tessellate(build_microplates_96_detailed(params), TOLERANCE_MM, ANGULAR_RAD),
+        (*plate_opt["color"], plate_opt.get("alpha", 1.0)),
+    )
+    box = tessellate(slas_384_footprints(params), TOLERANCE_MM, ANGULAR_RAD)
+    rings = slas_384_well_rings(params).reshape(-1, 3)
+    base = len(box.line_positions)
+    ring_segs = np.arange(len(rings)).reshape(-1, 2) + base
+    placeholder = Mesh(
+        box.positions,
+        box.triangles,
+        np.vstack([box.line_positions, rings]),
+        np.vstack([box.lines, ring_segs]),
+    )
+    cons.add("plate_384_slas", placeholder, (*GHOST_RGB, 0.1))
+    size = _write_json(out / "consumables.gltf.json", cons.to_json())
+    print(f"consumables.gltf.json {size / 1e6:.2f} MB")
+    consumables = [
+        {
+            "key": "96",
+            "label": "96-well",
+            "product": "CellVis P96-1.5H-N",
+            "node": "plate_96_detailed",
+            "replaces": "cots_microplates",
+            "wells_per_plate": 96,
+            "pending": False,
+            "source": params["plate"]["profile_source"],
+            "note": "Wells, coverslip, footprint and height from the published profile. "
+            "Perimeter wall thickness, the web between wells and a coverslip spanning the "
+            "whole interior are modelling choices. Interference checks run against the "
+            "simpler proxy, which this model matches in footprint, height and cell plane.",
+        },
+        {
+            "key": "384",
+            "label": "384-well",
+            "product": None,
+            "node": "plate_384_slas",
+            "replaces": "cots_microplates",
+            "wells_per_plate": 384,
+            "pending": True,
+            "source": "ANSI/SLAS 1-2004 footprint, 2-2004 height, 4-2004 well positions",
+            "note": "Profile pending: no 384-well product is chosen yet, so only the SLAS "
+            "footprint and standard well centres are drawn, as a ghost. The 96-format "
+            "septum mats do not fit a 384 plate and are removed.",
+        },
+        {
+            "key": "none",
+            "label": "None",
+            "product": None,
+            "node": None,
+            "replaces": "cots_microplates",
+            "wells_per_plate": 0,
+            "pending": False,
+            "source": None,
+            "note": "No consumable loaded: the plates and the septum mats that sit on them "
+            "are removed.",
+        },
+    ]
+
     # ---- print bodies (live model), verified against every slicer package
     print("realizing final print pieces ...", flush=True)
     realization = realize_row_coupon_final_print_pieces(params)
@@ -223,6 +296,8 @@ def main() -> int:
             for lens in lenses
         ],
         "envelopes": envelope_meta,
+        "consumables": consumables,
+        "plates_per_row": len(row_coupon_layout(params)["tile_origins"]),
         "assembly": assembly_meta,
         "layouts": layouts,
         "refused_layouts": refused,
