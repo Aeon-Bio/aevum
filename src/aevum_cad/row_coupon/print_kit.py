@@ -11,6 +11,8 @@ derived here, from sources that already carry authority in this repo:
   authority registry, plus an explicit table for the COTS families it does not own
 - assembly step: ``docs/assembly/sequence_and_split_matrix.json``
 - colours: ``PART_OPTIONS`` in ``cad/view_one_row_coupon.py``, parsed rather than copied
+- validation envelopes (drawn as ghosts): ``build_row_coupon_validation_parts``
+- lenses: ``LENSES`` below, checked so that every part and envelope belongs to one
 
 A plate view is only emitted if every body in that slicer package still hashes to the
 STL the current model exports. A stale package is refused, not drawn: the plate view
@@ -93,6 +95,172 @@ LAYOUTS: tuple[dict[str, str], ...] = (
 
 _PIECE_RE = re.compile(r"_piece_(\d+)_of_(\d+)")
 
+# Lenses: each asks one question of the row. A lens puts its members in front and dims the
+# rest; it never hides anything. ``parts`` / ``envelopes`` list installed parts and validation
+# envelopes by name. Two lenses derive their parts from repo authority instead of a list:
+# service takes every family a service path moves (sequence_and_split_matrix.json), and
+# fabrication takes every printed part. lens_membership() fails on orphans and stale names.
+LENSES: tuple[dict[str, Any], ...] = (
+    {
+        "key": "incubation",
+        "label": "Incubation",
+        "question": "Is the headspace sealed, warm and dew-free?",
+        "centre": "headspace_volume_check",
+        "parts": (
+            "wet_chamber_frame",
+            "lower_gasket",
+            "upper_gasket",
+            "cots_microplates",
+            "cots_septum_mats",
+            "lid_manifold_shell",
+            "lid_cover",
+            "headspace_sht41_microcarriers",
+        ),
+        "envelopes": (
+            "headspace_barrier_check",
+            "headspace_volume_check",
+            "thermal_condensation_proxy_check",
+            "consumable_metrology_gauge",
+            "well_cell_plane_check",
+            "pipette_puncture_swept_path_check",
+        ),
+    },
+    {
+        "key": "gas",
+        "label": "Gas",
+        "question": "Where does gas enter, get measured, and leave?",
+        "centre": "gas_pcb_flow_cell_check",
+        "parts": (
+            "cots_gas_service_tubes",
+            "gas_pcb_interface_gaskets",
+            "gas_sensor_pcbs",
+            "printed_gas_pcb_keeper_doors",
+            "lid_manifold_shell",
+            "printed_sample_relief_cap",
+        ),
+        "envelopes": (
+            "gas_pcb_flow_cell_check",
+            "side_gas_tube_envelope_check",
+            "side_gas_leak_witness_check",
+            "sample_relief_leak_witness_check",
+        ),
+    },
+    {
+        "key": "sensing",
+        "label": "Sensing",
+        "question": "What does each sensor see, and how is it wired?",
+        "centre": "ir_thermopiles",
+        "parts": (
+            "ir_thermopiles",
+            "ir_thermopile_face_gaskets",
+            "lower_sensor_harness",
+            "lower_harness_cover",
+            "lower_sensor_service_connector",
+            "printed_lower_sensor_connector_shroud",
+            "lower_sensor_service_cable_pigtail",
+            "headspace_sht41_microcarriers",
+            "lid_sensor_harness",
+            "lid_harness_cover",
+            "lid_sensor_service_connectors",
+            "printed_lid_sensor_connector_shrouds",
+            "lid_sensor_service_cable_pigtails",
+            "gas_sensor_pcbs",
+        ),
+        "envelopes": (
+            "ir_thermopile_fov_spot_check",
+            "sensor_connector_service_clearance_check",
+            "sensor_service_cable_envelope_check",
+            "electrical_connector_mating_state_check",
+            "sensor_installation_path_check",
+        ),
+    },
+    {
+        "key": "optics",
+        "label": "Optics",
+        "question": "Which wells can the observer image, and how does it get there?",
+        "centre": "dry_bay_envelope_check",
+        "parts": ("cots_microplates", "plate_support_frame"),
+        "envelopes": (
+            "dry_bay_envelope_check",
+            "dry_bay_boundary_check",
+            "well_cell_plane_check",
+            "observer_front_end_swept_body_check",
+            "observer_infinity_port_datum_check",
+            "observer_carriage_envelope_check",
+            "observer_service_raceway_envelope_check",
+            "observer_fiducial_focus_target_check",
+            "observer_optical_stability_check",
+            "observer_kinematic_split_check",
+        ),
+    },
+    {
+        "key": "sealing",
+        "label": "Sealing",
+        "question": "Does wet stay wet and dry stay dry?",
+        "centre": "upper_gasket",
+        "parts": (
+            "lower_gasket",
+            "upper_gasket",
+            "wet_chamber_frame",
+            "lid_manifold_shell",
+            "printed_wedge_locks",
+            "ir_thermopile_face_gaskets",
+            "gas_pcb_interface_gaskets",
+            "cots_septum_mats",
+            "printed_sample_relief_cap",
+        ),
+        "envelopes": (
+            "wet_dry_failure_path_check",
+            "gasket_compression_gap_gauge",
+            "latch_retention_span_check",
+            "gasket_tab_leak_witness_check",
+            "side_gas_leak_witness_check",
+            "sample_relief_leak_witness_check",
+            "dry_bay_ingress_audit_check",
+            "pipette_puncture_swept_path_check",
+        ),
+    },
+    {
+        "key": "structure",
+        "label": "Structure",
+        "question": "What carries the load, and does it fit the OT-2 deck?",
+        "centre": "deck_pods",
+        "parts": ("deck_pods", "plate_support_frame", "wet_chamber_frame", "printed_wedge_locks"),
+        "envelopes": (
+            "deck_slot_footprint_check",
+            "deck_frame_keepout_check",
+            "deck_pod_seating_repeatability_check",
+            "adjacent_deck_slot_keepout_check",
+            "row_tiling_service_clearance_check",
+            "pipette_toolhead_swept_body_check",
+            "assembly_state_witness_check",
+        ),
+    },
+    {
+        "key": "service",
+        "label": "Service",
+        "question": "What comes out, in which direction, and in what order?",
+        "centre": None,
+        "parts": "service_paths",
+        "envelopes": (
+            "operating_service_dress_check",
+            "row_tiling_service_clearance_check",
+            "sensor_connector_service_clearance_check",
+            "sensor_installation_path_check",
+            "fail_closed_prerun_inspection_check",
+            "assembly_state_witness_check",
+        ),
+    },
+    {
+        "key": "fabrication",
+        "label": "Fabrication",
+        "question": "What do I print next, and on which plate?",
+        "centre": None,
+        "parts": "printed",
+        "envelopes": ("printability_support_cleanup_check", "material_cleaning_witness_coupon"),
+    },
+)
+
 
 # --------------------------------------------------------------------------- sources
 
@@ -141,6 +309,35 @@ def install_states(sequence: dict[str, Any]) -> dict[str, str]:
     for state in sequence["assembly_states"]:
         for family in state["install_families"]:
             out[family] = state["state_id"]
+    return out
+
+
+def lens_membership(
+    classes: dict[str, str], envelope_names: list[str], sequence: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Resolve LENSES against the live model. Fails if any installed part or validation
+    envelope belongs to no lens, or if a lens names something the model no longer builds."""
+    service_parts = {f for p in sequence["service_paths"] for f in p["affected_installed_families"]}
+    out = []
+    for spec in LENSES:
+        if spec["parts"] == "service_paths":
+            parts = sorted(service_parts)
+        elif spec["parts"] == "printed":
+            parts = sorted(n for n, c in classes.items() if c == "printed")
+        else:
+            parts = list(spec["parts"])
+        envelopes = list(spec["envelopes"])
+        stale = sorted((set(parts) - set(classes)) | (set(envelopes) - set(envelope_names)))
+        if stale:
+            raise ValueError(f"lens {spec['key']!r} names things the model does not build: {stale}")
+        centre = spec["centre"]
+        if centre is not None and centre not in parts and centre not in envelopes:
+            raise ValueError(f"lens {spec['key']!r} centre {centre!r} is not one of its members")
+        out.append({**spec, "parts": parts, "envelopes": envelopes})
+    covered = {n for lens in out for n in (*lens["parts"], *lens["envelopes"])}
+    orphans = sorted((set(classes) | set(envelope_names)) - covered)
+    if orphans:
+        raise ValueError(f"not in any lens (add each to LENSES): {orphans}")
     return out
 
 

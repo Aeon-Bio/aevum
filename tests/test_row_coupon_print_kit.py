@@ -10,15 +10,20 @@ import numpy as np
 import pytest
 
 from aevum_cad.params import ROOT, load_params
-from aevum_cad.row_coupon.assembly import build_row_coupon_installed_parts
+from aevum_cad.row_coupon.assembly import (
+    build_row_coupon_installed_parts,
+    build_row_coupon_validation_parts,
+)
 from aevum_cad.row_coupon.print_kit import (
     COTS_PART_CLASSES,
+    LENSES,
     PART_CLASSES,
     GltfWriter,
     Mesh,
     PlacedBody,
     classify_parts,
     install_states,
+    lens_membership,
     load_part_options,
     plate_origin,
     release_body_to_installed_part,
@@ -56,6 +61,35 @@ def test_classification_fails_closed(installed_names):
         classify_parts([*installed_names, "unregistered_widget"], REGISTRY)
     with pytest.raises(ValueError, match="no longer installs"):
         classify_parts([n for n in installed_names if n != next(iter(COTS_PART_CLASSES))], REGISTRY)
+
+
+@pytest.fixture(scope="module")
+def envelope_names() -> list[str]:
+    return list(
+        build_row_coupon_validation_parts(load_params(ROOT / "cad" / "one_row_coupon.params.json"))
+    )
+
+
+def test_every_part_and_envelope_belongs_to_a_lens(installed_names, envelope_names):
+    classes = classify_parts(installed_names, REGISTRY)
+    lenses = lens_membership(classes, envelope_names, SEQUENCE)
+    assert [lens["key"] for lens in lenses] == [spec["key"] for spec in LENSES]
+    covered = {n for lens in lenses for n in (*lens["parts"], *lens["envelopes"])}
+    assert covered == set(installed_names) | set(envelope_names)
+    by_key = {lens["key"]: lens for lens in lenses}
+    assert set(by_key["fabrication"]["parts"]) == {n for n, c in classes.items() if c == "printed"}
+    moved = {f for p in SEQUENCE["service_paths"] for f in p["affected_installed_families"]}
+    assert set(by_key["service"]["parts"]) == moved
+
+
+def test_lens_membership_fails_on_orphans_and_stale_names(installed_names, envelope_names):
+    classes = classify_parts(installed_names, REGISTRY)
+    with pytest.raises(ValueError, match="not in any lens"):
+        lens_membership({**classes, "new_widget": "seal"}, envelope_names, SEQUENCE)
+    with pytest.raises(ValueError, match="does not build"):
+        lens_membership(
+            classes, [n for n in envelope_names if n != "gas_pcb_flow_cell_check"], SEQUENCE
+        )
 
 
 def test_every_installed_part_has_an_assembly_state(installed_names):

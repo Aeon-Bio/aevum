@@ -32,7 +32,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 .mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;font-variant-numeric:tabular-nums}
-.app{height:100%;display:grid;grid-template-rows:auto 1fr;padding-inline:0}
+.app{height:100%;display:grid;grid-template-rows:auto auto 1fr;grid-template-columns:minmax(0,1fr);padding-inline:0}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
 header h1{font-size:15px;font-weight:600;margin:0;letter-spacing:-.01em}
 header h1 small{font-weight:400;color:var(--ink-3);margin-left:8px}
@@ -89,13 +89,51 @@ canvas{display:block;width:100%;height:100%}
 .loading .bar{width:220px;height:4px;background:var(--panel-2);border-radius:2px;overflow:hidden;margin-top:8px}
 .loading .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
 .side-toggle{display:none}
+.ctlbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+.ctlbar .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-right:6px}
+.lensset{display:flex;flex-wrap:wrap;gap:4px;align-items:center;flex:1 1 100%}
+.lensset button{border:1px solid var(--line);background:transparent;color:var(--ink-2);font:inherit;font-size:12px;padding:3px 10px;border-radius:999px;cursor:pointer}
+.lensset button:hover{border-color:var(--line-2);color:var(--ink)}
+.lensset button[aria-checked="true"]{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.depth{display:flex;align-items:center;gap:10px;flex:1 1 360px;min-width:0}
+.track{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:3px;flex:0 1 300px;min-width:160px;height:22px;align-items:center;cursor:pointer;touch-action:none;border-radius:4px}
+.track i{height:8px;border-radius:2px;background:var(--st);opacity:.28;transition:opacity .15s,height .15s}
+.track i.on{opacity:1}
+.track i.cur{height:16px}
+.track i.entry{--st:var(--ink-3)}.track i.pending{--st:var(--warn)}.track i.blocked{--st:var(--hold)}
+.depth-lbl{font-size:12px;color:var(--ink-2);min-width:0;flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.depth-lbl b{color:var(--ink);font-weight:600}
+.depth-lbl .st{font-size:11px}
+.depth-lbl .st.pending{color:var(--warn)}.depth-lbl .st.blocked{color:var(--hold)}
+.toggle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-2);cursor:pointer}
+.toggle input{margin:0;accent-color:var(--accent)}
+.pill{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent-ink);font:inherit;font-size:11.5px;padding:2px 10px;border-radius:999px;cursor:pointer}
+.grp{display:flex;align-items:baseline;gap:8px;padding:8px 12px 3px;border-top:1px solid var(--line);margin-top:4px;font-size:11px;color:var(--ink-3)}
+.grp:first-child{border-top:0;margin-top:0}
+.grp b{font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+.grp .st{margin-left:auto;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.grp .st.pending{color:var(--warn)}.grp .st.blocked{color:var(--hold)}
+.row.absent .nm,.row.absent .sw{opacity:.4}
+.row.dim .nm{color:var(--ink-3)}
+.row.dim .sw{opacity:.35}
+.row .tag.ghost{background:transparent;border:1px dashed var(--line-2);color:var(--ink-3)}
+.empty{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none}
+.empty>div{pointer-events:auto;max-width:360px;margin:0 16px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:6px;font-size:12.5px;color:var(--ink-2)}
+.empty b{display:block;color:var(--ink);margin-bottom:4px}
+.empty .btn{margin-top:10px}
+.info .q{color:var(--ink-2);margin:0 0 6px}
+.info .path{margin:4px 0 0;padding-left:8px;border-left:2px solid var(--line-2)}
+.info .path .st{font-size:10.5px;color:var(--hold)}
 @media (max-width:760px){
-  main{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  main{grid-template-columns:minmax(0,1fr);grid-template-rows:1fr auto}
+  header h1 small{display:block;margin-left:0}
+  .ctlbar{padding-inline:16px}
+  .depth-lbl{flex-basis:100%;white-space:normal}
   aside{order:2;border-right:0;border-top:1px solid var(--line);max-height:46vh}
   header{padding-inline:16px}
   .prov{margin-left:0;width:100%}
 }
-@media (prefers-reduced-motion:reduce){.loading .bar i{transition:none}}
+@media (prefers-reduced-motion:reduce){.loading .bar i,.track i{transition:none}}
 </style>
 
 <div class="app">
@@ -108,6 +146,16 @@ canvas{display:block;width:100%;height:100%}
     <div class="tabs" id="layouts" role="tablist" aria-label="Slicer layout" hidden></div>
     <div class="prov" id="prov"></div>
   </header>
+  <div class="ctlbar" id="asm-bar">
+    <div class="lensset" id="lenses" role="radiogroup" aria-label="Lens"><span class="lbl">Lens</span></div>
+    <div class="depth">
+      <span class="lbl">Build</span>
+      <div class="track" id="track" role="slider" tabindex="0" aria-label="Build depth"></div>
+      <div class="depth-lbl" id="depth-lbl"></div>
+    </div>
+    <label class="toggle" for="constraints"><input type="checkbox" id="constraints"> Constraints <span class="mono" id="n-constraints"></span></label>
+    <button class="pill" id="overrides" hidden></button>
+  </div>
   <main>
     <aside>
       <div class="side-head">
@@ -127,6 +175,7 @@ canvas{display:block;width:100%;height:100%}
         <div class="tip" id="tip" hidden></div>
         <div class="legend" id="legend" hidden><span class="l-ok">print-now test article</span><span class="l-cf">coupon-first</span><span class="l-hold">hold</span></div>
       </div>
+      <div class="empty" id="empty" hidden><div><b>S00 · unassembled inventory</b>Nothing is installed yet. Drag the build track to assemble the row, or see the printed parts laid out on their plates.<br><button class="btn" id="to-plates">Open print plates</button></div></div>
       <div class="loading" id="loading"><div>Loading meshes<div class="bar"><i id="bar"></i></div></div></div>
     </div>
   </main>
@@ -267,7 +316,29 @@ const asmByName = new Map(meta.assembly.map(a => [a.name, a]));
 const layoutByKey = new Map(meta.layouts.map(l => [l.key, l]));
 const pieceMaps = new Map(meta.layouts.map(l => [l.key, new Map(l.pieces.map(p => [p.name, p]))]));
 await load('asm', 'assembly.gltf.json', asmByName);
+for (const [name, [m]] of meshes.asm) { m.userData.kind = 'part'; m.userData.alpha = asmByName.get(name).alpha ?? 1; m.userData.look = { opacity: m.userData.alpha, lift: 0 }; }
 $('loading').hidden = true;
+
+// Validation envelopes: reserved space, not matter. Always drawn as a faint fill plus edges,
+// never solid, and never pickable in the canvas (they would swallow clicks meant for parts).
+const envelopes = meta.envelopes || [];
+const envByName = new Map(envelopes.map(e => [e.name, e]));
+const ghosts = new Map();
+const ghostGroup = new THREE.Group(); views.asm.add(ghostGroup);
+const GHOST_FILL = 0.10, GHOST_EDGE = 0.4;
+const ghostsReady = envelopes.length ? (async () => {
+  const resp = await fetch('envelopes.gltf.json', { cache: 'no-store' });
+  if (!resp.ok) throw new Error('failed to load envelopes.gltf.json: HTTP ' + resp.status);
+  for (const e of parseGltf(await resp.text())) {
+    const m = envByName.get(e.name); if (!m || !e.tris) continue;
+    const color = new THREE.Color(m.rgb[0], m.rgb[1], m.rgb[2]);
+    const mesh = new THREE.Mesh(e.tris, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+    mesh.name = e.name; mesh.userData = { name: e.name, kind: 'ghost', look: { opacity: 0, lift: 0 } };
+    if (e.lines) { const edges = new THREE.LineSegments(e.lines, new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0 })); edges.raycast = () => {}; mesh.add(edges); }
+    mesh.raycast = () => {}; mesh.visible = false;
+    ghostGroup.add(mesh); ghosts.set(e.name, mesh);
+  }
+})() : Promise.resolve();
 const layoutsReady = Promise.all(meta.layouts.map(l => load(l.key, l.file, pieceMaps.get(l.key)))).then(() => { layoutsLoaded = true; if (current !== 'asm') switchTab('plates'); });
 let layoutsLoaded = false;
 
@@ -343,23 +414,228 @@ function highlight(key, name) {
   for (const r of list.querySelectorAll('.row')) r.classList.toggle('sel', r.dataset.name === name);
 }
 function updateCount() {
+  if (current === 'asm') {
+    const installed = meta.assembly.filter(a => partIdx.get(a.name) <= depth).length;
+    const inFront = lens ? meta.assembly.filter(a => partIdx.get(a.name) <= depth && inLens(a.name)).length : 0;
+    $('count').textContent = `${installed} of ${meta.assembly.length} parts installed at ${states[depth].state_id.split('_')[0]}` + (lens ? ` · ${inFront} in the ${lensByKey.get(lens).label.toLowerCase()} lens` : '');
+    return;
+  }
   const total = meshes[current].size, vis = [...meshes[current].values()].filter(a => a[0].visible).length;
-  $('count').textContent = current === 'asm' ? `${vis} of ${total} installed parts shown` : `${vis} of ${total} print bodies shown`;
+  $('count').textContent = `${vis} of ${total} print bodies shown`;
 }
 
+// ---------- build depth, lenses, constraints ----------
+// Four pieces of state decide the assembly scene, and all four are always on screen:
+// depth (how far the row is assembled), lens (which question is being asked), constraints
+// (all validation envelopes as ghosts), and per-item overrides (hidden by hand, shown as a pill).
+// A lens dims what is outside it; it never hides it, so the row keeps its shape in memory.
+const states = meta.assembly_states;
+const stateIdx = new Map(states.map((s, i) => [s.state_id, i]));
+const partIdx = new Map(meta.assembly.map(a => [a.name, stateIdx.get(a.install_state) ?? 0]));
+const lenses = meta.lenses || [];
+const lensByKey = new Map(lenses.map(l => [l.key, l]));
+const lensSets = new Map(lenses.map(l => [l.key, new Set([...l.parts, ...l.envelopes])]));
+const DIM = 0.15, ARRIVE_MM = 40, TWEEN_MS = 300;
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+let depth = states.length - 1, lens = null, constraintsOn = false;
+const hidden = new Set();
+try {
+  const d = Number(localStorage.getItem('rc_depth')); if (localStorage.getItem('rc_depth') !== null && d >= 0 && d < states.length) depth = d;
+  const l = localStorage.getItem('rc_lens'); if (l && lensByKey.has(l)) lens = l;
+  constraintsOn = localStorage.getItem('rc_constraints') === '1';
+} catch (e) {}
+const save = () => { try { localStorage.setItem('rc_depth', depth); localStorage.setItem('rc_lens', lens || ''); localStorage.setItem('rc_constraints', constraintsOn ? '1' : '0'); } catch (e) {} };
+const statusKind = (s) => s.startsWith('pending') ? 'pending' : s.startsWith('blocked') ? 'blocked' : 'entry';
+const statusText = (s) => s.replace(/^blocked_/, 'blocked: ').replace(/^pending_/, 'pending: ').replaceAll('_', ' ');
+const inLens = (name) => !lens || lensSets.get(lens).has(name);
+
+// Every change is a tween of (opacity, lift); arrivals drop in from +Z, removals lift out.
+const tweens = new Map();
+const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+function paint(mesh, look) {
+  mesh.userData.look = look; mesh.position.z = look.lift;
+  const edges = mesh.children[0];
+  if (mesh.userData.kind === 'ghost') {
+    mesh.material.opacity = GHOST_FILL * look.opacity;
+    if (edges) edges.material.opacity = GHOST_EDGE * look.opacity;
+  } else {
+    const base = mesh.userData.alpha;
+    mesh.material.opacity = look.opacity; mesh.material.transparent = look.opacity < 0.999; mesh.material.depthWrite = look.opacity >= 0.7;
+    if (edges) edges.material.opacity = 0.28 * Math.min(1, look.opacity / base);
+  }
+}
+function tweenTo(mesh, shown, opacity) {
+  const now = mesh.userData.look;
+  if (!shown && !mesh.visible) return;
+  let from = { ...now };
+  if (shown && !mesh.visible) { from = { opacity: 0, lift: ARRIVE_MM }; mesh.visible = true; }
+  const to = shown ? { opacity, lift: 0 } : { opacity: 0, lift: ARRIVE_MM };
+  if (reducedMotion.matches) { paint(mesh, to); mesh.visible = shown; tweens.delete(mesh); return; }
+  if (from.opacity === to.opacity && from.lift === to.lift) { paint(mesh, to); return; }
+  tweens.set(mesh, { from, to, t0: performance.now(), hide: !shown });
+}
+function stepTweens(now) {
+  for (const [mesh, tw] of tweens) {
+    const t = Math.min(1, (now - tw.t0) / TWEEN_MS), k = easeOut(t);
+    paint(mesh, { opacity: tw.from.opacity + (tw.to.opacity - tw.from.opacity) * k, lift: tw.from.lift + (tw.to.lift - tw.from.lift) * k });
+    if (t === 1) { tweens.delete(mesh); if (tw.hide) mesh.visible = false; }
+  }
+}
+
+// Camera glide: move target and distance to frame the objects, keep the viewing direction.
+let glide = null;
+function glideTo(objs, pad = 1.2) {
+  const box = new THREE.Box3(); for (const o of objs) box.expandByObject(o);
+  if (box.isEmpty()) return;
+  const size = box.getSize(new THREE.Vector3()), c = box.getCenter(new THREE.Vector3());
+  const dist = Math.max(size.x, size.y, size.z) * 0.5 * pad / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2));
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  const to = { target: c, pos: c.clone().addScaledVector(dir, dist) };
+  camera.near = dist / 200; camera.far = dist * 20; camera.updateProjectionMatrix();
+  if (reducedMotion.matches) { controls.target.copy(to.target); camera.position.copy(to.pos); return; }
+  glide = { from: { target: controls.target.clone(), pos: camera.position.clone() }, to, t0: performance.now() };
+}
+function stepGlide(now) {
+  if (!glide) return;
+  const t = Math.min(1, (now - glide.t0) / TWEEN_MS), k = easeOut(t);
+  controls.target.lerpVectors(glide.from.target, glide.to.target, k);
+  camera.position.lerpVectors(glide.from.pos, glide.to.pos, k);
+  if (t === 1) glide = null;
+}
+function lensFocus() {
+  const set = lensSets.get(lens);
+  const parts = meta.assembly.filter(a => set.has(a.name) && partIdx.get(a.name) <= depth).flatMap(a => meshes.asm.get(a.name) || []);
+  return parts.length ? parts : [...set].map(n => ghosts.get(n)).filter(Boolean);
+}
+
+function applyScene() {
+  for (const a of meta.assembly) {
+    const m = (meshes.asm.get(a.name) || [])[0]; if (!m) continue;
+    const shown = partIdx.get(a.name) <= depth && !hidden.has(a.name);
+    tweenTo(m, shown, inLens(a.name) ? m.userData.alpha : Math.min(m.userData.alpha, DIM));
+  }
+  for (const e of envelopes) {
+    const m = ghosts.get(e.name); if (!m) continue;
+    const lensed = !!lens && lensSets.get(lens).has(e.name);
+    tweenTo(m, !hidden.has(e.name) && (constraintsOn || lensed), !lens || lensed ? 1 : DIM);
+  }
+  $('empty').hidden = !(current === 'asm' && depth === 0);
+  renderDepth(); renderLensChips();
+  const n = hidden.size; $('overrides').hidden = !n; $('overrides').textContent = `${n} hidden by hand · show`;
+  $('constraints').checked = constraintsOn;
+  if (current === 'asm') { refreshAssemblyRows(); updateCount(); }
+  save();
+}
+function setDepth(i) { i = Math.max(0, Math.min(states.length - 1, i)); if (i === depth) return; depth = i; applyScene(); }
+function setLens(key) {
+  lens = key; applyScene();
+  if (lens) glideTo(lensFocus(), 1.25); else glideTo(visibleMeshes('asm'), 1.15);
+  showLensInfo();
+}
+
+function renderDepth() {
+  const track = $('track');
+  if (track.children.length !== states.length) {
+    track.innerHTML = '';
+    states.forEach((s, i) => { const seg = document.createElement('i'); seg.className = statusKind(s.status); seg.title = `${s.state_id.split('_')[0]} · ${s.label} · ${statusText(s.status)}`; track.appendChild(seg); });
+  }
+  [...track.children].forEach((seg, i) => { seg.classList.toggle('on', i <= depth); seg.classList.toggle('cur', i === depth); });
+  const s = states[depth];
+  track.setAttribute('aria-valuemin', 0); track.setAttribute('aria-valuemax', states.length - 1); track.setAttribute('aria-valuenow', depth);
+  track.setAttribute('aria-valuetext', `${s.state_id.split('_')[0]} ${s.label}, ${statusText(s.status)}`);
+  $('depth-lbl').innerHTML = `<b>${s.state_id.split('_')[0]}</b> ${s.label} · <span class="st ${statusKind(s.status)}">${statusText(s.status)}</span>`;
+  $('depth-lbl').title = `${s.state_id}: ${statusText(s.status)}`;
+}
+{
+  const track = $('track');
+  const at = (e) => { const r = track.getBoundingClientRect(); return Math.floor((e.clientX - r.left) / r.width * states.length); };
+  track.addEventListener('pointerdown', (e) => { track.setPointerCapture(e.pointerId); setDepth(at(e)); });
+  track.addEventListener('pointermove', (e) => { if (track.hasPointerCapture(e.pointerId)) setDepth(at(e)); });
+  track.addEventListener('keydown', (e) => {
+    const k = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1 }[e.key];
+    if (k) { setDepth(depth + k); e.preventDefault(); }
+    if (e.key === 'Home') { setDepth(0); e.preventDefault(); }
+    if (e.key === 'End') { setDepth(states.length - 1); e.preventDefault(); }
+  });
+}
+function renderLensChips() {
+  const box = $('lenses');
+  if (box.querySelectorAll('button').length !== lenses.length + 1) {
+    for (const b of box.querySelectorAll('button')) b.remove();
+    for (const l of [{ key: null, label: 'All', question: 'Everything at full strength' }, ...lenses]) {
+      const b = document.createElement('button'); b.setAttribute('role', 'radio'); b.dataset.lens = l.key || ''; b.textContent = l.label; b.title = l.question;
+      b.onclick = () => setLens(l.key); box.appendChild(b);
+    }
+  }
+  for (const b of box.querySelectorAll('button')) b.setAttribute('aria-checked', String((b.dataset.lens || null) === lens));
+}
+$('constraints').onchange = (e) => { constraintsOn = e.target.checked; applyScene(); };
+$('n-constraints').textContent = envelopes.length ? `(${envelopes.length})` : '';
+$('overrides').onclick = () => { hidden.clear(); applyScene(); };
+$('to-plates').onclick = () => switchTab('plates');
+
+const pretty = (s) => s.replaceAll('_', ' ');
+function showLensInfo() {
+  if (!lens) { info.innerHTML = '<h3>All parts</h3><div class="count">No lens: every installed part at full strength. Pick a lens to put one question in front; the rest dims but stays in place.</div>'; return; }
+  const l = lensByKey.get(lens);
+  const later = l.parts.filter(n => partIdx.get(n) > depth).length;
+  const paths = lens === 'service' ? meta.service_paths : [];
+  info.innerHTML = `<h3>${l.label} lens</h3><p class="q">${l.question}</p>
+    <div class="count">${l.parts.length} parts and ${l.envelopes.length} constraints in front; everything else is dimmed, not hidden.${later ? ` ${later} of these parts arrive after ${states[depth].state_id.split('_')[0]}.` : ''}</div>
+    ${paths.map(p => `<div class="path"><b>${pretty(p.path_id)}</b> · ${p.motion}<br><span class="st">${pretty(p.status)}</span></div>`).join('')}`;
+}
+
+function asmRowEl(name, rgb, [tagCls, tagTxt], label, kind) {
+  const r = document.createElement('div'); r.className = 'row'; r.dataset.name = name; r.dataset.kind = kind;
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'cb_' + kind + '_' + name; cb.checked = !hidden.has(name);
+  cb.onclick = (e) => { e.stopPropagation(); if (cb.checked) hidden.delete(name); else hidden.add(name); applyScene(); };
+  const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = `rgb(${rgb.map(v => Math.round(v * 255)).join(',')})`;
+  const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = label; nm.title = name;
+  const tg = document.createElement('span'); tg.className = 'tag ' + tagCls; tg.textContent = tagTxt;
+  r.append(cb, sw, nm, tg);
+  r.onclick = () => {
+    hidden.delete(name);
+    if (kind === 'part') { if (partIdx.get(name) > depth) depth = partIdx.get(name); }
+    else if (!constraintsOn && !(lens && lensSets.get(lens).has(name))) constraintsOn = true;
+    applyScene();
+    highlight('asm', kind === 'part' ? name : null); selectGhost(kind === 'ghost' ? name : null);
+    const obj = kind === 'part' ? meshes.asm.get(name) : [ghosts.get(name)];
+    glideTo((obj || []).filter(Boolean), 1.4); showInfo(kind === 'part' ? 'asm' : 'env', name);
+  };
+  return r;
+}
+let selectedGhost = null;
+function selectGhost(name) {
+  for (const [n, m] of ghosts) { const edges = m.children[0]; if (edges) edges.material.color.set(n === name ? css('--sel') : new THREE.Color(...envByName.get(n).rgb)); }
+  selectedGhost = name;
+  for (const r of list.querySelectorAll('.row[data-kind="ghost"]')) r.classList.toggle('sel', r.dataset.name === name);
+}
 function renderAssemblyList() {
   list.innerHTML = '';
   $('legend').hidden = true;
   $('presets').innerHTML = '';
-  const presets = [
-    ['Show all', () => meta.assembly.forEach(a => setVisible('asm', a.name, true))],
-    ['Printed only', () => meta.assembly.forEach(a => setVisible('asm', a.name, a.printed))],
-    ['Remove lid stack', () => meta.assembly.forEach(a => setVisible('asm', a.name, !/^lid_|^printed_lid|^upper_gasket|^headspace|^cots_septum|^cots_gas/.test(a.name)))],
-    ['Deck + pods', () => meta.assembly.forEach(a => setVisible('asm', a.name, /^deck_pods|^plate_support_frame|^ir_therm/.test(a.name)))],
-  ];
-  for (const [label, fn] of presets) { const b = document.createElement('button'); b.textContent = label; b.onclick = () => { fn(); syncChecks(); updateCount(); }; $('presets').appendChild(b); }
-  for (const a of meta.assembly) list.appendChild(rowEl('asm', a.name, a.rgb, [a.class, a.class], a.name.replaceAll('_', ' ')));
-  updateCount();
+  states.forEach((s, i) => {
+    const parts = meta.assembly.filter(a => partIdx.get(a.name) === i);
+    if (!parts.length) return;
+    const g = document.createElement('div'); g.className = 'grp';
+    g.innerHTML = `<b>${s.state_id.split('_')[0]}</b> ${s.label}<span class="st ${statusKind(s.status)}">${statusKind(s.status) === 'entry' ? '' : statusKind(s.status)}</span>`;
+    g.title = statusText(s.status); list.appendChild(g);
+    for (const a of parts) list.appendChild(asmRowEl(a.name, a.rgb, [a.class, a.class], pretty(a.name), 'part'));
+  });
+  if (envelopes.length) {
+    const g = document.createElement('div'); g.className = 'grp';
+    g.innerHTML = `<b>Constraints</b> validation envelopes · reserved space, not parts`; list.appendChild(g);
+    for (const e of envelopes) list.appendChild(asmRowEl(e.name, e.rgb, ['ghost', 'envelope'], pretty(e.name).replace(/ check$/, ''), 'ghost'));
+  }
+  refreshAssemblyRows(); updateCount();
+}
+function refreshAssemblyRows() {
+  for (const r of list.querySelectorAll('.row')) {
+    const n = r.dataset.name, part = r.dataset.kind === 'part';
+    r.classList.toggle('absent', part ? partIdx.get(n) > depth : !(constraintsOn || (lens && lensSets.get(lens).has(n))));
+    r.classList.toggle('dim', !inLens(n));
+    r.querySelector('input').checked = !hidden.has(n);
+  }
 }
 function renderPlatesList() {
   const lay = layoutByKey.get(currentLayout), pieceByName = pieceMaps.get(currentLayout);
@@ -410,10 +686,20 @@ function showInfo(key, name) {
     const pieces = layoutByKey.get(currentLayout).pieces.filter(p => p.source === name);
     info.innerHTML = `<h3>${name}</h3><dl>
       <dt>Class</dt><dd>${CLASS_TEXT[a.class] || a.class}</dd>
-      ${a.install_state ? `<dt>Installed at</dt><dd class="mono">${a.install_state}</dd>` : ''}
+      ${a.install_state ? `<dt>Installed at</dt><dd><span class="mono">${a.install_state.split('_')[0]}</span> ${states[partIdx.get(name)].label} · <span class="st">${statusText(states[partIdx.get(name)].status)}</span></dd>` : ''}
+      ${a.lenses ? `<dt>Lenses</dt><dd>${a.lenses.map(k => lensByKey.get(k).label).join(' · ')}</dd>` : ''}
+      ${servicePaths(name)}
       <dt>Extent</dt><dd class="mono">${fmt(b[3]-b[0])} × ${fmt(b[4]-b[1])} × ${fmt(b[5]-b[2])} mm</dd>
       <dt>Z range</dt><dd class="mono">${fmt(b[2])} → ${fmt(b[5])} mm</dd>
       ${pieces.length ? `<dt>Print bodies</dt><dd>${pieces.map(p => `<span class="mono">${p.plate_id.replace('plate_','P')}</span> ${short(p.name)} <span class="tag ${p.disposition}">${p.disposition.replace('-test-article','')}</span>`).join('<br>')}<div class="count">plates per ${layoutByKey.get(currentLayout).label}</div></dd>` : '<dt>Print bodies</dt><dd>none · outside the rigid-PLA queue</dd>'}
+    </dl>`;
+  } else if (key === 'env') {
+    const e = envByName.get(name), b = e.bbox;
+    info.innerHTML = `<h3>${name}</h3><dl>
+      <dt>Kind</dt><dd>validation envelope · reserved space, not a part</dd>
+      <dt>Lenses</dt><dd>${(e.lenses || []).map(k => lensByKey.get(k).label).join(' · ')}</dd>
+      <dt>Extent</dt><dd class="mono">${fmt(b[3]-b[0])} × ${fmt(b[4]-b[1])} × ${fmt(b[5]-b[2])} mm</dd>
+      <dt>Z range</dt><dd class="mono">${fmt(b[2])} → ${fmt(b[5])} mm</dd>
     </dl>`;
   } else {
     const lay = layoutByKey.get(key), p = pieceMaps.get(key).get(name), f = p.footprint_mm;
@@ -426,6 +712,10 @@ function showInfo(key, name) {
       <dt>Bed footprint</dt><dd class="mono">${fmt(f[0])} × ${fmt(f[1])} mm · ${fmt(f[2])} mm tall${p.rotation_z_deg ? ' · rotated 90°' : ''}</dd>
     </dl>`;
   }
+}
+function servicePaths(name) {
+  const paths = (meta.service_paths || []).filter(p => p.families.includes(name));
+  return paths.length ? `<dt>Service</dt><dd>${paths.map(p => `<div class="path"><b>${pretty(p.path_id)}</b> · ${p.motion}<br><span class="st">${pretty(p.status)}</span></div>`).join('')}</dd>` : '';
 }
 function showPlateInfo(p) {
   const lay = layoutByKey.get(currentLayout);
@@ -468,40 +758,46 @@ function switchTab(tab) {
   for (const b of document.querySelectorAll('#tab-asm, #tab-plates')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
   for (const [k, g] of Object.entries(views)) g.visible = k === key;
   $('layouts').hidden = tab === 'asm';
-  highlight(key, null);
+  $('asm-bar').hidden = tab !== 'asm';
+  $('empty').hidden = !(tab === 'asm' && depth === 0);
+  highlight(key, null); if (tab === 'asm') selectGhost(null);
   const lay = layoutByKey.get(currentLayout);
   renderProv(tab === 'asm' ? null : lay);
   if (tab === 'asm') renderAssemblyList(); else renderPlatesList();
   fitTo(visibleMeshes(key));
-  info.innerHTML = tab === 'asm'
-    ? '<h3>Installed assembly</h3><div class="count">Every part in the installed one-row coupon, printed and COTS. Click a part to see which slicer plate its print bodies land on.</div>'
-    : `<h3>${lay.label}</h3><div class="count">${lay.note} Bodies sit where the project places them on the ${lay.bed[0]} × ${lay.bed[1]} mm bed. Dashed outline: area every nozzle can reach. Red zones: printer exclusion areas. Click a plate header to fit it.</div>`;
+  if (tab === 'asm') { if (lens) showLensInfo(); else info.innerHTML = '<h3>Installed assembly</h3><div class="count">Drag the build track to assemble or strip the row along the repo\'s assembly sequence; its colours are each step\'s evidence status. Pick a lens to put one question in front. Click a part to see its step, lenses, service path and print plates.</div>'; }
+  else info.innerHTML = `<h3>${lay.label}</h3><div class="count">${lay.note} Bodies sit where the project places them on the ${lay.bed[0]} × ${lay.bed[1]} mm bed. Dashed outline: area every nozzle can reach. Red zones: printer exclusion areas. Click a plate header to fit it.</div>`;
   try { localStorage.setItem('rc_tab', tab); } catch (e) {}
 }
 for (const b of document.querySelectorAll('#tab-asm, #tab-plates')) b.onclick = () => switchTab(b.dataset.tab);
 let startTab = 'asm'; try { startTab = localStorage.getItem('rc_tab') || 'asm'; const l = localStorage.getItem('rc_layout'); if (l && layoutByKey.has(l)) currentLayout = l; } catch (e) {}
+for (const a of meta.assembly) for (const m of meshes.asm.get(a.name) || []) m.visible = partIdx.get(a.name) <= depth;
 renderLayoutTabs();
 resize(); switchTab(startTab);
 
 // ---------- hover ----------
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let hoverTimer = 0;
+const pickable = () => visibleMeshes(current).filter(m => current !== 'asm' || (!hidden.has(m.userData.name) && inLens(m.userData.name) && !(tweens.get(m) || {}).hide));
 renderer.domElement.addEventListener('pointermove', (e) => {
   const r = renderer.domElement.getBoundingClientRect();
   ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
   cancelAnimationFrame(hoverTimer);
   hoverTimer = requestAnimationFrame(() => {
     ray.setFromCamera(ptr, camera);
-    const hit = ray.intersectObjects(visibleMeshes(current), false)[0];
+    const hit = ray.intersectObjects(pickable(), false)[0];
     $('tip').hidden = !hit; if (hit) $('tip').textContent = hit.object.userData.name;
   });
 });
 renderer.domElement.addEventListener('click', () => {
   ray.setFromCamera(ptr, camera);
-  const hit = ray.intersectObjects(visibleMeshes(current), false)[0];
+  const hit = ray.intersectObjects(pickable(), false)[0];
   if (!hit) return;
-  const name = hit.object.userData.name; highlight(current, name); showInfo(current, name);
+  const name = hit.object.userData.name; highlight(current, name); if (current === 'asm') selectGhost(null); showInfo(current, name);
   const row = list.querySelector(`.row[data-name="${CSS.escape(name)}"]`); if (row) row.scrollIntoView({ block: 'nearest' });
 });
 
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+applyScene();
+ghostsReady.then(applyScene);
+reducedMotion.addEventListener('change', applyScene);
+renderer.setAnimationLoop((now) => { stepTweens(now); stepGlide(now); controls.update(); renderer.render(scene, camera); });
 </script>
